@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, Loader2, RefreshCw, Video, ShieldCheck, Zap, MessageCircle } from 'lucide-react';
 import { Message } from '../../types';
-import { sendMessageToGemini, resetSession } from '../../services/geminiService';
-import { GenerateContentResponse } from '@google/genai';
+import { apiService, ChatResponse } from '../../services/apiService';
 
 interface ChatWindowProps {
   onStartLive: () => void;
@@ -21,7 +20,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
     {
       id: 'welcome',
       role: 'model',
-      text: "System Ready. I am the DermaFocus Clinical Reference Agent.\n\nI provide **Verbatim Retrieval** from official documentation. Every clinical fact is cited with a document and page reference for regulatory defensibility. \n\nHow can I assist your clinical practice today?",
+      text: "System Ready. I am the DermaFocus Clinical Reference Agent.\n\nConnected to DermaAI CKPA Backend API. Every clinical fact will be cited with document and page references for regulatory defensibility. \n\nHow can I assist your clinical practice today?",
       timestamp: new Date()
     }
   ]);
@@ -53,45 +52,37 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
     setIsLoading(true);
 
     try {
-      const responseStream = await sendMessageToGemini(userMsg.text);
+      // Call backend API
+      const response: ChatResponse = await apiService.sendMessage(query);
       
-      const botMsgId = (Date.now() + 1).toString();
       const botMsg: Message = {
-        id: botMsgId,
+        id: (Date.now() + 1).toString(),
         role: 'model',
-        text: '',
+        text: response.answer,
         timestamp: new Date(),
-        isStreaming: true
+        isStreaming: false
       };
+
+      // Add follow-ups to the message text if present
+      if (response.follow_ups && response.follow_ups.length > 0) {
+        botMsg.text += `\n\n<follow_ups>${JSON.stringify(response.follow_ups)}</follow_ups>`;
+      }
 
       setMessages(prev => [...prev, botMsg]);
 
-      let fullText = '';
-      
-      for await (const chunk of responseStream) {
-        const c = chunk as GenerateContentResponse;
-        if (c.text) {
-          fullText += c.text;
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === botMsgId ? { ...msg, text: fullText } : msg
-            )
-          );
-        }
+      // Log sources if present (for debugging)
+      if (response.sources && response.sources.length > 0) {
+        console.log('Sources:', response.sources);
       }
-      
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === botMsgId ? { ...msg, isStreaming: false } : msg
-        )
-      );
 
     } catch (error) {
-      console.error(error);
+      console.error('API Error:', error);
       const errorMsg: Message = {
         id: Date.now().toString(),
         role: 'model',
-        text: "System fault: Unable to retrieve clinical evidence. Verify API key and network connectivity.",
+        text: error instanceof Error 
+          ? `System Error: ${error.message}\n\nPlease ensure the backend server is running at http://localhost:8000`
+          : "System fault: Unable to retrieve clinical evidence. Please check your connection and try again.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -101,12 +92,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
   };
 
   const handleReset = () => {
-    resetSession();
+    // Clear messages and reset conversation
     setMessages([
         {
           id: Date.now().toString(),
           role: 'model',
-          text: "Protocol cache cleared. Clinical context reset. Waiting for validated query.",
+          text: "Session cleared. Clinical context reset. Ready for new query.",
           timestamp: new Date()
         }
     ]);
@@ -259,7 +250,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
             </div>
             <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none border border-teal-100 flex items-center gap-2">
               <Loader2 size={16} className="animate-spin text-teal-600" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Retrieving Indexed Data...</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Querying Backend API...</span>
             </div>
           </div>
         )}
