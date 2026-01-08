@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     
     # Claude Configuration
     claude_model: str = Field(
-        default="claude-3-5-sonnet-20241022",
+        default="claude-3-haiku-20240307",
         alias="CLAUDE_MODEL"
     )
     claude_max_tokens: int = Field(default=2000, alias="CLAUDE_MAX_TOKENS")

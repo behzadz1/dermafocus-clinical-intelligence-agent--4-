@@ -119,7 +119,7 @@ async def semantic_search(
             top_k=top_k,
             namespace=namespace,
             doc_type=doc_type,
-            min_score=0.6  # Lower threshold for search endpoint
+            min_score=0.4  # Lower threshold for search endpoint
         )
         
         # Format results

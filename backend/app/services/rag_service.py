@@ -32,7 +32,7 @@ class RAGService:
         top_k: int = 5,
         namespace: str = "default",
         doc_type: Optional[str] = None,
-        min_score: float = 0.7
+        min_score: float = 0.35
     ) -> List[Dict[str, Any]]:
         """
         Semantic search for relevant context

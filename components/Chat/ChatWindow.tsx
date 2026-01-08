@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Loader2, RefreshCw, Video, ShieldCheck, Zap, MessageCircle } from 'lucide-react';
-import { Message } from '../../types';
+import { Send, User, Bot, Loader2, RefreshCw, Video, ShieldCheck, Zap, MessageCircle, FileText, ExternalLink } from 'lucide-react';
+import { Message, Source } from '../../types';
 import { apiService, ChatResponse } from '../../services/apiService';
 
 interface ChatWindowProps {
@@ -60,7 +60,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
         role: 'model',
         text: response.answer,
         timestamp: new Date(),
-        isStreaming: false
+        isStreaming: false,
+        sources: response.sources || [],
+        confidence: response.confidence
       };
 
       // Add follow-ups to the message text if present
@@ -69,11 +71,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
       }
 
       setMessages(prev => [...prev, botMsg]);
-
-      // Log sources if present (for debugging)
-      if (response.sources && response.sources.length > 0) {
-        console.log('Sources:', response.sources);
-      }
 
     } catch (error) {
       console.error('API Error:', error);
@@ -220,6 +217,57 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onStartLive }) => {
                 <div className="text-slate-700 whitespace-pre-wrap">
                   {formatMessageText(msg.text)}
                 </div>
+
+                {/* Display Sources */}
+                {msg.role === 'model' && msg.sources && msg.sources.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-slate-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText size={12} className="text-teal-600" />
+                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                        Sources ({msg.sources.length})
+                      </span>
+                      {msg.confidence && (
+                        <span className="text-[9px] text-slate-400 ml-auto">
+                          Confidence: {(msg.confidence * 100).toFixed(0)}%
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      {msg.sources.map((source, idx) => (
+                        <div 
+                          key={idx}
+                          className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px]"
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 text-teal-700 font-semibold">
+                              <ShieldCheck size={11} className="shrink-0" />
+                              <span className="truncate">{source.document}</span>
+                            </div>
+                            <span className="text-teal-600 font-mono shrink-0">
+                              p. {source.page}
+                            </span>
+                          </div>
+                          {source.section && (
+                            <div className="text-slate-500 text-[10px] mb-1">
+                              Section: {source.section}
+                            </div>
+                          )}
+                          {source.text_snippet && (
+                            <div className="text-slate-600 text-[10px] leading-relaxed mt-1.5 pt-1.5 border-t border-slate-200">
+                              "{source.text_snippet}"
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-slate-200">
+                            <span className="text-slate-400 text-[9px]">
+                              Relevance: {(source.relevance_score * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-2 text-[10px] text-slate-400 text-right font-mono">
                   {formatTime(msg.timestamp)}
                 </div>

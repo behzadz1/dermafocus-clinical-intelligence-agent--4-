@@ -7,12 +7,22 @@ export enum ViewState {
   DOCS = 'DOCS'
 }
 
+export interface Source {
+  document: string;
+  page: number;
+  section?: string;
+  relevance_score: number;
+  text_snippet?: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'model';
   text: string;
   timestamp: Date;
   isStreaming?: boolean;
+  sources?: Source[];
+  confidence?: number;
 }
 
 export interface ProtocolStep {

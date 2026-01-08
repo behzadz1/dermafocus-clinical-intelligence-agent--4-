@@ -94,57 +94,125 @@ async def chat(request: ChatRequest):
     Main chat endpoint with RAG
     
     Process:
-    1. Classify intent
-    2. Retrieve relevant documents from Pinecone
-    3. Generate response with Claude
-    4. Attach citations
-    5. Generate follow-up questions
+    1. Retrieve relevant documents from Pinecone
+    2. Generate context-aware response with Claude
+    3. Attach source citations
+    4. Generate follow-up questions
     
-    NOTE: This is a placeholder. Full RAG implementation in Phase 4.
+    Phase 4: Now fully functional with RAG!
     """
     logger.info(
         "chat_request",
-        question=request.question[:100],  # Log first 100 chars
+        question=request.question[:100],
         conversation_id=request.conversation_id,
         has_history=len(request.history) > 0
     )
     
-    # TODO: Phase 4 - Implement RAG pipeline
-    # from app.services.rag_service import RAGService
-    # rag_service = RAGService()
-    # result = await rag_service.query(
-    #     question=request.question,
-    #     conversation_id=request.conversation_id,
-    #     history=request.history
-    # )
-    # return result
+    try:
+        from app.services.rag_service import get_rag_service
+        from app.services.claude_service import get_claude_service
+        
+        rag_service = get_rag_service()
+        claude_service = get_claude_service()
+        
+        # Step 1: Retrieve relevant context from RAG
+        logger.info("Retrieving context from RAG")
+        context_data = rag_service.get_context_for_query(
+            query=request.question,
+            max_chunks=5
+        )
+        
+        context_text = context_data["context_text"]
+        retrieved_chunks = context_data["chunks"]
+        
+        logger.info(
+            "Context retrieved",
+            chunks_found=len(retrieved_chunks),
+            context_length=len(context_text)
+        )
+        
+        # Step 2: Build conversation history for Claude
+        conversation_history = []
+        if request.history:
+            for msg in request.history[-5:]:  # Last 5 messages for context
+                conversation_history.append({
+                    "role": msg.role,
+                    "content": msg.content
+                })
+        
+        # Step 3: Generate response with Claude
+        logger.info("Generating Claude response")
+        claude_response = claude_service.generate_response(
+            user_message=request.question,
+            context=context_text,
+            conversation_history=conversation_history
+        )
+        
+        answer = claude_response["answer"]
+        
+        # Step 4: Extract and format sources
+        sources = []
+        for chunk in retrieved_chunks:
+            sources.append(Source(
+                document=chunk["metadata"].get("doc_id", "unknown"),
+                page=chunk["metadata"].get("page_number", 0),
+                section=chunk["metadata"].get("section"),
+                relevance_score=chunk["score"],
+                text_snippet=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"]
+            ))
+        
+        # Step 5: Generate follow-up questions
+        follow_ups = claude_service.generate_follow_ups(
+            question=request.question,
+            answer=answer,
+            context=context_text
+        )
+        
+        # Step 6: Calculate confidence based on retrieval scores
+        confidence = 0.0
+        if retrieved_chunks:
+            avg_score = sum(c["score"] for c in retrieved_chunks) / len(retrieved_chunks)
+            confidence = min(avg_score, 0.95)  # Cap at 0.95
+        
+        # Generate conversation ID if not provided
+        conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+        
+        response = ChatResponse(
+            answer=answer,
+            sources=sources,
+            intent="answered",
+            confidence=confidence,
+            conversation_id=conversation_id,
+            follow_ups=follow_ups
+        )
+        
+        logger.info(
+            "chat_response_generated",
+            conversation_id=conversation_id,
+            answer_length=len(answer),
+            sources_count=len(sources),
+            confidence=confidence,
+            tokens_used=claude_response["usage"]["input_tokens"] + claude_response["usage"]["output_tokens"]
+        )
+        
+        return response
     
-    # TEMPORARY PLACEHOLDER RESPONSE
-    # This allows the API to work while we build RAG
-    placeholder_response = ChatResponse(
-        answer=(
-            "**System Status:** RAG pipeline is currently under development.\n\n"
-            f"Your question: \"{request.question}\"\n\n"
-            "This endpoint will provide AI-powered responses with citations once:\n"
-            "- Phase 2: Document processing is complete\n"
-            "- Phase 3: Pinecone vector database is configured\n"
-            "- Phase 4: RAG service is implemented\n\n"
-            "Expected completion: 2-3 weeks"
-        ),
-        sources=[],
-        intent="not_implemented",
-        confidence=0.0,
-        conversation_id=request.conversation_id or f"temp_{datetime.utcnow().timestamp()}",
-        follow_ups=[]
-    )
-    
-    logger.info(
-        "chat_response_sent",
-        conversation_id=placeholder_response.conversation_id,
-        answer_length=len(placeholder_response.answer)
-    )
-    
-    return placeholder_response
+    except Exception as e:
+        logger.error(
+            "chat_request_failed",
+            error=str(e),
+            question=request.question[:100]
+        )
+        
+        # Return fallback response on error
+        return ChatResponse(
+            answer=f"I apologize, but I encountered an error processing your question. Please try again. Error: {str(e)[:100]}",
+            sources=[],
+            intent="error",
+            confidence=0.0,
+            conversation_id=request.conversation_id or f"error_{int(datetime.utcnow().timestamp())}",
+            follow_ups=[]
+        )
 
 
 @router.post("/stream", status_code=status.HTTP_200_OK)
@@ -154,22 +222,75 @@ async def chat_stream(request: ChatRequest):
     
     Returns: Server-Sent Events (SSE) stream
     
-    NOTE: This is a placeholder. Implementation in Phase 5.
+    Phase 4: Now functional with streaming Claude responses!
     """
-    # TODO: Implement streaming response with Claude
-    # from fastapi.responses import StreamingResponse
-    # from app.services.llm_service import LLMService
-    # 
-    # async def generate():
-    #     async for chunk in llm_service.stream_response(...):
-    #         yield f"data: {chunk}\n\n"
-    # 
-    # return StreamingResponse(generate(), media_type="text/event-stream")
+    from fastapi.responses import StreamingResponse
+    import json
     
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Streaming endpoint is not yet implemented. Use /api/chat for now."
+    logger.info(
+        "chat_stream_request",
+        question=request.question[:100],
+        conversation_id=request.conversation_id
     )
+    
+    async def generate():
+        """Generate streaming response"""
+        try:
+            from app.services.rag_service import get_rag_service
+            from app.services.claude_service import get_claude_service
+            
+            rag_service = get_rag_service()
+            claude_service = get_claude_service()
+            
+            # Retrieve context
+            context_data = rag_service.get_context_for_query(
+                query=request.question,
+                max_chunks=5
+            )
+            
+            context_text = context_data["context_text"]
+            retrieved_chunks = context_data["chunks"]
+            
+            # Build conversation history
+            conversation_history = []
+            if request.history:
+                for msg in request.history[-5:]:
+                    conversation_history.append({
+                        "role": msg.role,
+                        "content": msg.content
+                    })
+            
+            # Stream response from Claude
+            for chunk in claude_service.generate_response_stream(
+                user_message=request.question,
+                context=context_text,
+                conversation_history=conversation_history
+            ):
+                data = {"type": "content", "content": chunk}
+                yield f"data: {json.dumps(data)}\n\n"
+            
+            # Send sources at the end
+            sources = []
+            for chunk in retrieved_chunks:
+                sources.append({
+                    "document": chunk["metadata"].get("doc_id", "unknown"),
+                    "page": chunk["metadata"].get("page_number", 0),
+                    "relevance_score": chunk["score"]
+                })
+            
+            data = {"type": "sources", "sources": sources}
+            yield f"data: {json.dumps(data)}\n\n"
+            
+            # Send completion
+            data = {"type": "done"}
+            yield f"data: {json.dumps(data)}\n\n"
+            
+        except Exception as e:
+            logger.error("Streaming failed", error=str(e))
+            error_data = {"type": "error", "error": str(e)}
+            yield f"data: {json.dumps(error_data)}\n\n"
+    
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 
 @router.get("/{conversation_id}/history", status_code=status.HTTP_200_OK)

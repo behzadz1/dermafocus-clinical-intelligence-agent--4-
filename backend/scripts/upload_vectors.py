@@ -78,7 +78,7 @@ class VectorUploader:
         vectors = []
         for chunk, embedding in zip(chunks, embeddings):
             vector = {
-                "id": chunk["chunk_id"],
+                "id": chunk["chunk_id"].encode('ascii', 'ignore').decode('ascii').replace(" ", "_"),
                 "values": embedding,
                 "metadata": {
                     **chunk["metadata"],
