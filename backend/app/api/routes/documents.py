@@ -86,15 +86,13 @@ async def upload_document(
     Process:
     1. Validate file type and size
     2. Save to upload directory
-    3. Queue for processing (async)
-    4. Extract text/transcribe
-    5. Chunk content
-    6. Generate embeddings
-    7. Upload to Pinecone
+    3. Process document (extract text, chunk)
+    4. Save processed data
     
     Supported formats: PDF, DOCX, TXT, MP4, MOV
     
-    NOTE: This is a placeholder. Full implementation in Phase 2.
+    Phase 2: Now includes real PDF processing!
+    Phase 3: Will add Pinecone upload
     """
     logger.info(
         "document_upload_started",
@@ -126,42 +124,101 @@ async def upload_document(
             detail=f"Invalid doc_type. Must be one of: {valid_doc_types}"
         )
     
-    # TODO: Phase 2 - Implement document processing
-    # from app.utils.document_processor import DocumentProcessor
-    # from app.services.embedding_service import EmbeddingService
-    # 
-    # processor = DocumentProcessor()
-    # embedding_service = EmbeddingService()
-    # 
-    # # Save file
-    # file_path = await save_upload_file(file)
-    # 
-    # # Process document (async task)
-    # doc_id = f"doc_{doc_type}_{timestamp}"
-    # await process_document_task(file_path, doc_id, doc_type, namespace)
-    # 
-    # return DocumentUploadResponse(
-    #     doc_id=doc_id,
-    #     filename=file.filename,
-    #     status="processing",
-    #     message="Document queued for processing"
-    # )
-    
-    # PLACEHOLDER RESPONSE
+    # Generate doc_id
     doc_id = f"doc_{doc_type}_{int(datetime.utcnow().timestamp())}"
     
-    logger.info(
-        "document_upload_accepted",
-        doc_id=doc_id,
-        filename=file.filename
-    )
+    # Ensure upload directory exists
+    import os
+    os.makedirs(settings.upload_dir, exist_ok=True)
     
-    return DocumentUploadResponse(
-        doc_id=doc_id,
-        filename=file.filename,
-        status="pending",
-        message="Document upload accepted. Processing pipeline not yet implemented."
-    )
+    # Save uploaded file
+    file_path = os.path.join(settings.upload_dir, f"{doc_id}{file_ext}")
+    
+    try:
+        import shutil
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        logger.info(
+            "file_saved",
+            doc_id=doc_id,
+            file_path=file_path
+        )
+        
+        # Process the document
+        from app.utils.document_processor import DocumentProcessor
+        from app.utils.video_processor import VideoProcessor, is_video_processing_available
+        
+        if file_ext == '.pdf':
+            processor = DocumentProcessor()
+            result = processor.process_pdf(file_path, doc_id=doc_id, doc_type=doc_type)
+            
+            # Save processed data
+            os.makedirs(settings.processed_dir, exist_ok=True)
+            import json
+            processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
+            with open(processed_file, 'w') as f:
+                json.dump(result, f, indent=2)
+            
+            logger.info(
+                "document_processed",
+                doc_id=doc_id,
+                num_chunks=result['stats']['num_chunks']
+            )
+            
+            return DocumentUploadResponse(
+                doc_id=doc_id,
+                filename=file.filename,
+                status="completed",
+                message=f"Document processed successfully. {result['stats']['num_chunks']} chunks created."
+            )
+        
+        elif file_ext in ['.mp4', '.mov', '.avi']:
+            if not is_video_processing_available():
+                raise HTTPException(
+                    status_code=status.HTTP_501_NOT_IMPLEMENTED,
+                    detail="Video processing not available. Install: openai-whisper, moviepy"
+                )
+            
+            video_processor = VideoProcessor()
+            result = video_processor.process_video(file_path, doc_id=doc_id, doc_type=doc_type)
+            
+            # Save processed data
+            os.makedirs(settings.processed_dir, exist_ok=True)
+            import json
+            processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
+            with open(processed_file, 'w') as f:
+                json.dump(result, f, indent=2)
+            
+            logger.info(
+                "video_processed",
+                doc_id=doc_id,
+                num_chunks=result['stats']['num_chunks']
+            )
+            
+            return DocumentUploadResponse(
+                doc_id=doc_id,
+                filename=file.filename,
+                status="completed",
+                message=f"Video transcribed successfully. {result['stats']['num_chunks']} chunks created."
+            )
+        
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"File type {file_ext} not yet supported"
+            )
+    
+    except Exception as e:
+        logger.error(
+            "document_processing_failed",
+            doc_id=doc_id,
+            error=str(e)
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process document: {str(e)}"
+        )
 
 
 @router.get("/", response_model=DocumentListResponse, status_code=status.HTTP_200_OK)
@@ -176,7 +233,7 @@ async def list_documents(
     
     Returns: Paginated list of documents with metadata
     
-    NOTE: This is a placeholder. Implementation in Phase 2.
+    Phase 2: Now shows uploaded and processed documents!
     """
     logger.info(
         "list_documents_request",
@@ -186,24 +243,74 @@ async def list_documents(
         offset=offset
     )
     
-    # TODO: Phase 2 - Query database for documents
-    # from app.services.document_service import DocumentService
-    # doc_service = DocumentService()
-    # documents = await doc_service.list_documents(
-    #     doc_type=doc_type,
-    #     status=status_filter,
-    #     limit=limit,
-    #     offset=offset
-    # )
-    # return DocumentListResponse(
-    #     total=documents["total"],
-    #     documents=documents["items"]
-    # )
+    import os
+    import json
+    from pathlib import Path
     
-    # PLACEHOLDER RESPONSE
+    documents = []
+    
+    # Check upload directory
+    if os.path.exists(settings.upload_dir):
+        for filename in os.listdir(settings.upload_dir):
+            if not filename.startswith('.'):
+                file_path = os.path.join(settings.upload_dir, filename)
+                
+                # Extract doc_id (filename without extension)
+                doc_id = Path(filename).stem
+                
+                # Determine doc type from ID
+                determined_type = "other"
+                for dtype in ["product", "protocol", "clinical_paper", "video", "case_study"]:
+                    if doc_id.startswith(f"doc_{dtype}"):
+                        determined_type = dtype
+                        break
+                
+                # Filter by doc_type if specified
+                if doc_type and determined_type != doc_type:
+                    continue
+                
+                # Check if processed
+                processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
+                is_processed = os.path.exists(processed_file)
+                
+                doc_status = "completed" if is_processed else "pending"
+                
+                # Filter by status if specified
+                if status_filter and doc_status != status_filter:
+                    continue
+                
+                # Get stats from processed file
+                num_chunks = None
+                if is_processed:
+                    try:
+                        with open(processed_file) as f:
+                            data = json.load(f)
+                            num_chunks = data.get('stats', {}).get('num_chunks')
+                    except:
+                        pass
+                
+                # Get file stats
+                stat = os.stat(file_path)
+                upload_date = datetime.fromtimestamp(stat.st_mtime)
+                
+                documents.append(DocumentMetadata(
+                    doc_id=doc_id,
+                    filename=filename,
+                    doc_type=determined_type,
+                    upload_date=upload_date,
+                    file_size=stat.st_size,
+                    status=doc_status,
+                    num_chunks=num_chunks,
+                    namespace=determined_type + "s" if is_processed else None
+                ))
+    
+    # Apply pagination
+    total = len(documents)
+    documents = documents[offset:offset + limit]
+    
     return DocumentListResponse(
-        total=0,
-        documents=[]
+        total=total,
+        documents=documents
     )
 
 

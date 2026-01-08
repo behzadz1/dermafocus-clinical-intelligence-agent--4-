@@ -23,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, setIsOp
     <>
       {/* Mobile Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-20 md:hidden"
           onClick={() => setIsOpen(false)}
         />
@@ -55,8 +55,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, setIsOp
               }}
               className={`
                 w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
-                ${currentView === item.id 
-                  ? 'bg-teal-600 text-white shadow-lg' 
+                ${currentView === item.id
+                  ? 'bg-teal-600 text-white shadow-lg'
                   : 'text-slate-300 hover:bg-slate-800 hover:text-white'}
               `}
             >
@@ -70,8 +70,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, setIsOp
           <div className="bg-slate-800 rounded-lg p-3">
             <p className="text-xs text-slate-400 font-semibold mb-1">CLINICIAN MODE</p>
             <p className="text-xs text-slate-500">
-              Dermafocus © 2025<br/>
-              Confidential Prototype
+              Dermafocus © 2026<br />
+              Confidential MVP
             </p>
           </div>
         </div>
