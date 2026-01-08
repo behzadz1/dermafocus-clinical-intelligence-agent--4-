@@ -112,6 +112,11 @@ class Settings(BaseSettings):
         return [ext.strip() for ext in self.allowed_extensions.split(",")]
     
     @property
+    def embedding_dimension(self) -> int:
+        """Alias for embedding_dimensions for consistency"""
+        return self.embedding_dimensions
+    
+    @property
     def is_production(self) -> bool:
         """Check if running in production environment"""
         return self.environment.lower() == "production"

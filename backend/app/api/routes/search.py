@@ -73,7 +73,7 @@ class IndexStats(BaseModel):
 @router.post("/semantic", response_model=SearchResponse, status_code=status.HTTP_200_OK)
 async def semantic_search(
     query: str = Query(..., description="Search query", min_length=1, max_length=1000),
-    namespace: Optional[str] = Query(None, description="Pinecone namespace to search"),
+    namespace: Optional[str] = Query("default", description="Pinecone namespace to search"),
     top_k: int = Query(10, ge=1, le=50, description="Number of results to return"),
     filter_metadata: Optional[dict] = None
 ):
@@ -87,13 +87,11 @@ async def semantic_search(
     
     Args:
         query: Natural language search query
-        namespace: Optional namespace filter (products, protocols, clinical_papers, etc.)
+        namespace: Optional namespace filter (default)
         top_k: Number of results to return (1-50)
         filter_metadata: Optional metadata filters
     
     Returns: Ranked search results with relevance scores
-    
-    NOTE: This is a placeholder. Implementation in Phase 3.
     """
     import time
     start_time = time.time()
@@ -105,40 +103,58 @@ async def semantic_search(
         top_k=top_k
     )
     
-    # TODO: Phase 3 - Implement semantic search
-    # from app.services.embedding_service import EmbeddingService
-    # 
-    # embedding_service = EmbeddingService()
-    # 
-    # # Generate query embedding
-    # query_embedding = await embedding_service.create_embedding(query)
-    # 
-    # # Search Pinecone
-    # results = await embedding_service.search(
-    #     query_embedding=query_embedding,
-    #     namespace=namespace,
-    #     top_k=top_k,
-    #     filter=filter_metadata
-    # )
-    # 
-    # search_time = (time.time() - start_time) * 1000
-    # 
-    # return SearchResponse(
-    #     query=query,
-    #     results=results,
-    #     total_results=len(results),
-    #     search_time_ms=search_time
-    # )
+    try:
+        from app.services.rag_service import get_rag_service
+        
+        rag_service = get_rag_service()
+        
+        # Extract doc_type from filter_metadata if present
+        doc_type = None
+        if filter_metadata and "doc_type" in filter_metadata:
+            doc_type = filter_metadata["doc_type"]
+        
+        # Perform semantic search
+        chunks = rag_service.search(
+            query=query,
+            top_k=top_k,
+            namespace=namespace,
+            doc_type=doc_type,
+            min_score=0.6  # Lower threshold for search endpoint
+        )
+        
+        # Format results
+        search_results = []
+        for chunk in chunks:
+            search_results.append(SearchResult(
+                doc_id=chunk["metadata"].get("doc_id", "unknown"),
+                chunk_id=chunk["chunk_id"],
+                text=chunk["text"],
+                score=chunk["score"],
+                metadata=chunk["metadata"]
+            ))
+        
+        search_time = (time.time() - start_time) * 1000
+        
+        logger.info(
+            "semantic_search_completed",
+            query=query[:100],
+            results_found=len(search_results),
+            time_ms=search_time
+        )
+        
+        return SearchResponse(
+            query=query,
+            results=search_results,
+            total_results=len(search_results),
+            search_time_ms=search_time
+        )
     
-    # PLACEHOLDER RESPONSE
-    search_time = (time.time() - start_time) * 1000
-    
-    return SearchResponse(
-        query=query,
-        results=[],
-        total_results=0,
-        search_time_ms=search_time
-    )
+    except Exception as e:
+        logger.error("semantic_search_failed", query=query[:100], error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Search failed: {str(e)}"
+        )
 
 
 @router.get("/similar/{doc_id}", response_model=SearchResponse, status_code=status.HTTP_200_OK)
@@ -149,15 +165,13 @@ async def find_similar_documents(
     """
     Find documents similar to a given document
     
-    Uses the document's average embedding to find similar content
+    Uses the document's content to find similar content
     
     Args:
         doc_id: Document identifier
         top_k: Number of similar documents to return
     
     Returns: Similar documents ranked by similarity
-    
-    NOTE: This is a placeholder. Implementation in Phase 3.
     """
     logger.info(
         "similar_documents_request",
@@ -165,23 +179,41 @@ async def find_similar_documents(
         top_k=top_k
     )
     
-    # TODO: Phase 3 - Implement similar document search
-    # from app.services.embedding_service import EmbeddingService
-    # 
-    # embedding_service = EmbeddingService()
-    # results = await embedding_service.find_similar(doc_id, top_k)
-    # 
-    # return SearchResponse(
-    #     query=f"Similar to {doc_id}",
-    #     results=results,
-    #     total_results=len(results),
-    #     search_time_ms=0
-    # )
+    try:
+        from app.services.rag_service import get_rag_service
+        
+        rag_service = get_rag_service()
+        similar = rag_service.get_related_documents(doc_id, top_k=top_k)
+        
+        # Format results
+        search_results = []
+        for chunk in similar:
+            search_results.append(SearchResult(
+                doc_id=chunk["metadata"].get("doc_id", "unknown"),
+                chunk_id=chunk["chunk_id"],
+                text=chunk["text"],
+                score=chunk["score"],
+                metadata=chunk["metadata"]
+            ))
+        
+        return SearchResponse(
+            query=f"Similar to {doc_id}",
+            results=search_results,
+            total_results=len(search_results),
+            search_time_ms=0
+        )
     
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Similar document search not yet implemented."
-    )
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document not found: {doc_id}"
+        )
+    except Exception as e:
+        logger.error("similar_documents_failed", doc_id=doc_id, error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to find similar documents: {str(e)}"
+        )
 
 
 @router.get("/stats", response_model=IndexStats, status_code=status.HTTP_200_OK)
@@ -193,31 +225,37 @@ async def get_index_stats():
         - Total vector count
         - Vectors per namespace
         - Index configuration
-    
-    NOTE: This is a placeholder. Implementation in Phase 3.
     """
     logger.info("index_stats_request")
     
-    # TODO: Phase 3 - Get Pinecone stats
-    # from app.services.embedding_service import EmbeddingService
-    # 
-    # embedding_service = EmbeddingService()
-    # stats = await embedding_service.get_index_stats()
-    # 
-    # return IndexStats(
-    #     index_name=settings.pinecone_index_name,
-    #     total_vectors=stats["total_vectors"],
-    #     dimension=settings.embedding_dimensions,
-    #     namespaces=stats["namespaces"]
-    # )
+    try:
+        from app.services.pinecone_service import get_pinecone_service
+        
+        pinecone_service = get_pinecone_service()
+        stats = pinecone_service.get_index_stats()
+        
+        # Format namespaces
+        namespaces = []
+        for ns_name, ns_data in stats["namespaces"].items():
+            namespaces.append(NamespaceStats(
+                namespace=ns_name,
+                vector_count=ns_data["vector_count"],
+                dimension=stats["dimension"]
+            ))
+        
+        return IndexStats(
+            index_name=settings.pinecone_index_name,
+            total_vectors=stats["total_vector_count"],
+            dimension=stats["dimension"],
+            namespaces=namespaces
+        )
     
-    # PLACEHOLDER RESPONSE
-    return IndexStats(
-        index_name=settings.pinecone_index_name,
-        total_vectors=0,
-        dimension=settings.embedding_dimensions,
-        namespaces=[]
-    )
+    except Exception as e:
+        logger.error("index_stats_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get index stats: {str(e)}"
+        )
 
 
 @router.post("/reindex", status_code=status.HTTP_202_ACCEPTED)
