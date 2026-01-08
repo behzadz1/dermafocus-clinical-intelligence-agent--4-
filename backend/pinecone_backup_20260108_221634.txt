@@ -1,0 +1,34 @@
+Pinecone Metadata Backup
+Timestamp: 2026-01-08T22:16:34.243044
+Index: dermaai-ckpa
+Vectors sampled: 59
+======================================================================
+
+Documents found (3):
+  - Advancing Hand Rejuvenation With Newest®.pdf
+  - Injection Technique and Protocols for the Perioral area with Newest®imizing Perioral Rejuvenation.pdf
+  - Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series.pdf
+
+======================================================================
+
+Sample Vector IDs:
+  1. advancing_hand_rejuvenation_with_newest::p2::c0::907242fb
+  2. advancing_hand_rejuvenation_with_newest::p2::c1::0a158592
+  3. advancing_hand_rejuvenation_with_newest::p3::c0::635ff13e
+  4. advancing_hand_rejuvenation_with_newest::p3::c1::3ba1dda9
+  5. advancing_hand_rejuvenation_with_newest::p4::c0::86f02164
+  6. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p1::c0::32e790c6
+  7. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p2::c0::dc63259f
+  8. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p2::c1::f07a723c
+  9. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p3::c0::faa389f5
+  10. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p3::c1::ce44034e
+  11. injection_technique_and_protocols_for_the_perioral_area_with_newestimizing_perioral_rejuvenation::p4::c0::5fa3cb8e
+  12. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c0::1c8695aa
+  13. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c1::dfebed41
+  14. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c2::79a615a4
+  15. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c3::0837b6f2
+  16. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c4::079dc658
+  17. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p1::c5::4769ae98
+  18. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p2::c0::83c534f0
+  19. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p2::c1::54f91489
+  20. polynucleotides_versus_platelet_rich_plasma_for__androgenetic_alopecia__a_case_series::p2::c2::a190fe95

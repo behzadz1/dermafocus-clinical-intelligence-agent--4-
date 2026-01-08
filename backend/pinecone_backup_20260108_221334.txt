@@ -1,0 +1,11 @@
+Pinecone Metadata Backup
+Timestamp: 2026-01-08T22:13:34.976606
+Index: dermaai-ckpa
+Vectors sampled: 0
+======================================================================
+
+Documents found (0):
+
+======================================================================
+
+Sample Vector IDs:

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DermaAI CKPA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Custom scrollbar for chat */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+
+      /* PRINT STYLES */
+      @media print {
+        @page {
+          margin: 1cm;
+          size: auto;
+        }
+
+        /* 1. Global Reset */
+        body {
+          background-color: white !important;
+          color: black !important;
+        }
+
+        /* 2. Hide UI Elements */
+        /* Hide sidebar, mobile header, buttons, and anything marked print:hidden */
+        aside, nav, button, header, .print\:hidden, .no-print {
+          display: none !important;
+        }
+
+        /* 3. Layout "Scroll Jail" Breakout */
+        /* Force high-level containers to expand to fit content */
+        body, html, #root {
+          height: auto !important;
+          min-height: auto !important;
+          overflow: visible !important;
+          width: 100% !important;
+          display: block !important;
+          position: relative !important;
+        }
+
+        /* 4. Unlock Tailwind Constraints */
+        /* Target common layout classes that trap content */
+        div[class*="h-screen"],
+        div[class*="h-full"],
+        div[class*="overflow-hidden"],
+        div[class*="overflow-y-auto"] {
+          height: auto !important;
+          min-height: auto !important;
+          overflow: visible !important;
+          position: static !important;
+          display: block !important; /* Linearize layout */
+        }
+        
+        /* 5. Grid Preservation */
+        /* Ensure grids inside docs remain grids if possible, or gracefully degrade */
+        .grid {
+          display: grid !important;
+          break-inside: avoid;
+        }
+
+        /* 6. Typography & Colors */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        /* 7. Page Breaks */
+        h1, h2, h3 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        section, .card {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        /* 8. Specific Component Fixes */
+        #doc-container {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

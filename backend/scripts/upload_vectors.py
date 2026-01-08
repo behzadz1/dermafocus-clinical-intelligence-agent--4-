@@ -76,14 +76,21 @@ class VectorUploader:
         
         # Prepare vectors for Pinecone
         vectors = []
-        for chunk, embedding in zip(chunks, embeddings):
+
+        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+            # Generate globally unique and stable vector ID
+            # Format: doc_id::p{page_number}::c{index}
+            page_num = chunk["metadata"].get("page_number", "uk") # unknown
+            vector_id = f"{doc_id}::p{page_num}::c{i}"
+            
             vector = {
-                "id": chunk["chunk_id"].encode('ascii', 'ignore').decode('ascii').replace(" ", "_"),
+                "id": vector_id,
                 "values": embedding,
                 "metadata": {
                     **chunk["metadata"],
                     "text": chunk["text"][:1000],  # Store first 1000 chars in metadata
-                    "full_text_length": len(chunk["text"])
+                    "full_text_length": len(chunk["text"]),
+                    "original_chunk_id": chunk["chunk_id"] # Preserve original ID for tracing
                 }
             }
             vectors.append(vector)

@@ -1,8 +1,0 @@
-{
-  "name": "DermaFocus Clinical Intelligence Agent",
-  "description": "Clinical Intelligence Agent for Dermafocus. Provides protocol guidance, product info, and clinical evidence summaries within strict medical guardrails.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
-}
