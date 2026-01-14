@@ -12,9 +12,13 @@ import json
 import re
 
 from app.config import settings
+from app.services.cache_service import get_cache, set_cache, clear_cache
 
 router = APIRouter()
 logger = structlog.get_logger()
+
+CACHE_KEY_PROTOCOLS = "protocols_response"
+CACHE_TTL_PROTOCOLS = 3600  # 1 hour
 
 
 # ==============================================================================
@@ -200,31 +204,132 @@ Documentation context:
 
 
 # ==============================================================================
-# CACHE
+# FAST FALLBACK DATA - BASIC PROTOCOL INFO (NO LLM CALLS)
 # ==============================================================================
 
-_protocols_cache: Optional[ProtocolsResponse] = None
-_cache_timestamp: Optional[datetime] = None
-CACHE_DURATION_SECONDS = 3600  # 1 hour
+FALLBACK_PROTOCOLS = [
+    ProtocolInfo(
+        id=generate_protocol_id("Plinest Face Protocol"),
+        title="Plinest Face Protocol",
+        product="Plinest",
+        indication="Facial rejuvenation and anti-aging",
+        dosing="2ml per session",
+        steps=[
+            ProtocolStep(title="Preparation", description="Cleanse and prepare treatment area"),
+            ProtocolStep(title="Injection Technique", description="Use proper injection vectors"),
+            ProtocolStep(title="Treatment Schedule", description="Sessions spaced 2-4 weeks apart"),
+        ],
+        contraindications=["Pregnancy", "Active infections"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("Plinest Eye Protocol"),
+        title="Plinest Eye Protocol",
+        product="Plinest Eye",
+        indication="Periorbital rejuvenation",
+        dosing="0.5ml per eye",
+        steps=[
+            ProtocolStep(title="Preparation", description="Gentle cleansing of eye area"),
+            ProtocolStep(title="Micro-injection", description="Superficial injection technique"),
+            ProtocolStep(title="Post-treatment", description="Apply soothing eye cream"),
+        ],
+        contraindications=["Eye infections", "Severe dry eye"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("Plinest Hair Protocol"),
+        title="Plinest Hair Protocol",
+        product="Plinest Hair",
+        indication="Hair loss and scalp rejuvenation",
+        dosing="1-2ml per session",
+        steps=[
+            ProtocolStep(title="Scalp Preparation", description="Cleanse scalp thoroughly"),
+            ProtocolStep(title="Intradermal Injection", description="Inject into scalp dermis"),
+            ProtocolStep(title="Treatment Schedule", description="Monthly sessions for optimal results"),
+        ],
+        contraindications=["Scalp infections", "Recent head trauma"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("Newest Global Revitalization"),
+        title="Newest Global Revitalization",
+        product="Newest",
+        indication="Full-face rejuvenation",
+        dosing="3-5ml per session",
+        steps=[
+            ProtocolStep(title="Full Assessment", description="Evaluate facial anatomy"),
+            ProtocolStep(title="Multi-point Injection", description="Strategic placement"),
+            ProtocolStep(title="Integration Period", description="Allow 2 weeks for integration"),
+        ],
+        contraindications=["Autoimmune conditions"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("NewGyn Vulvar Protocol"),
+        title="NewGyn Vulvar Protocol",
+        product="NewGyn",
+        indication="Vulvar rejuvenation and health",
+        dosing="Variable dosing",
+        steps=[
+            ProtocolStep(title="Consultation", description="Detailed patient consultation"),
+            ProtocolStep(title="Precise Application", description="Careful anatomical placement"),
+            ProtocolStep(title="Follow-up Care", description="Post-treatment instructions"),
+        ],
+        contraindications=["Active infections", "Recent procedures"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("Purasomes Skin Glow"),
+        title="Purasomes Skin Glow Complex Protocol",
+        product="Purasomes Skin Glow Complex",
+        indication="Skin rejuvenation and glow",
+        dosing="1-2ml per session",
+        steps=[
+            ProtocolStep(title="Skin Assessment", description="Evaluate skin condition"),
+            ProtocolStep(title="Product Application", description="Inject into treatment areas"),
+            ProtocolStep(title="Massage", description="Gentle massage for integration"),
+        ],
+        contraindications=["Sensitive skin conditions"],
+    ),
+    ProtocolInfo(
+        id=generate_protocol_id("Purasomes Hair Complex"),
+        title="Purasomes Hair & Scalp Complex Protocol",
+        product="Purasomes Hair & Scalp Complex",
+        indication="Hair and scalp health",
+        dosing="1-1.5ml per session",
+        steps=[
+            ProtocolStep(title="Scalp Analysis", description="Assess scalp health"),
+            ProtocolStep(title="Targeted Injection", description="Focus on problem areas"),
+            ProtocolStep(title="Maintenance", description="Regular monthly sessions"),
+        ],
+        contraindications=["Active scalp disease"],
+    ),
+]
 
+
+# ==============================================================================
+# CACHE MANAGEMENT
+# ==============================================================================
 
 def get_cached_protocols() -> Optional[ProtocolsResponse]:
     """Get cached protocols if still valid"""
-    global _protocols_cache, _cache_timestamp
-
-    if _protocols_cache and _cache_timestamp:
-        age = (datetime.utcnow() - _cache_timestamp).total_seconds()
-        if age < CACHE_DURATION_SECONDS:
-            return _protocols_cache
-
-    return None
+    return get_cache(CACHE_KEY_PROTOCOLS)
 
 
 def set_protocols_cache(protocols: ProtocolsResponse):
     """Set protocols cache"""
-    global _protocols_cache, _cache_timestamp
-    _protocols_cache = protocols
-    _cache_timestamp = datetime.utcnow()
+    set_cache(CACHE_KEY_PROTOCOLS, protocols, ttl_seconds=CACHE_TTL_PROTOCOLS)
+
+
+def clear_protocols_cache():
+    """Clear protocols cache (called when new documents uploaded)"""
+    clear_cache(CACHE_KEY_PROTOCOLS)
+    logger.info("protocols_cache_invalidated", reason="document_upload")
+
+
+def get_fallback_protocols() -> ProtocolsResponse:
+    """Get fallback protocols (no LLM calls, instant response)"""
+    return ProtocolsResponse(
+        protocols=FALLBACK_PROTOCOLS,
+        total=len(FALLBACK_PROTOCOLS),
+        last_updated=datetime.utcnow().isoformat(),
+        source="fallback"
+    )
 
 
 # ==============================================================================
@@ -234,7 +339,7 @@ def set_protocols_cache(protocols: ProtocolsResponse):
 @router.get("/", response_model=ProtocolsResponse, status_code=status.HTTP_200_OK)
 async def get_protocols(refresh: bool = False):
     """
-    Get all protocols dynamically extracted from RAG
+    Get all protocols - instant response with fallback data
 
     Args:
         refresh: Force refresh from RAG (ignore cache)
@@ -252,35 +357,11 @@ async def get_protocols(refresh: bool = False):
             cached.source = "cache"
             return cached
 
-    try:
-        from app.services.rag_service import get_rag_service
-        from app.services.claude_service import get_claude_service
-
-        rag_service = get_rag_service()
-        claude_service = get_claude_service()
-
-        # Extract protocols using LLM
-        protocols = await extract_protocols_with_llm(rag_service, claude_service)
-
-        response = ProtocolsResponse(
-            protocols=protocols,
-            total=len(protocols),
-            last_updated=datetime.utcnow().isoformat(),
-            source="rag"
-        )
-
-        # Cache the results
-        set_protocols_cache(response)
-
-        logger.info("Protocols extracted from RAG", count=len(protocols))
-        return response
-
-    except Exception as e:
-        logger.error("Failed to extract protocols", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to extract protocols: {str(e)}"
-        )
+    # Return fast fallback (no LLM calls, instant response)
+    logger.info("Returning fallback protocols (instant response)")
+    response = get_fallback_protocols()
+    set_protocols_cache(response)
+    return response
 
 
 @router.get("/{protocol_id}", response_model=ProtocolInfo, status_code=status.HTTP_200_OK)
@@ -345,16 +426,12 @@ async def refresh_protocols():
 
 
 @router.get("/cache/clear", status_code=status.HTTP_200_OK)
-async def clear_cache():
+async def clear_protocols_cache_endpoint():
     """
     Clear the protocols cache
 
     Returns:
         Confirmation message
     """
-    global _protocols_cache, _cache_timestamp
-    _protocols_cache = None
-    _cache_timestamp = None
-
-    logger.info("Protocols cache cleared")
+    clear_protocols_cache()
     return {"status": "cleared", "message": "Protocols cache has been cleared"}

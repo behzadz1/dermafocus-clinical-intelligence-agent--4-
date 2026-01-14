@@ -10,6 +10,8 @@ from datetime import datetime
 import structlog
 
 from app.config import settings
+from app.api.routes.protocols import clear_protocols_cache
+from app.api.routes.products import clear_products_cache
 
 router = APIRouter()
 logger = structlog.get_logger()
@@ -166,11 +168,16 @@ async def upload_document(
                 num_chunks=result['stats']['num_chunks']
             )
             
+            # Auto-invalidate both protocol and product caches
+            clear_protocols_cache()
+            clear_products_cache()
+            logger.info("cleared_caches", reason="pdf_document_uploaded")
+            
             return DocumentUploadResponse(
                 doc_id=doc_id,
                 filename=file.filename,
                 status="completed",
-                message=f"Document processed successfully. {result['stats']['num_chunks']} chunks created."
+                message=f"Document processed successfully. {result['stats']['num_chunks']} chunks created. Protocols and products caches refreshed."
             )
         
         elif file_ext in ['.mp4', '.mov', '.avi']:
@@ -196,11 +203,16 @@ async def upload_document(
                 num_chunks=result['stats']['num_chunks']
             )
             
+            # Auto-invalidate both protocol and product caches
+            clear_protocols_cache()
+            clear_products_cache()
+            logger.info("cleared_caches", reason="video_document_uploaded")
+            
             return DocumentUploadResponse(
                 doc_id=doc_id,
                 filename=file.filename,
                 status="completed",
-                message=f"Video transcribed successfully. {result['stats']['num_chunks']} chunks created."
+                message=f"Video transcribed successfully. {result['stats']['num_chunks']} chunks created. Protocols and products caches refreshed."
             )
         
         else:
