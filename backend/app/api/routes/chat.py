@@ -16,6 +16,57 @@ logger = structlog.get_logger()
 
 
 # ==============================================================================
+# CONFIDENCE CALCULATION
+# ==============================================================================
+
+def calculate_weighted_confidence(chunks: list) -> float:
+    """
+    Calculate confidence score using weighted factors for better accuracy.
+
+    Factors:
+    - Top chunk score (35%): Best match matters most
+    - Average score (30%): Overall retrieval quality
+    - Coverage score (20%): Multiple high-quality sources
+    - Consistency score (15%): Agreement between sources
+
+    Returns:
+        Confidence score between 0.0 and 0.95
+    """
+    if not chunks:
+        return 0.0
+
+    scores = [c["score"] for c in chunks]
+
+    # Factor 1: Top chunk score (most important match)
+    top_score = scores[0] if scores else 0
+
+    # Factor 2: Average score across all chunks
+    avg_score = sum(scores) / len(scores)
+
+    # Factor 3: Coverage - how many high-quality chunks (score > 0.6)
+    high_quality_count = sum(1 for s in scores if s > 0.6)
+    coverage_score = min(high_quality_count / 3.0, 1.0)  # Expect at least 3 good chunks
+
+    # Factor 4: Consistency - low variance means sources agree
+    if len(scores) > 1:
+        variance = sum((s - avg_score) ** 2 for s in scores) / len(scores)
+        consistency_score = max(0, 1 - (variance * 4))  # Penalize high variance
+    else:
+        consistency_score = 0.5  # Neutral if only one chunk
+
+    # Weighted combination
+    confidence = (
+        top_score * 0.35 +
+        avg_score * 0.30 +
+        coverage_score * 0.20 +
+        consistency_score * 0.15
+    )
+
+    # Cap at 0.95 to indicate we're never 100% certain
+    return min(round(confidence, 3), 0.95)
+
+
+# ==============================================================================
 # REQUEST/RESPONSE MODELS
 # ==============================================================================
 
@@ -119,7 +170,7 @@ async def chat(request: ChatRequest):
         logger.info("Retrieving context from RAG")
         context_data = rag_service.get_context_for_query(
             query=request.question,
-            max_chunks=5
+            max_chunks=8  # Increased from 5 for better coverage
         )
         
         context_text = context_data["context_text"]
@@ -168,11 +219,8 @@ async def chat(request: ChatRequest):
             context=context_text
         )
         
-        # Step 6: Calculate confidence based on retrieval scores
-        confidence = 0.0
-        if retrieved_chunks:
-            avg_score = sum(c["score"] for c in retrieved_chunks) / len(retrieved_chunks)
-            confidence = min(avg_score, 0.95)  # Cap at 0.95
+        # Step 6: Calculate confidence using weighted formula
+        confidence = calculate_weighted_confidence(retrieved_chunks)
         
         # Generate conversation ID if not provided
         conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
@@ -245,7 +293,7 @@ async def chat_stream(request: ChatRequest):
             # Retrieve context
             context_data = rag_service.get_context_for_query(
                 query=request.question,
-                max_chunks=5
+                max_chunks=8  # Increased from 5 for better coverage
             )
             
             context_text = context_data["context_text"]

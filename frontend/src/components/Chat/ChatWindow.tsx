@@ -13,6 +13,17 @@ const STATIC_SUGGESTIONS = [
   "Contraindications for polynucleotides"
 ];
 
+// Confidence tier classification for better UX
+const getConfidenceTier = (confidence: number): { label: string; color: string; bgColor: string } => {
+  if (confidence >= 0.75) {
+    return { label: 'High', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200' };
+  } else if (confidence >= 0.55) {
+    return { label: 'Medium', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200' };
+  } else {
+    return { label: 'Low', color: 'text-red-600', bgColor: 'bg-red-50 border-red-200' };
+  }
+};
+
 const ChatWindow: React.FC<ChatWindowProps> = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -332,9 +343,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
                       <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                         Sources ({msg.sources.length})
                       </span>
-                      {msg.confidence && (
-                        <span className="text-[9px] text-slate-400 ml-auto">
-                          Confidence: {(msg.confidence * 100).toFixed(0)}%
+                      {msg.confidence !== undefined && msg.confidence > 0 && (
+                        <span className={`text-[9px] font-semibold ml-auto px-2 py-0.5 rounded border ${getConfidenceTier(msg.confidence).bgColor} ${getConfidenceTier(msg.confidence).color}`}>
+                          {getConfidenceTier(msg.confidence).label} Confidence ({(msg.confidence * 100).toFixed(0)}%)
                         </span>
                       )}
                     </div>
