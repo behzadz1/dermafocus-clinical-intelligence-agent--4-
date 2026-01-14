@@ -44,6 +44,54 @@ export interface HealthResponse {
   python_version: string;
 }
 
+export interface ProductInfo {
+  name: string;
+  technology: string;
+  composition: string;
+  indications: string[];
+  mechanism: string;
+  benefits: string[];
+  contraindications: string[];
+  imageUrl?: string;
+}
+
+export interface ProductsResponse {
+  products: ProductInfo[];
+  total: number;
+  last_updated: string;
+  source: string;
+}
+
+export interface ProtocolStep {
+  title: string;
+  description: string;
+  details?: string[];
+}
+
+export interface ProtocolVector {
+  name: string;
+  description: string;
+}
+
+export interface ProtocolInfo {
+  id: string;
+  title: string;
+  product: string;
+  indication: string;
+  dosing: string;
+  steps: ProtocolStep[];
+  contraindications: string[];
+  vectors?: ProtocolVector[];
+  imagePlaceholder?: string;
+}
+
+export interface ProtocolsResponse {
+  protocols: ProtocolInfo[];
+  total: number;
+  last_updated: string;
+  source: string;
+}
+
 /**
  * Main API Service
  */
@@ -218,6 +266,102 @@ export const apiService = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `Upload failed: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get all products dynamically from RAG
+   */
+  async getProducts(refresh: boolean = false): Promise<ProductsResponse> {
+    const url = refresh
+      ? `${API_BASE_URL}/api/products/?refresh=true`
+      : `${API_BASE_URL}/api/products/`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to get products: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get a single product by name
+   */
+  async getProduct(productName: string): Promise<ProductInfo> {
+    const response = await fetch(`${API_BASE_URL}/api/products/${encodeURIComponent(productName)}`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to get product: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Force refresh products from RAG
+   */
+  async refreshProducts(): Promise<ProductsResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/products/refresh`, {
+      method: 'POST'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to refresh products: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get all protocols dynamically from RAG
+   */
+  async getProtocols(refresh: boolean = false): Promise<ProtocolsResponse> {
+    const url = refresh
+      ? `${API_BASE_URL}/api/protocols/?refresh=true`
+      : `${API_BASE_URL}/api/protocols/`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to get protocols: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get a single protocol by ID
+   */
+  async getProtocol(protocolId: string): Promise<ProtocolInfo> {
+    const response = await fetch(`${API_BASE_URL}/api/protocols/${encodeURIComponent(protocolId)}`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to get protocol: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Force refresh protocols from RAG
+   */
+  async refreshProtocols(): Promise<ProtocolsResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/protocols/refresh`, {
+      method: 'POST'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to refresh protocols: ${response.status}`);
     }
 
     return response.json();

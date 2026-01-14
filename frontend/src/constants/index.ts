@@ -98,6 +98,7 @@ export const PROTOCOLS: Protocol[] = [
 ];
 
 export const PRODUCTS: Product[] = [
+  // PN-HPT® Product Line (Polynucleotides)
   {
     name: 'Plinest®',
     technology: 'PN-HPT® (Polynucleotides)',
@@ -162,5 +163,62 @@ export const PRODUCTS: Product[] = [
       'Mucosal repair'
     ],
     contraindications: ['Active infection', 'Fish allergy']
+  },
+  // Purasomes Product Line (Exosomes & Secretomes)
+  {
+    name: 'Purasomes Skin Glow Complex',
+    technology: 'AMPLEX Plus® (Exosomes)',
+    composition: '20 billion exosomes + 20 growth factors from bovine colostrum + Vitamins + Minerals',
+    indications: ['Skin rejuvenation', 'Dull skin', 'Uneven texture', 'Anti-aging'],
+    mechanism: 'Exosomes enhance cell-to-cell communication, stimulating collagen synthesis and reducing trans-epidermal water loss.',
+    benefits: [
+      'Increased collagen synthesis',
+      'Improved skin radiance',
+      'Enhanced cellular regeneration',
+      'Anti-inflammatory effect'
+    ],
+    contraindications: ['Bovine allergy', 'Active skin infection']
+  },
+  {
+    name: 'Purasomes Nutri Complex 150+',
+    technology: 'AMPLEX Plus® (Exosomes)',
+    composition: '20 billion exosomes + 20 growth factors + Amino acids + DMAE-HA + Vitamins + Oligo-minerals',
+    indications: ['Age spots', 'Oily skin', 'Dark spots', 'Post-blemish scarring'],
+    mechanism: 'Comprehensive nutrient delivery via exosomes for skin regeneration and pigmentation regulation.',
+    benefits: [
+      'Regulates melanin production',
+      'Reduces age spots',
+      'Nourishes skin deeply',
+      'Improves skin texture'
+    ],
+    contraindications: ['Bovine allergy']
+  },
+  {
+    name: 'Purasomes Hair & Scalp Complex',
+    technology: 'AMPLEX Plus® (Exosomes)',
+    composition: '20 billion exosomes + 20 growth factors + Hair-specific nutrients',
+    indications: ['Hair thinning', 'Scalp health', 'Hair follicle regeneration'],
+    mechanism: 'Exosome-mediated delivery of growth factors directly to hair follicles for regeneration.',
+    benefits: [
+      'Stimulates hair follicle regeneration',
+      'Improves scalp health',
+      'Increases hair thickness',
+      'Reduces hair shedding'
+    ],
+    contraindications: ['Bovine allergy', 'Scalp infections']
+  },
+  {
+    name: 'Purasomes XCell',
+    technology: 'AMPLEX Plus® (Exosomes)',
+    composition: '20 billion exosomes + 20 growth factors + Advanced cellular matrix',
+    indications: ['Advanced skin regeneration', 'Wound healing', 'Tissue repair'],
+    mechanism: 'High-concentration exosome therapy for advanced cellular repair and tissue regeneration.',
+    benefits: [
+      'Accelerates wound healing',
+      'Enhanced tissue repair',
+      'Thicker dermal-epidermal junction',
+      'Increased angiogenesis'
+    ],
+    contraindications: ['Bovine allergy', 'Active infection']
   }
 ];

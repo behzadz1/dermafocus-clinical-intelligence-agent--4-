@@ -3,7 +3,6 @@ export enum ViewState {
   PROTOCOLS = 'PROTOCOLS',
   PRODUCTS = 'PRODUCTS',
   SAFETY = 'SAFETY',
-  LIVE_CONSULT = 'LIVE_CONSULT',
   DOCS = 'DOCS'
 }
 

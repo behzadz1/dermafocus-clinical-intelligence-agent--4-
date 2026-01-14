@@ -1,0 +1,360 @@
+"""
+Protocols Routes
+Endpoints for dynamically extracting treatment protocol information from RAG
+"""
+
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+import structlog
+import json
+import re
+
+from app.config import settings
+
+router = APIRouter()
+logger = structlog.get_logger()
+
+
+# ==============================================================================
+# RESPONSE MODELS
+# ==============================================================================
+
+class ProtocolStep(BaseModel):
+    """Single step in a protocol"""
+    title: str = Field(..., description="Step title")
+    description: str = Field(..., description="Step description")
+    details: Optional[List[str]] = Field(default=[], description="Additional details")
+
+
+class ProtocolVector(BaseModel):
+    """Injection vector information"""
+    name: str = Field(..., description="Vector name")
+    description: str = Field(..., description="Vector description")
+
+
+class ProtocolInfo(BaseModel):
+    """Protocol information extracted from RAG"""
+    id: str = Field(..., description="Protocol identifier")
+    title: str = Field(..., description="Protocol title")
+    product: str = Field(..., description="Product name")
+    indication: str = Field(..., description="Primary indication")
+    dosing: str = Field(..., description="Dosing information")
+    steps: List[ProtocolStep] = Field(default=[], description="Protocol steps")
+    contraindications: List[str] = Field(default=[], description="Contraindications")
+    vectors: Optional[List[ProtocolVector]] = Field(default=None, description="Injection vectors")
+    imagePlaceholder: Optional[str] = Field(None, description="Placeholder image URL")
+
+
+class ProtocolsResponse(BaseModel):
+    """Response containing all protocols"""
+    protocols: List[ProtocolInfo] = Field(default=[], description="List of protocols")
+    total: int = Field(0, description="Total number of protocols")
+    last_updated: str = Field(..., description="Last update timestamp")
+    source: str = Field("rag", description="Data source (rag or cache)")
+
+
+# ==============================================================================
+# PROTOCOL EXTRACTION LOGIC
+# ==============================================================================
+
+# Known protocols to search for
+KNOWN_PROTOCOLS = [
+    {"name": "Plinest Face Protocol", "product": "Plinest"},
+    {"name": "Plinest Eye Protocol", "product": "Plinest Eye"},
+    {"name": "Plinest Hair Protocol", "product": "Plinest Hair"},
+    {"name": "Newest Global Revitalization", "product": "Newest"},
+    {"name": "NewGyn Vulvar Protocol", "product": "NewGyn"},
+    {"name": "Purasomes Skin Treatment", "product": "Purasomes Skin Glow Complex"},
+    {"name": "Purasomes Hair Treatment", "product": "Purasomes Hair & Scalp Complex"},
+]
+
+
+def generate_protocol_id(name: str) -> str:
+    """Generate a URL-safe protocol ID from name"""
+    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+
+
+async def extract_protocols_with_llm(rag_service, claude_service) -> List[ProtocolInfo]:
+    """
+    Use LLM to extract structured protocol information from RAG
+
+    Args:
+        rag_service: RAG service instance
+        claude_service: Claude service instance
+
+    Returns:
+        List of extracted protocols
+    """
+    protocols = []
+
+    for protocol_data in KNOWN_PROTOCOLS:
+        protocol_name = protocol_data["name"]
+        product_name = protocol_data["product"]
+
+        try:
+            # Search for protocol information
+            query = f"Treatment protocol for {product_name} including injection technique, dosing, treatment schedule, steps, and contraindications"
+
+            context_data = rag_service.get_context_for_query(
+                query=query,
+                max_chunks=10
+            )
+
+            if not context_data["chunks"]:
+                logger.info(f"No RAG data found for protocol {protocol_name}")
+                continue
+
+            context_text = context_data["context_text"]
+
+            # Use Claude to extract structured data
+            extraction_prompt = f"""Based on the following clinical documentation, extract the treatment protocol information for "{product_name}" in JSON format.
+
+Return ONLY a valid JSON object with these exact fields (no markdown, no explanation):
+{{
+  "title": "Protocol title (e.g., '{protocol_name}')",
+  "product": "{product_name}",
+  "indication": "Primary clinical indication for this protocol",
+  "dosing": "Dosing information (e.g., '2ml total per session')",
+  "steps": [
+    {{
+      "title": "Step title (e.g., 'Preparation', 'Injection Technique', 'Treatment Schedule')",
+      "description": "Detailed step description",
+      "details": ["Optional", "bullet", "points"]
+    }}
+  ],
+  "contraindications": ["List", "of", "contraindications"],
+  "vectors": [
+    {{
+      "name": "Vector/area name",
+      "description": "Injection technique for this area"
+    }}
+  ]
+}}
+
+Include at least 3 steps. If vectors/injection areas are mentioned, include them.
+If information is not available for a field, use empty string "" or empty array [].
+
+Documentation context:
+{context_text}"""
+
+            response = claude_service.generate_response(
+                user_message=extraction_prompt,
+                context="",
+                system_prompt="You are a medical protocol extraction assistant. Extract structured treatment protocol information from clinical documentation. Return ONLY valid JSON, no markdown formatting, no explanations."
+            )
+
+            answer = response["answer"].strip()
+
+            # Clean up response - remove markdown code blocks if present
+            if answer.startswith("```"):
+                answer = re.sub(r'^```(?:json)?\n?', '', answer)
+                answer = re.sub(r'\n?```$', '', answer)
+
+            # Parse JSON
+            try:
+                protocol_json = json.loads(answer)
+
+                # Process steps
+                steps = []
+                for step_data in protocol_json.get("steps", []):
+                    steps.append(ProtocolStep(
+                        title=step_data.get("title", ""),
+                        description=step_data.get("description", ""),
+                        details=step_data.get("details", [])
+                    ))
+
+                # Process vectors
+                vectors = None
+                if protocol_json.get("vectors"):
+                    vectors = []
+                    for vec_data in protocol_json["vectors"]:
+                        vectors.append(ProtocolVector(
+                            name=vec_data.get("name", ""),
+                            description=vec_data.get("description", "")
+                        ))
+
+                protocol_info = ProtocolInfo(
+                    id=generate_protocol_id(protocol_json.get("title", protocol_name)),
+                    title=protocol_json.get("title", protocol_name),
+                    product=protocol_json.get("product", product_name),
+                    indication=protocol_json.get("indication", ""),
+                    dosing=protocol_json.get("dosing", ""),
+                    steps=steps,
+                    contraindications=protocol_json.get("contraindications", []),
+                    vectors=vectors
+                )
+                protocols.append(protocol_info)
+                logger.info(f"Extracted protocol: {protocol_name}")
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"Failed to parse JSON for protocol {protocol_name}: {e}")
+                continue
+
+        except Exception as e:
+            logger.error(f"Error extracting protocol {protocol_name}: {e}")
+            continue
+
+    return protocols
+
+
+# ==============================================================================
+# CACHE
+# ==============================================================================
+
+_protocols_cache: Optional[ProtocolsResponse] = None
+_cache_timestamp: Optional[datetime] = None
+CACHE_DURATION_SECONDS = 3600  # 1 hour
+
+
+def get_cached_protocols() -> Optional[ProtocolsResponse]:
+    """Get cached protocols if still valid"""
+    global _protocols_cache, _cache_timestamp
+
+    if _protocols_cache and _cache_timestamp:
+        age = (datetime.utcnow() - _cache_timestamp).total_seconds()
+        if age < CACHE_DURATION_SECONDS:
+            return _protocols_cache
+
+    return None
+
+
+def set_protocols_cache(protocols: ProtocolsResponse):
+    """Set protocols cache"""
+    global _protocols_cache, _cache_timestamp
+    _protocols_cache = protocols
+    _cache_timestamp = datetime.utcnow()
+
+
+# ==============================================================================
+# ENDPOINTS
+# ==============================================================================
+
+@router.get("/", response_model=ProtocolsResponse, status_code=status.HTTP_200_OK)
+async def get_protocols(refresh: bool = False):
+    """
+    Get all protocols dynamically extracted from RAG
+
+    Args:
+        refresh: Force refresh from RAG (ignore cache)
+
+    Returns:
+        List of protocols with metadata
+    """
+    logger.info("Protocols request received", refresh=refresh)
+
+    # Check cache first
+    if not refresh:
+        cached = get_cached_protocols()
+        if cached:
+            logger.info("Returning cached protocols", count=cached.total)
+            cached.source = "cache"
+            return cached
+
+    try:
+        from app.services.rag_service import get_rag_service
+        from app.services.claude_service import get_claude_service
+
+        rag_service = get_rag_service()
+        claude_service = get_claude_service()
+
+        # Extract protocols using LLM
+        protocols = await extract_protocols_with_llm(rag_service, claude_service)
+
+        response = ProtocolsResponse(
+            protocols=protocols,
+            total=len(protocols),
+            last_updated=datetime.utcnow().isoformat(),
+            source="rag"
+        )
+
+        # Cache the results
+        set_protocols_cache(response)
+
+        logger.info("Protocols extracted from RAG", count=len(protocols))
+        return response
+
+    except Exception as e:
+        logger.error("Failed to extract protocols", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to extract protocols: {str(e)}"
+        )
+
+
+@router.get("/{protocol_id}", response_model=ProtocolInfo, status_code=status.HTTP_200_OK)
+async def get_protocol(protocol_id: str):
+    """
+    Get detailed information for a specific protocol
+
+    Args:
+        protocol_id: Protocol identifier
+
+    Returns:
+        Protocol information
+    """
+    logger.info("Single protocol request", protocol_id=protocol_id)
+
+    # First check cache
+    cached = get_cached_protocols()
+    if cached:
+        for protocol in cached.protocols:
+            if protocol.id == protocol_id:
+                return protocol
+
+    # If not in cache, fetch all and search
+    try:
+        from app.services.rag_service import get_rag_service
+        from app.services.claude_service import get_claude_service
+
+        rag_service = get_rag_service()
+        claude_service = get_claude_service()
+
+        protocols = await extract_protocols_with_llm(rag_service, claude_service)
+
+        for protocol in protocols:
+            if protocol.id == protocol_id:
+                return protocol
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Protocol '{protocol_id}' not found in knowledge base"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Protocol extraction failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get protocol: {str(e)}"
+        )
+
+
+@router.post("/refresh", response_model=ProtocolsResponse, status_code=status.HTTP_200_OK)
+async def refresh_protocols():
+    """
+    Force refresh protocols from RAG
+
+    Returns:
+        Updated list of protocols
+    """
+    logger.info("Forcing protocols refresh")
+    return await get_protocols(refresh=True)
+
+
+@router.get("/cache/clear", status_code=status.HTTP_200_OK)
+async def clear_cache():
+    """
+    Clear the protocols cache
+
+    Returns:
+        Confirmation message
+    """
+    global _protocols_cache, _cache_timestamp
+    _protocols_cache = None
+    _cache_timestamp = None
+
+    logger.info("Protocols cache cleared")
+    return {"status": "cleared", "message": "Protocols cache has been cleared"}

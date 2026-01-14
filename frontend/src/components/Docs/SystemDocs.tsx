@@ -1,5 +1,5 @@
 import React from 'react';
-import { Printer, FileText, Cpu, Database, Shield, Zap } from 'lucide-react';
+import { Printer, FileText, Cpu, Database, Shield } from 'lucide-react';
 
 const SystemDocs: React.FC = () => {
   const handlePrint = () => {
@@ -112,18 +112,6 @@ const SystemDocs: React.FC = () => {
                 <h4 className="font-bold text-slate-900 print:text-black">Clinical Intelligence (Chat)</h4>
                 <p className="text-sm text-slate-600 print:text-black">
                   Natural language interface for ad-hoc clinical queries. Capable of answering specific questions on dosing, contraindications, and product composition.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center shrink-0 text-purple-700 print:bg-white print:border print:border-slate-300 print:text-black">
-                <Zap size={24} />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-900 print:text-black">Live Consult (Multimodal)</h4>
-                <p className="text-sm text-slate-600 print:text-black">
-                  Utilizes <strong>Gemini Live API</strong> to provide real-time assistance. The AI processes audio and synchronized video frames to "see" patient anatomy and provide voice-guided protocol assistance during procedures.
                 </p>
               </div>
             </div>

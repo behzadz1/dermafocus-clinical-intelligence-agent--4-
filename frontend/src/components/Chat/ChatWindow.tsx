@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Loader2, RefreshCw, Video, ShieldCheck, Zap, MessageCircle, FileText, ExternalLink } from 'lucide-react';
+import { Send, User, Loader2, RefreshCw, ShieldCheck, Zap, MessageCircle, FileText } from 'lucide-react';
 import { Message, Source } from '../../types';
 import { apiService, ChatResponse } from '../../services/apiService';
 
 interface ChatWindowProps { }
 
 const STATIC_SUGGESTIONS = [
-  "What is the needle size for Plinest Eye?",
-  "Show the Hand Rejuvenation protocol",
-  "Dosing for Newest on perioral lines",
-  "Mechanism of action for PN-HPT®",
-  "Contraindications for fish allergy"
+  "Plinest Eye injection protocol",
+  "Newest dosing for facial rejuvenation",
+  "Purasomes Skin Glow composition",
+  "NewGyn vulvar treatment protocol",
+  "Contraindications for polynucleotides"
 ];
 
 const ChatWindow: React.FC<ChatWindowProps> = () => {
@@ -415,12 +415,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
 
       {/* Input Section */}
       <div className="bg-white border-t border-slate-200 p-4">
-        {/* Suggestion Chips (Permanent) */}
+        {/* Quick Query Suggestions */}
         <div className="max-w-4xl mx-auto mb-4 overflow-x-auto scrollbar-hide flex items-center gap-2 py-1">
-          <div className="flex items-center gap-2 shrink-0 pr-4 border-r border-slate-100 mr-2">
-            <Zap size={14} className="text-teal-500" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reference</span>
-          </div>
           {STATIC_SUGGESTIONS.map((suggestion, idx) => (
             <button
               key={idx}

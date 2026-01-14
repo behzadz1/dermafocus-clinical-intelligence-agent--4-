@@ -12,7 +12,7 @@ import time
 import structlog
 
 from app.config import settings
-from app.api.routes import health, chat, documents, search
+from app.api.routes import health, chat, documents, search, products, protocols
 
 # Configure structured logging
 structlog.configure(
@@ -60,7 +60,8 @@ app = FastAPI(
     description="Clinical Knowledge & Protocol Agent API for Dermafocus products",
     docs_url="/docs" if settings.debug else None,  # Disable docs in production
     redoc_url="/redoc" if settings.debug else None,
-    lifespan=lifespan
+    lifespan=lifespan,
+    redirect_slashes=False  # Don't redirect /api/chat to /api/chat/ (avoids 307 issues)
 )
 
 
@@ -180,6 +181,12 @@ app.include_router(documents.router, prefix="/api/documents", tags=["Documents"]
 
 # Search routes
 app.include_router(search.router, prefix="/api/search", tags=["Search"])
+
+# Products routes (dynamic product extraction from RAG)
+app.include_router(products.router, prefix="/api/products", tags=["Products"])
+
+# Protocols routes (dynamic protocol extraction from RAG)
+app.include_router(protocols.router, prefix="/api/protocols", tags=["Protocols"])
 
 
 # ==============================================================================

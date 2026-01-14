@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState } from '../../types';
-import { MessageSquare, FileText, Package, ShieldCheck, Menu, X, Video, BookOpen } from 'lucide-react';
+import { MessageSquare, FileText, Package, ShieldCheck, Menu, X, BookOpen } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -12,7 +12,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, setIsOpen }) => {
   const navItems = [
     { id: ViewState.CHAT, label: 'Clinical Intelligence', icon: MessageSquare },
-    { id: ViewState.LIVE_CONSULT, label: 'Live Consult', icon: Video },
     { id: ViewState.PROTOCOLS, label: 'Treatment Protocols', icon: FileText },
     { id: ViewState.PRODUCTS, label: 'Product Portfolio', icon: Package },
     { id: ViewState.SAFETY, label: 'Medical Guardrails', icon: ShieldCheck },

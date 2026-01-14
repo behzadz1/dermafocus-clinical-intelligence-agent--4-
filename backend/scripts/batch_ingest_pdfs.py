@@ -8,11 +8,15 @@ Optimized for processing multiple PDFs (30+) with:
 - Resumable processing (skip already processed)
 - Comprehensive error handling and recovery
 - Detailed logging and summary report
+- Recursive folder scanning with folder exclusion
+- Document type detection from folder names
 
 Usage:
-    python scripts/batch_ingest_pdfs.py /path/to/pdfs/
-    python scripts/batch_ingest_pdfs.py /path/to/pdfs/ --dry-run
-    python scripts/batch_ingest_pdfs.py /path/to/pdfs/ --force  # Re-process all
+    python scripts/batch_ingest_pdfs.py                           # Process backend/data/uploads
+    python scripts/batch_ingest_pdfs.py /path/to/pdfs/            # Custom path
+    python scripts/batch_ingest_pdfs.py --dry-run                 # Preview without uploading
+    python scripts/batch_ingest_pdfs.py --force                   # Re-process all
+    python scripts/batch_ingest_pdfs.py --skip-folder "Injection" # Skip folders containing "Injection"
 """
 
 import os
@@ -23,8 +27,9 @@ import hashlib
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Set
 from dataclasses import dataclass, field, asdict
+from collections import defaultdict
 import traceback
 
 # Add parent directory for imports
@@ -77,6 +82,13 @@ class Config:
     # Processing
     processed_log_file: str = "processed_documents.json"
 
+    # Folder settings
+    skip_folders: List[str] = field(default_factory=lambda: ["Injection Techniques"])
+    recursive: bool = True
+
+    # Default uploads path (relative to backend/)
+    default_uploads_path: str = "data/uploads"
+
 
 # =============================================================================
 # Data Classes
@@ -118,11 +130,93 @@ class DocumentResult:
     file_path: str
     doc_id: str
     success: bool
+    doc_type: str = "document"
     pages: int = 0
     chunks: int = 0
     vectors_uploaded: int = 0
     error: Optional[str] = None
     processing_time: float = 0
+
+
+# =============================================================================
+# File Discovery
+# =============================================================================
+
+def get_doc_type_from_folder(folder_name: str) -> str:
+    """
+    Map folder name to document type for better metadata
+    """
+    folder_lower = folder_name.lower()
+
+    type_mapping = {
+        "brochure": "brochure",
+        "case stud": "case_study",
+        "clinical": "clinical_paper",
+        "fact sheet": "fact_sheet",
+        "protocol": "protocol",
+        "treatment": "protocol",
+        "technique": "technique",
+    }
+
+    for key, doc_type in type_mapping.items():
+        if key in folder_lower:
+            return doc_type
+
+    return "document"
+
+
+def find_pdfs_recursive(
+    root_dir: Path,
+    skip_folders: List[str],
+    seen_files: Set[str] = None
+) -> List[Tuple[Path, str]]:
+    """
+    Recursively find all PDFs, skipping specified folders.
+    Also deduplicates files with same name (keeps first found).
+
+    Returns:
+        List of tuples: (file_path, doc_type)
+    """
+    if seen_files is None:
+        seen_files = set()
+
+    pdf_files = []
+    skipped_folders = []
+
+    for item in sorted(root_dir.iterdir()):
+        if item.is_dir():
+            # Check if this folder should be skipped
+            should_skip = False
+            for skip_pattern in skip_folders:
+                if skip_pattern.lower() in item.name.lower():
+                    should_skip = True
+                    skipped_folders.append(item.name)
+                    break
+
+            if not should_skip:
+                # Recurse into subfolder
+                pdf_files.extend(find_pdfs_recursive(item, skip_folders, seen_files))
+
+        elif item.suffix.lower() == ".pdf":
+            # Deduplicate by filename (handle duplicates like "file (1).pdf")
+            base_name = item.stem
+            # Remove common duplicate suffixes like " (1)", " (2)", etc.
+            import re
+            clean_name = re.sub(r'\s*\(\d+\)$', '', base_name).strip()
+
+            if clean_name not in seen_files:
+                seen_files.add(clean_name)
+                # Get doc type from parent folder
+                doc_type = get_doc_type_from_folder(item.parent.name)
+                pdf_files.append((item, doc_type))
+            else:
+                print(f"   Skipping duplicate: {item.name}")
+
+    if skipped_folders:
+        for folder in skipped_folders:
+            print(f"   Skipping folder: {folder}")
+
+    return pdf_files
 
 
 # =============================================================================
@@ -420,7 +514,8 @@ class ProcessingLog:
 def process_single_document(
     filepath: str,
     processor: BatchProcessor,
-    config: Config
+    config: Config,
+    doc_type: str = "document"
 ) -> DocumentResult:
     """Process a single PDF document"""
     start_time = time.time()
@@ -435,6 +530,7 @@ def process_single_document(
             return DocumentResult(
                 file_path=filepath,
                 doc_id=doc_id,
+                doc_type=doc_type,
                 success=False,
                 error="No text extracted from PDF"
             )
@@ -458,6 +554,7 @@ def process_single_document(
             return DocumentResult(
                 file_path=filepath,
                 doc_id=doc_id,
+                doc_type=doc_type,
                 success=False,
                 pages=len(pages),
                 error="No valid chunks created"
@@ -489,6 +586,7 @@ def process_single_document(
                 "values": embedding,
                 "metadata": {
                     "doc_id": doc_id,
+                    "doc_type": doc_type,
                     "document_name": doc_name,
                     "page_number": chunk["page"],
                     "chunk_index": chunk["chunk_idx"],
@@ -504,6 +602,7 @@ def process_single_document(
         return DocumentResult(
             file_path=filepath,
             doc_id=doc_id,
+            doc_type=doc_type,
             success=True,
             pages=len(pages),
             chunks=len(all_chunks),
@@ -515,6 +614,7 @@ def process_single_document(
         return DocumentResult(
             file_path=filepath,
             doc_id=doc_id,
+            doc_type=doc_type,
             success=False,
             error=str(e),
             processing_time=time.time() - start_time
@@ -527,25 +627,37 @@ def process_directory(
     dry_run: bool = False,
     force: bool = False
 ) -> ProcessingStats:
-    """Process all PDFs in a directory"""
+    """Process all PDFs in a directory (recursively)"""
 
     stats = ProcessingStats()
-
-    # Find all PDFs
-    pdf_files = sorted(input_dir.glob("*.pdf"))
-    stats.total_files = len(pdf_files)
-
-    if not pdf_files:
-        print(f"No PDF files found in {input_dir}")
-        return stats
 
     print(f"\n{'='*60}")
     print(f"PDF Batch Ingestion for RAG")
     print(f"{'='*60}")
     print(f"Input directory: {input_dir}")
-    print(f"PDF files found: {stats.total_files}")
+    print(f"Recursive: {config.recursive}")
+    print(f"Skip folders: {config.skip_folders}")
     print(f"Mode: {'DRY RUN' if dry_run else 'LIVE'}")
     print(f"{'='*60}\n")
+
+    # Find all PDFs recursively, skipping specified folders
+    print("Scanning for PDF files...")
+    pdf_files_with_types = find_pdfs_recursive(input_dir, config.skip_folders)
+    stats.total_files = len(pdf_files_with_types)
+
+    if not pdf_files_with_types:
+        print(f"No PDF files found in {input_dir}")
+        return stats
+
+    # Group by doc_type for summary
+    type_counts = defaultdict(int)
+    for _, doc_type in pdf_files_with_types:
+        type_counts[doc_type] += 1
+
+    print(f"\nFound {stats.total_files} unique PDF files:")
+    for doc_type, count in sorted(type_counts.items()):
+        print(f"  - {doc_type}: {count}")
+    print()
 
     # Initialize processor
     processor = BatchProcessor(config)
@@ -560,19 +672,20 @@ def process_directory(
     processing_log = ProcessingLog(log_path)
 
     # Process each file
-    for idx, pdf_path in enumerate(pdf_files, 1):
+    for idx, (pdf_path, doc_type) in enumerate(pdf_files_with_types, 1):
         filename = pdf_path.name
+        relative_path = pdf_path.relative_to(input_dir)
 
         # Check if already processed (unless force flag)
         if not force and processing_log.is_processed(str(pdf_path)):
-            print(f"[{idx}/{stats.total_files}] SKIP (already processed): {filename}")
+            print(f"[{idx}/{stats.total_files}] SKIP (already processed): {relative_path}")
             stats.skipped += 1
             continue
 
         # Progress display
         eta = stats.eta()
         eta_str = f" | ETA: {eta}" if eta else ""
-        print(f"[{idx}/{stats.total_files}] Processing: {filename}{eta_str}")
+        print(f"[{idx}/{stats.total_files}] Processing: {relative_path} [{doc_type}]{eta_str}")
 
         if dry_run:
             # Just extract and show info
@@ -588,10 +701,10 @@ def process_directory(
             except Exception as e:
                 print(f"   ERROR: {e}")
                 stats.failed += 1
-                stats.errors.append({"file": filename, "error": str(e)})
+                stats.errors.append({"file": str(relative_path), "error": str(e)})
         else:
             # Full processing
-            result = process_single_document(str(pdf_path), processor, config)
+            result = process_single_document(str(pdf_path), processor, config, doc_type)
 
             if result.success:
                 print(f"   Pages: {result.pages}, Chunks: {result.chunks}, "
@@ -604,7 +717,7 @@ def process_directory(
             else:
                 print(f"   FAILED: {result.error}")
                 stats.failed += 1
-                stats.errors.append({"file": filename, "error": result.error})
+                stats.errors.append({"file": str(relative_path), "error": result.error})
 
         # Small delay between documents
         if not dry_run and idx < stats.total_files:
@@ -648,22 +761,31 @@ def print_summary(stats: ProcessingStats, config: Config):
 # =============================================================================
 
 def main():
+    # Determine default uploads path
+    script_dir = Path(__file__).parent
+    backend_dir = script_dir.parent
+    default_uploads = backend_dir / "data" / "uploads"
+
     parser = argparse.ArgumentParser(
         description="Batch ingest PDFs for RAG",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+        epilog=f"""
 Examples:
-  %(prog)s ./documents/              Process all PDFs in directory
-  %(prog)s ./documents/ --dry-run    Preview without uploading
-  %(prog)s ./documents/ --force      Re-process already processed files
-  %(prog)s ./documents/ --namespace medical  Use custom namespace
+  %(prog)s                                    Process PDFs in {default_uploads}
+  %(prog)s ./documents/                       Process PDFs in custom directory
+  %(prog)s --dry-run                          Preview without uploading
+  %(prog)s --force                            Re-process all files
+  %(prog)s --skip-folder "Injection"          Skip folders containing "Injection"
+  %(prog)s --namespace medical                Use custom namespace
         """
     )
 
     parser.add_argument(
         "input_dir",
         type=Path,
-        help="Directory containing PDF files"
+        nargs="?",
+        default=default_uploads,
+        help=f"Directory containing PDF files (default: {default_uploads})"
     )
     parser.add_argument(
         "--dry-run",
@@ -697,6 +819,13 @@ Examples:
         default="dermaai-ckpa",
         help="Pinecone index name (default: 'dermaai-ckpa')"
     )
+    parser.add_argument(
+        "--skip-folder",
+        action="append",
+        dest="skip_folders",
+        default=None,
+        help="Skip folders containing this string (can be used multiple times)"
+    )
 
     args = parser.parse_args()
 
@@ -710,11 +839,15 @@ Examples:
         sys.exit(1)
 
     # Create config
+    # Default skip folders, can be overridden via CLI
+    skip_folders = args.skip_folders if args.skip_folders else ["Injection Techniques"]
+
     config = Config(
         chunk_size=args.chunk_size,
         chunk_overlap=args.chunk_overlap,
         namespace=args.namespace,
-        index_name=args.index_name
+        index_name=args.index_name,
+        skip_folders=skip_folders
     )
 
     # Process
