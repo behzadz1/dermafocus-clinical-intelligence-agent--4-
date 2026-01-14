@@ -182,7 +182,12 @@ async def chat(request: ChatRequest):
             context_length=len(context_text)
         )
         
-        # Step 2: Build conversation history for Claude
+        # Step 2: Classify query intent
+        intent_data = claude_service.classify_intent(request.question)
+        detected_intent = intent_data["intent"]
+        logger.info("Intent classified", intent=detected_intent, intent_confidence=intent_data["confidence"])
+
+        # Step 3: Build conversation history for Claude
         conversation_history = []
         if request.history:
             for msg in request.history[-5:]:  # Last 5 messages for context
@@ -190,8 +195,8 @@ async def chat(request: ChatRequest):
                     "role": msg.role,
                     "content": msg.content
                 })
-        
-        # Step 3: Generate response with Claude
+
+        # Step 4: Generate response with Claude
         logger.info("Generating Claude response")
         claude_response = claude_service.generate_response(
             user_message=request.question,
@@ -228,7 +233,7 @@ async def chat(request: ChatRequest):
         response = ChatResponse(
             answer=answer,
             sources=sources,
-            intent="answered",
+            intent=detected_intent,  # Use classified intent instead of generic "answered"
             confidence=confidence,
             conversation_id=conversation_id,
             follow_ups=follow_ups

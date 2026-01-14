@@ -251,6 +251,50 @@ Guidelines:
         
         return sources
     
+    def classify_intent(self, question: str) -> Dict[str, Any]:
+        """
+        Classify the intent of a user question for better routing.
+
+        Args:
+            question: User's question
+
+        Returns:
+            Intent classification with category and confidence
+        """
+        question_lower = question.lower()
+
+        # Intent patterns
+        intents = {
+            "product_info": ["what is", "composition", "ingredients", "mechanism", "how does", "technology"],
+            "protocol": ["protocol", "treatment", "procedure", "steps", "how to", "technique"],
+            "dosing": ["dose", "dosing", "how much", "quantity", "amount", "ml", "mg"],
+            "contraindications": ["contraindication", "side effect", "adverse", "allergy", "pregnant", "avoid"],
+            "comparison": ["difference", "compare", "versus", "vs", "better", "which one"],
+            "safety": ["safe", "risk", "warning", "caution", "danger"],
+            "scheduling": ["session", "frequency", "how often", "interval", "schedule", "maintenance"],
+            "equipment": ["needle", "syringe", "tool", "device", "gauge"]
+        }
+
+        # Score each intent
+        scores = {}
+        for intent, keywords in intents.items():
+            score = sum(1 for kw in keywords if kw in question_lower)
+            if score > 0:
+                scores[intent] = score
+
+        if not scores:
+            return {"intent": "general_query", "confidence": 0.5}
+
+        # Get highest scoring intent
+        best_intent = max(scores, key=scores.get)
+        confidence = min(scores[best_intent] / 3.0, 1.0)  # Normalize to 0-1
+
+        return {
+            "intent": best_intent,
+            "confidence": confidence,
+            "all_intents": scores
+        }
+
     def generate_follow_ups(
         self,
         question: str,
@@ -258,56 +302,68 @@ Guidelines:
         context: str
     ) -> List[str]:
         """
-        Generate follow-up questions based on conversation
-        
+        Generate intelligent follow-up questions based on conversation context.
+
         Args:
             question: Original question
             answer: Generated answer
             context: Used context
-            
+
         Returns:
-            List of follow-up questions
+            List of contextually relevant follow-up questions
         """
         try:
-            # Simple heuristic-based follow-ups
-            # TODO: Could use Claude to generate these in future
-            
+            # Classify intent to generate relevant follow-ups
+            intent_data = self.classify_intent(question)
+            intent = intent_data["intent"]
+
             follow_ups = []
-            
-            # Product-related follow-ups
-            if "plinest" in question.lower() or "plinest" in answer.lower():
-                follow_ups.extend([
-                    "What are the indications for Plinest?",
-                    "What is the recommended protocol for Plinest?",
-                    "What are the contraindications for Plinest?"
-                ])
-            
-            if "newest" in question.lower() or "newest" in answer.lower():
-                follow_ups.extend([
-                    "How does Newest differ from other products?",
-                    "What is the composition of Newest?",
-                    "What are the clinical applications of Newest?"
-                ])
-            
-            # Protocol-related follow-ups
-            if "protocol" in question.lower() or "treatment" in question.lower():
-                follow_ups.extend([
-                    "What are the preparation steps?",
-                    "How many sessions are typically needed?",
-                    "What are the expected results?"
-                ])
-            
-            # Technique-related follow-ups
-            if "injection" in question.lower() or "technique" in question.lower():
-                follow_ups.extend([
-                    "What needle size should be used?",
-                    "What are the injection points?",
-                    "What are common mistakes to avoid?"
-                ])
-            
-            # Return max 3 unique follow-ups
-            return list(set(follow_ups))[:3]
-            
+            question_lower = question.lower()
+            answer_lower = answer.lower()
+
+            # Product-specific follow-ups
+            products = {
+                "plinest": ["Plinest injection technique", "Plinest contraindications", "Plinest treatment schedule"],
+                "newest": ["Newest mechanism of action", "Newest vs other polynucleotides", "Newest clinical results"],
+                "newgyn": ["NewGyn vulvar protocol", "NewGyn dosing schedule", "NewGyn patient selection"],
+                "purasomes": ["Purasomes composition details", "Purasomes skin protocol", "Purasomes hair treatment"]
+            }
+
+            for product, questions in products.items():
+                if product in question_lower or product in answer_lower:
+                    follow_ups.extend(questions)
+                    break
+
+            # Intent-based follow-ups
+            intent_follow_ups = {
+                "product_info": ["What are the clinical indications?", "What is the treatment protocol?", "What are the contraindications?"],
+                "protocol": ["What needle size is recommended?", "How many sessions are needed?", "What areas can be treated?"],
+                "dosing": ["What is the treatment frequency?", "Can the dose be adjusted?", "What factors affect dosing?"],
+                "contraindications": ["Are there any drug interactions?", "What precautions should be taken?", "How to manage adverse reactions?"],
+                "comparison": ["What are the indications for each?", "Which is better for specific conditions?", "What are the cost differences?"],
+                "safety": ["What are the most common side effects?", "How to minimize complications?", "What is the safety profile?"],
+                "scheduling": ["What is the maintenance protocol?", "When will results be visible?", "How long do effects last?"],
+                "equipment": ["What injection depth is recommended?", "What technique should be used?", "Are there alternative tools?"]
+            }
+
+            if intent in intent_follow_ups:
+                follow_ups.extend(intent_follow_ups[intent])
+
+            # Remove duplicates and questions similar to the original
+            unique_follow_ups = []
+            seen = set()
+            for fu in follow_ups:
+                fu_lower = fu.lower()
+                # Skip if too similar to original question
+                if any(word in question_lower for word in fu_lower.split()[:3]):
+                    continue
+                if fu_lower not in seen:
+                    seen.add(fu_lower)
+                    unique_follow_ups.append(fu)
+
+            # Return max 3 follow-ups
+            return unique_follow_ups[:3]
+
         except Exception as e:
             logger.warning("Failed to generate follow-ups", error=str(e))
             return []
