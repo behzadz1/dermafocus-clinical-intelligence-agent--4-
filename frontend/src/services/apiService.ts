@@ -134,7 +134,8 @@ export const apiService = {
     question: string,
     conversationId?: string,
     history: Message[] = [],
-    onSources?: (sources: Source[]) => void
+    onSources?: (sources: Source[]) => void,
+    onFollowUps?: (followUps: string[]) => void
   ): AsyncGenerator<string, void, unknown> {
     const request: ChatRequest = {
       question,
@@ -180,6 +181,8 @@ export const apiService = {
                 yield data.content;
               } else if (data.type === 'sources' && onSources) {
                 onSources(data.sources);
+              } else if (data.type === 'follow_ups' && onFollowUps) {
+                onFollowUps(data.follow_ups);
               } else if (data.type === 'done') {
                 return;
               } else if (data.type === 'error') {

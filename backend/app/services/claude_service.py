@@ -302,72 +302,103 @@ Guidelines:
         context: str
     ) -> List[str]:
         """
-        Generate intelligent follow-up questions based on conversation context.
+        Generate dynamic follow-up questions using Claude based on the conversation context.
 
         Args:
-            question: Original question
-            answer: Generated answer
-            context: Used context
+            question: Original question asked by the user
+            answer: Generated answer from the system
+            context: RAG context used to generate the answer
 
         Returns:
-            List of contextually relevant follow-up questions
+            List of 3 contextually relevant follow-up questions
         """
         try:
-            # Classify intent to generate relevant follow-ups
-            intent_data = self.classify_intent(question)
-            intent = intent_data["intent"]
+            logger.info("Generating dynamic follow-up questions with Claude")
 
+            # Build a focused prompt for follow-up generation
+            follow_up_prompt = f"""Based on this clinical Q&A exchange, generate exactly 3 relevant follow-up questions that a clinician would naturally want to ask next.
+
+**User Question:** {question}
+
+**Answer Provided:** {answer[:500]}{"..." if len(answer) > 500 else ""}
+
+**Available Context Topics:** {context[:300]}{"..." if len(context) > 300 else ""}
+
+Requirements:
+1. Questions must be directly related to the topic discussed
+2. Questions should explore deeper aspects not fully covered in the answer
+3. Questions should be practical and clinically relevant
+4. Each question should be concise (under 10 words)
+5. Do NOT repeat or rephrase the original question
+
+Return ONLY 3 questions, one per line, no numbering or bullets."""
+
+            # Use a quick Claude call with lower tokens for efficiency
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=150,  # Short response needed
+                temperature=0.4,  # Slightly more creative for variety
+                system="You are a clinical assistant generating follow-up questions for aesthetic medicine practitioners. Be concise and specific.",
+                messages=[{"role": "user", "content": follow_up_prompt}]
+            )
+
+            # Extract the response text
+            response_text = ""
+            for block in response.content:
+                if block.type == "text":
+                    response_text += block.text
+
+            # Parse the response into individual questions
+            lines = [line.strip() for line in response_text.strip().split('\n') if line.strip()]
+
+            # Clean up any numbering or bullets that might have been added
             follow_ups = []
-            question_lower = question.lower()
-            answer_lower = answer.lower()
+            for line in lines:
+                # Remove common prefixes like "1.", "- ", "• ", etc.
+                cleaned = line.lstrip('0123456789.-•) ').strip()
+                if cleaned and len(cleaned) > 5:  # Ensure it's a real question
+                    # Add question mark if missing
+                    if not cleaned.endswith('?'):
+                        cleaned += '?'
+                    follow_ups.append(cleaned)
 
-            # Product-specific follow-ups
-            products = {
-                "plinest": ["Plinest injection technique", "Plinest contraindications", "Plinest treatment schedule"],
-                "newest": ["Newest mechanism of action", "Newest vs other polynucleotides", "Newest clinical results"],
-                "newgyn": ["NewGyn vulvar protocol", "NewGyn dosing schedule", "NewGyn patient selection"],
-                "purasomes": ["Purasomes composition details", "Purasomes skin protocol", "Purasomes hair treatment"]
-            }
-
-            for product, questions in products.items():
-                if product in question_lower or product in answer_lower:
-                    follow_ups.extend(questions)
-                    break
-
-            # Intent-based follow-ups
-            intent_follow_ups = {
-                "product_info": ["What are the clinical indications?", "What is the treatment protocol?", "What are the contraindications?"],
-                "protocol": ["What needle size is recommended?", "How many sessions are needed?", "What areas can be treated?"],
-                "dosing": ["What is the treatment frequency?", "Can the dose be adjusted?", "What factors affect dosing?"],
-                "contraindications": ["Are there any drug interactions?", "What precautions should be taken?", "How to manage adverse reactions?"],
-                "comparison": ["What are the indications for each?", "Which is better for specific conditions?", "What are the cost differences?"],
-                "safety": ["What are the most common side effects?", "How to minimize complications?", "What is the safety profile?"],
-                "scheduling": ["What is the maintenance protocol?", "When will results be visible?", "How long do effects last?"],
-                "equipment": ["What injection depth is recommended?", "What technique should be used?", "Are there alternative tools?"]
-            }
-
-            if intent in intent_follow_ups:
-                follow_ups.extend(intent_follow_ups[intent])
-
-            # Remove duplicates and questions similar to the original
-            unique_follow_ups = []
-            seen = set()
-            for fu in follow_ups:
-                fu_lower = fu.lower()
-                # Skip if too similar to original question
-                if any(word in question_lower for word in fu_lower.split()[:3]):
-                    continue
-                if fu_lower not in seen:
-                    seen.add(fu_lower)
-                    unique_follow_ups.append(fu)
+            logger.info(f"Generated {len(follow_ups)} dynamic follow-up questions")
 
             # Return max 3 follow-ups
-            return unique_follow_ups[:3]
+            return follow_ups[:3]
 
         except Exception as e:
-            logger.warning("Failed to generate follow-ups", error=str(e))
-            return []
-    
+            logger.warning(f"Failed to generate dynamic follow-ups: {str(e)}, falling back to defaults")
+            # Fallback to basic contextual questions if Claude fails
+            return self._get_fallback_follow_ups(question, answer)
+
+    def _get_fallback_follow_ups(self, question: str, answer: str) -> List[str]:
+        """
+        Generate fallback follow-up questions when Claude call fails.
+        Uses simple keyword detection for basic relevance.
+        """
+        question_lower = question.lower()
+        answer_lower = answer.lower()
+
+        # Product-based fallbacks
+        products = {
+            "plinest": ["What is the Plinest treatment protocol?", "Plinest contraindications?", "Plinest needle size?"],
+            "newest": ["How does Newest work?", "Newest treatment schedule?", "Newest indications?"],
+            "newgyn": ["NewGyn application technique?", "NewGyn patient selection?", "NewGyn dosing?"],
+            "purasomes": ["Purasomes mechanism of action?", "Purasomes treatment areas?", "Purasomes vs alternatives?"]
+        }
+
+        for product, questions in products.items():
+            if product in question_lower or product in answer_lower:
+                return questions[:3]
+
+        # Generic clinical fallbacks
+        return [
+            "What are the contraindications?",
+            "What is the recommended protocol?",
+            "What results can be expected?"
+        ]
+
     def health_check(self) -> Dict[str, Any]:
         """
         Check if Claude API is accessible

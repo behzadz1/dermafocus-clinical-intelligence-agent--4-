@@ -36,6 +36,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [useStreaming, setUseStreaming] = useState(true);
+  const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -74,6 +75,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     try {
       let fullText = '';
       let sources: Source[] = [];
+      let followUps: string[] = [];
 
       // Stream the response
       for await (const chunk of apiService.sendMessageStream(
@@ -82,6 +84,11 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         [],
         (receivedSources) => {
           sources = receivedSources;
+        },
+        (receivedFollowUps) => {
+          followUps = receivedFollowUps;
+          // Update dynamic suggestions immediately when received
+          setDynamicSuggestions(receivedFollowUps);
         }
       )) {
         fullText += chunk;
@@ -94,12 +101,17 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         ));
       }
 
-      // Finalize message with sources
+      // Finalize message with sources and follow-ups
+      let finalText = fullText;
+      if (followUps.length > 0) {
+        finalText += `\n\n<follow_ups>${JSON.stringify(followUps)}</follow_ups>`;
+      }
+
       setMessages(prev => prev.map(msg =>
         msg.id === botMsgId
           ? {
             ...msg,
-            text: fullText,
+            text: finalText,
             isStreaming: false,
             sources: sources,
             confidence: sources.length > 0
@@ -167,6 +179,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       // Add follow-ups to the message text if present
       if (response.follow_ups && response.follow_ups.length > 0) {
         botMsg.text += `\n\n<follow_ups>${JSON.stringify(response.follow_ups)}</follow_ups>`;
+        // Update dynamic suggestions for the suggestion bar
+        setDynamicSuggestions(response.follow_ups);
       }
 
       setMessages(prev => [...prev, botMsg]);
@@ -201,19 +215,6 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const extractFollowUps = (text: string) => {
-    const match = text.match(/<follow_ups>([\s\S]*?)<\/follow_ups>/);
-    if (match) {
-      try {
-        const cleanedJson = match[1].trim();
-        return JSON.parse(cleanedJson) as string[];
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
   };
 
   const cleanText = (text: string) => {
@@ -391,21 +392,6 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
               </div>
             </div>
 
-            {/* Contextual Follow-ups for this message */}
-            {msg.role === 'model' && !msg.isStreaming && extractFollowUps(msg.text).length > 0 && (
-              <div className="ml-11 flex flex-wrap gap-2 mt-2">
-                {extractFollowUps(msg.text).map((q, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSend(q)}
-                    className="bg-white hover:bg-teal-50 text-teal-700 border border-teal-100 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
-                  >
-                    <MessageCircle size={12} className="text-teal-400" />
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         ))}
         {isLoading && (
@@ -426,15 +412,20 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
 
       {/* Input Section */}
       <div className="bg-white border-t border-slate-200 p-4">
-        {/* Quick Query Suggestions */}
+        {/* Quick Query Suggestions - Dynamic or Static */}
         <div className="max-w-4xl mx-auto mb-4 overflow-x-auto scrollbar-hide flex items-center gap-2 py-1">
-          {STATIC_SUGGESTIONS.map((suggestion, idx) => (
+          {(dynamicSuggestions.length > 0 ? dynamicSuggestions : STATIC_SUGGESTIONS).map((suggestion, idx) => (
             <button
               key={idx}
               onClick={() => handleSend(suggestion)}
               disabled={isLoading}
-              className="shrink-0 px-3 py-1.5 bg-slate-50 hover:bg-teal-50 text-slate-600 hover:text-teal-700 border border-slate-200 hover:border-teal-200 rounded-full text-xs font-medium transition-all"
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                dynamicSuggestions.length > 0
+                  ? 'bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 hover:border-teal-300'
+                  : 'bg-slate-50 hover:bg-teal-50 text-slate-600 hover:text-teal-700 border border-slate-200 hover:border-teal-200'
+              }`}
             >
+              {dynamicSuggestions.length > 0 && <MessageCircle size={10} className="inline mr-1.5 text-teal-500" />}
               {suggestion}
             </button>
           ))}

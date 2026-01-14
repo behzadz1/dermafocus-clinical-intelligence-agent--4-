@@ -313,15 +313,17 @@ async def chat_stream(request: ChatRequest):
                         "content": msg.content
                     })
             
-            # Stream response from Claude
+            # Stream response from Claude and collect full answer
+            full_answer = ""
             for chunk in claude_service.generate_response_stream(
                 user_message=request.question,
                 context=context_text,
                 conversation_history=conversation_history
             ):
+                full_answer += chunk
                 data = {"type": "content", "content": chunk}
                 yield f"data: {json.dumps(data)}\n\n"
-            
+
             # Send sources at the end
             sources = []
             for chunk in retrieved_chunks:
@@ -330,10 +332,19 @@ async def chat_stream(request: ChatRequest):
                     "page": chunk["metadata"].get("page_number", 0),
                     "relevance_score": chunk["score"]
                 })
-            
+
             data = {"type": "sources", "sources": sources}
             yield f"data: {json.dumps(data)}\n\n"
-            
+
+            # Generate and send dynamic follow-up questions
+            follow_ups = claude_service.generate_follow_ups(
+                question=request.question,
+                answer=full_answer,
+                context=context_text
+            )
+            data = {"type": "follow_ups", "follow_ups": follow_ups}
+            yield f"data: {json.dumps(data)}\n\n"
+
             # Send completion
             data = {"type": "done"}
             yield f"data: {json.dumps(data)}\n\n"
