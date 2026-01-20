@@ -37,7 +37,19 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [useStreaming, setUseStreaming] = useState(true);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
+  const [conversationId, setConversationId] = useState<string>(`conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Build conversation history for multi-turn context (last 10 messages)
+  const buildConversationHistory = () => {
+    return messages
+      .filter(m => m.id !== 'welcome') // Exclude welcome message
+      .slice(-10) // Keep last 10 messages for context
+      .map(m => ({
+        role: m.role === 'user' ? 'user' as const : 'assistant' as const,
+        content: m.text.replace(/<follow_ups>[\s\S]*?<\/follow_ups>/, '').trim() // Clean follow-ups tags
+      }));
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -77,11 +89,14 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       let sources: Source[] = [];
       let followUps: string[] = [];
 
-      // Stream the response
+      // Build history before adding current message
+      const history = buildConversationHistory();
+
+      // Stream the response with conversation context
       for await (const chunk of apiService.sendMessageStream(
         query,
-        undefined,
-        [],
+        conversationId,
+        history,
         (receivedSources) => {
           sources = receivedSources;
         },
@@ -163,8 +178,11 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     setIsLoading(true);
 
     try {
-      // Call backend API
-      const response: ChatResponse = await apiService.sendMessage(query);
+      // Build history before adding current message
+      const history = buildConversationHistory();
+
+      // Call backend API with conversation context
+      const response: ChatResponse = await apiService.sendMessage(query, conversationId, history);
 
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -202,7 +220,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   };
 
   const handleReset = () => {
-    // Clear messages and reset conversation
+    // Clear messages and reset conversation with new ID
+    setConversationId(`conv_${Date.now()}`);
+    setDynamicSuggestions([]);
     setMessages([
       {
         id: Date.now().toString(),

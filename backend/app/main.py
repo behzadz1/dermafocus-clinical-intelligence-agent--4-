@@ -9,18 +9,46 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 import time
+import uuid
+import re
 import structlog
 
 from app.config import settings
+
+
+# ==============================================================================
+# PHI REDACTION UTILITY
+# ==============================================================================
+
+PHI_PATTERNS = [
+    (r'\b\d{3}-\d{2}-\d{4}\b', '[SSN_REDACTED]'),  # SSN
+    (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL_REDACTED]'),  # Email
+    (r'\b\d{10,11}\b', '[PHONE_REDACTED]'),  # Phone numbers
+    (r'\b\d{1,2}/\d{1,2}/\d{2,4}\b', '[DATE_REDACTED]'),  # Dates MM/DD/YYYY
+    (r'\b\d{4}-\d{2}-\d{2}\b', '[DATE_REDACTED]'),  # Dates YYYY-MM-DD
+]
+
+def redact_phi(text: str) -> str:
+    """Redact potential PHI from text for safe logging."""
+    if not text:
+        return text
+    for pattern, replacement in PHI_PATTERNS:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
 from app.api.routes import health, chat, documents, search, products, protocols
 
-# Configure structured logging
+# Configure structured logging with context support
 structlog.configure(
     processors=[
+        structlog.contextvars.merge_contextvars,  # Merge request_id from context
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.add_log_level,
         structlog.processors.JSONRenderer()
-    ]
+    ],
+    wrapper_class=structlog.make_filtering_bound_logger(0),
+    context_class=dict,
+    logger_factory=structlog.PrintLoggerFactory(),
+    cache_logger_on_first_use=True
 )
 logger = structlog.get_logger()
 
@@ -82,40 +110,50 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
-# Request Logging Middleware
+# Request Logging Middleware with Request ID
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """
-    Log all incoming requests with timing information
+    Log all incoming requests with timing information and request ID tracing
     """
     start_time = time.time()
-    
-    # Log request
+
+    # Generate or extract request ID for tracing
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+
+    # Bind request ID to structlog context for all logs in this request
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(request_id=request_id)
+
+    # Log request (PHI-safe)
     logger.info(
         "request_received",
         method=request.method,
         path=request.url.path,
-        client_ip=request.client.host if request.client else "unknown"
+        client_ip=request.client.host if request.client else "unknown",
+        request_id=request_id
     )
-    
+
     # Process request
     response = await call_next(request)
-    
+
     # Calculate processing time
     process_time = time.time() - start_time
-    
+
     # Log response
     logger.info(
         "request_completed",
         method=request.method,
         path=request.url.path,
         status_code=response.status_code,
-        process_time_ms=round(process_time * 1000, 2)
+        process_time_ms=round(process_time * 1000, 2),
+        request_id=request_id
     )
-    
-    # Add timing header
+
+    # Add headers for tracing
     response.headers["X-Process-Time"] = str(process_time)
-    
+    response.headers["X-Request-ID"] = request_id
+
     return response
 
 

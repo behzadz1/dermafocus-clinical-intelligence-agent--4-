@@ -73,6 +73,82 @@ class ProcessingStatus(BaseModel):
 
 
 # ==============================================================================
+# PINECONE INDEXING HELPER
+# ==============================================================================
+
+async def index_chunks_to_pinecone(
+    chunks: List[dict],
+    doc_id: str,
+    doc_type: str,
+    namespace: str = "default"
+) -> int:
+    """
+    Embed document chunks and upload to Pinecone vector database.
+
+    Args:
+        chunks: List of chunk dictionaries with 'text' and 'metadata'
+        doc_id: Document identifier
+        doc_type: Type of document
+        namespace: Pinecone namespace
+
+    Returns:
+        Number of vectors successfully indexed
+    """
+    from app.services.embedding_service import get_embedding_service
+    from app.services.pinecone_service import get_pinecone_service
+
+    embedding_service = get_embedding_service()
+    pinecone_service = get_pinecone_service()
+
+    logger.info(
+        "indexing_chunks_to_pinecone",
+        doc_id=doc_id,
+        num_chunks=len(chunks),
+        namespace=namespace
+    )
+
+    if not chunks:
+        return 0
+
+    # Extract texts for embedding
+    texts = [chunk.get('text', '') for chunk in chunks]
+
+    # Generate embeddings in batch
+    embeddings = embedding_service.generate_embeddings_batch(texts)
+
+    # Prepare vectors for Pinecone
+    vectors = []
+    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+        vector_id = f"{doc_id}_chunk_{i}"
+        metadata = chunk.get('metadata', {})
+
+        # Ensure required metadata
+        metadata.update({
+            'doc_id': doc_id,
+            'doc_type': doc_type,
+            'chunk_index': i,
+            'text': chunk.get('text', '')[:1000]  # Store truncated text for reference
+        })
+
+        vectors.append({
+            'id': vector_id,
+            'values': embedding,
+            'metadata': metadata
+        })
+
+    # Upsert to Pinecone
+    result = pinecone_service.upsert_vectors(vectors, namespace=namespace)
+
+    logger.info(
+        "chunks_indexed_successfully",
+        doc_id=doc_id,
+        upserted_count=result.get('upserted_count', 0)
+    )
+
+    return result.get('upserted_count', 0)
+
+
+# ==============================================================================
 # ENDPOINTS
 # ==============================================================================
 
@@ -154,30 +230,44 @@ async def upload_document(
         if file_ext == '.pdf':
             processor = DocumentProcessor()
             result = processor.process_pdf(file_path, doc_id=doc_id, doc_type=doc_type)
-            
+
             # Save processed data
             os.makedirs(settings.processed_dir, exist_ok=True)
             import json
             processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
             with open(processed_file, 'w') as f:
                 json.dump(result, f, indent=2)
-            
+
             logger.info(
                 "document_processed",
                 doc_id=doc_id,
                 num_chunks=result['stats']['num_chunks']
             )
-            
+
+            # CRITICAL: Embed chunks and upload to Pinecone
+            num_indexed = await index_chunks_to_pinecone(
+                chunks=result['chunks'],
+                doc_id=doc_id,
+                doc_type=doc_type,
+                namespace=namespace or "default"
+            )
+
+            logger.info(
+                "document_indexed_to_pinecone",
+                doc_id=doc_id,
+                num_indexed=num_indexed
+            )
+
             # Auto-invalidate both protocol and product caches
             clear_protocols_cache()
             clear_products_cache()
             logger.info("cleared_caches", reason="pdf_document_uploaded")
-            
+
             return DocumentUploadResponse(
                 doc_id=doc_id,
                 filename=file.filename,
                 status="completed",
-                message=f"Document processed successfully. {result['stats']['num_chunks']} chunks created. Protocols and products caches refreshed."
+                message=f"Document processed and indexed. {result['stats']['num_chunks']} chunks created, {num_indexed} vectors indexed to Pinecone."
             )
         
         elif file_ext in ['.mp4', '.mov', '.avi']:
@@ -189,30 +279,44 @@ async def upload_document(
             
             video_processor = VideoProcessor()
             result = video_processor.process_video(file_path, doc_id=doc_id, doc_type=doc_type)
-            
+
             # Save processed data
             os.makedirs(settings.processed_dir, exist_ok=True)
             import json
             processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
             with open(processed_file, 'w') as f:
                 json.dump(result, f, indent=2)
-            
+
             logger.info(
                 "video_processed",
                 doc_id=doc_id,
                 num_chunks=result['stats']['num_chunks']
             )
-            
+
+            # CRITICAL: Embed chunks and upload to Pinecone
+            num_indexed = await index_chunks_to_pinecone(
+                chunks=result['chunks'],
+                doc_id=doc_id,
+                doc_type=doc_type,
+                namespace=namespace or "default"
+            )
+
+            logger.info(
+                "video_indexed_to_pinecone",
+                doc_id=doc_id,
+                num_indexed=num_indexed
+            )
+
             # Auto-invalidate both protocol and product caches
             clear_protocols_cache()
             clear_products_cache()
             logger.info("cleared_caches", reason="video_document_uploaded")
-            
+
             return DocumentUploadResponse(
                 doc_id=doc_id,
                 filename=file.filename,
                 status="completed",
-                message=f"Video transcribed successfully. {result['stats']['num_chunks']} chunks created. Protocols and products caches refreshed."
+                message=f"Video transcribed and indexed. {result['stats']['num_chunks']} chunks created, {num_indexed} vectors indexed to Pinecone."
             )
         
         else:
@@ -377,41 +481,64 @@ async def get_processing_status(doc_id: str):
 
 
 @router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_document(doc_id: str):
+async def delete_document(
+    doc_id: str,
+    namespace: str = Query(default="default", description="Pinecone namespace")
+):
     """
     Delete a document from the knowledge base
-    
+
     This will:
-    1. Remove document from database
-    2. Delete vectors from Pinecone
-    3. Remove files from storage
-    
+    1. Delete vectors from Pinecone
+    2. Remove processed JSON file
+    3. Remove uploaded file from storage
+
     Args:
         doc_id: Unique document identifier
-    
-    NOTE: This is a placeholder. Implementation in Phase 2.
+        namespace: Pinecone namespace where vectors are stored
     """
-    logger.info("document_deletion_requested", doc_id=doc_id)
-    
-    # TODO: Phase 2 - Implement document deletion
-    # from app.services.document_service import DocumentService
-    # from app.services.embedding_service import EmbeddingService
-    # 
-    # doc_service = DocumentService()
-    # embedding_service = EmbeddingService()
-    # 
-    # # Delete from database
-    # await doc_service.delete_document(doc_id)
-    # 
-    # # Delete from Pinecone
-    # await embedding_service.delete_vectors(doc_id)
-    # 
-    # logger.info("document_deleted", doc_id=doc_id)
-    
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Document deletion not yet implemented."
-    )
+    import os
+    import glob
+
+    logger.info("document_deletion_requested", doc_id=doc_id, namespace=namespace)
+
+    try:
+        from app.services.pinecone_service import get_pinecone_service
+        pinecone_service = get_pinecone_service()
+
+        # Delete vectors from Pinecone using metadata filter
+        # We need to delete all vectors with matching doc_id
+        pinecone_service.delete_vectors(
+            filter={"doc_id": {"$eq": doc_id}},
+            namespace=namespace
+        )
+        logger.info("vectors_deleted_from_pinecone", doc_id=doc_id)
+
+        # Delete processed JSON file
+        processed_file = os.path.join(settings.processed_dir, f"{doc_id}_processed.json")
+        if os.path.exists(processed_file):
+            os.remove(processed_file)
+            logger.info("processed_file_deleted", file=processed_file)
+
+        # Delete uploaded file (find by doc_id prefix)
+        upload_pattern = os.path.join(settings.upload_dir, f"{doc_id}.*")
+        for file_path in glob.glob(upload_pattern):
+            os.remove(file_path)
+            logger.info("uploaded_file_deleted", file=file_path)
+
+        # Invalidate caches
+        clear_protocols_cache()
+        clear_products_cache()
+        logger.info("caches_cleared", reason="document_deleted")
+
+        logger.info("document_deleted_successfully", doc_id=doc_id)
+
+    except Exception as e:
+        logger.error("document_deletion_failed", doc_id=doc_id, error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete document: {str(e)}"
+        )
 
 
 @router.post("/{doc_id}/reprocess", status_code=status.HTTP_202_ACCEPTED)

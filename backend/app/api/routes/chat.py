@@ -3,16 +3,38 @@ Chat Routes
 Endpoints for conversational AI with RAG capabilities
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 import structlog
 
 from app.config import settings
+from app.middleware.auth import verify_api_key
 
 router = APIRouter()
 logger = structlog.get_logger()
+
+
+# ==============================================================================
+# PHI REDACTION FOR LOGGING
+# ==============================================================================
+
+import re
+
+PHI_PATTERNS = [
+    (r'\b\d{3}-\d{2}-\d{4}\b', '[SSN]'),  # SSN
+    (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL]'),  # Email
+    (r'\b\d{10,11}\b', '[PHONE]'),  # Phone
+]
+
+def redact_phi(text: str) -> str:
+    """Redact potential PHI from text for safe logging."""
+    if not text:
+        return text
+    for pattern, replacement in PHI_PATTERNS:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
 
 
 # ==============================================================================
@@ -140,7 +162,7 @@ class ChatResponse(BaseModel):
 # ==============================================================================
 
 @router.post("/", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
     """
     Main chat endpoint with RAG
     
@@ -154,7 +176,7 @@ async def chat(request: ChatRequest):
     """
     logger.info(
         "chat_request",
-        question=request.question[:100],
+        question=redact_phi(request.question[:100]),
         conversation_id=request.conversation_id,
         has_history=len(request.history) > 0
     )
@@ -196,16 +218,16 @@ async def chat(request: ChatRequest):
                     "content": msg.content
                 })
 
-        # Step 4: Generate response with Claude
+        # Step 4: Generate response with Claude (async)
         logger.info("Generating Claude response")
-        claude_response = claude_service.generate_response(
+        claude_response = await claude_service.generate_response(
             user_message=request.question,
             context=context_text,
             conversation_history=conversation_history
         )
-        
+
         answer = claude_response["answer"]
-        
+
         # Step 4: Extract and format sources
         sources = []
         for chunk in retrieved_chunks:
@@ -216,9 +238,9 @@ async def chat(request: ChatRequest):
                 relevance_score=chunk["score"],
                 text_snippet=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"]
             ))
-        
-        # Step 5: Generate follow-up questions
-        follow_ups = claude_service.generate_follow_ups(
+
+        # Step 5: Generate follow-up questions (async)
+        follow_ups = await claude_service.generate_follow_ups(
             question=request.question,
             answer=answer,
             context=context_text
@@ -254,7 +276,7 @@ async def chat(request: ChatRequest):
         logger.error(
             "chat_request_failed",
             error=str(e),
-            question=request.question[:100]
+            question=redact_phi(request.question[:100])
         )
         
         # Return fallback response on error
@@ -269,12 +291,12 @@ async def chat(request: ChatRequest):
 
 
 @router.post("/stream", status_code=status.HTTP_200_OK)
-async def chat_stream(request: ChatRequest):
+async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_key)):
     """
     Streaming chat endpoint for real-time responses
-    
+
     Returns: Server-Sent Events (SSE) stream
-    
+
     Phase 4: Now functional with streaming Claude responses!
     """
     from fastapi.responses import StreamingResponse
@@ -282,7 +304,7 @@ async def chat_stream(request: ChatRequest):
     
     logger.info(
         "chat_stream_request",
-        question=request.question[:100],
+        question=redact_phi(request.question[:100]),
         conversation_id=request.conversation_id
     )
     
@@ -313,9 +335,9 @@ async def chat_stream(request: ChatRequest):
                         "content": msg.content
                     })
             
-            # Stream response from Claude and collect full answer
+            # Stream response from Claude and collect full answer (async)
             full_answer = ""
-            for chunk in claude_service.generate_response_stream(
+            async for chunk in claude_service.generate_response_stream(
                 user_message=request.question,
                 context=context_text,
                 conversation_history=conversation_history
@@ -336,8 +358,8 @@ async def chat_stream(request: ChatRequest):
             data = {"type": "sources", "sources": sources}
             yield f"data: {json.dumps(data)}\n\n"
 
-            # Generate and send dynamic follow-up questions
-            follow_ups = claude_service.generate_follow_ups(
+            # Generate and send dynamic follow-up questions (async)
+            follow_ups = await claude_service.generate_follow_ups(
                 question=request.question,
                 answer=full_answer,
                 context=context_text

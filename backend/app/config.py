@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     # Security
     secret_key: str = Field(..., alias="SECRET_KEY")
     api_key_header: str = Field(default="X-API-Key", alias="API_KEY_HEADER")
+    valid_api_keys: str = Field(default="", alias="VALID_API_KEYS")  # Comma-separated list of valid API keys
     
     # Rate Limiting
     rate_limit_per_minute: int = Field(default=60, alias="RATE_LIMIT_PER_MINUTE")

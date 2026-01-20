@@ -1,10 +1,10 @@
 """
 Claude AI Service
-Handles interactions with Anthropic's Claude API
+Handles interactions with Anthropic's Claude API using async client
 """
 
-from typing import List, Dict, Any, Optional, Generator
-from anthropic import Anthropic, AnthropicError
+from typing import List, Dict, Any, Optional, AsyncGenerator
+from anthropic import AsyncAnthropic, AnthropicError
 import structlog
 
 from app.config import settings
@@ -14,31 +14,31 @@ logger = structlog.get_logger()
 
 class ClaudeService:
     """
-    Service for interacting with Claude AI
+    Service for interacting with Claude AI (async version)
     """
-    
+
     def __init__(self):
         """Initialize Claude client"""
         self.api_key = settings.anthropic_api_key
         self.model = settings.claude_model
         self.max_tokens = settings.claude_max_tokens
         self.temperature = settings.claude_temperature
-        
+
         self._client = None
-    
+
     @property
-    def client(self) -> Anthropic:
-        """Lazy load Anthropic client"""
+    def client(self) -> AsyncAnthropic:
+        """Lazy load async Anthropic client"""
         if self._client is None:
             if not self.api_key:
                 raise ValueError("ANTHROPIC_API_KEY not configured")
-            
-            logger.info("Initializing Claude client", model=self.model)
-            self._client = Anthropic(api_key=self.api_key)
-        
+
+            logger.info("Initializing async Claude client", model=self.model)
+            self._client = AsyncAnthropic(api_key=self.api_key)
+
         return self._client
-    
-    def generate_response(
+
+    async def generate_response(
         self,
         user_message: str,
         context: str = "",
@@ -46,14 +46,14 @@ class ClaudeService:
         system_prompt: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Generate a response from Claude
-        
+        Generate a response from Claude (async)
+
         Args:
             user_message: User's question
             context: Retrieved context from RAG
             conversation_history: Previous messages
             system_prompt: Custom system prompt
-            
+
         Returns:
             Response dictionary with answer and metadata
         """
@@ -64,46 +64,46 @@ class ClaudeService:
                 has_context=len(context) > 0,
                 history_length=len(conversation_history) if conversation_history else 0
             )
-            
+
             # Build system prompt
             if not system_prompt:
                 system_prompt = self._build_system_prompt(context)
-            
+
             # Build messages
             messages = []
-            
+
             # Add conversation history
             if conversation_history:
                 messages.extend(conversation_history)
-            
+
             # Add current message
             messages.append({
                 "role": "user",
                 "content": user_message
             })
-            
-            # Call Claude API
-            response = self.client.messages.create(
+
+            # Call Claude API (async)
+            response = await self.client.messages.create(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
                 system=system_prompt,
                 messages=messages
             )
-            
+
             # Extract answer
             answer = ""
             for block in response.content:
                 if block.type == "text":
                     answer += block.text
-            
+
             logger.info(
                 "Claude response generated",
                 answer_length=len(answer),
                 input_tokens=response.usage.input_tokens,
                 output_tokens=response.usage.output_tokens
             )
-            
+
             return {
                 "answer": answer,
                 "model": self.model,
@@ -113,7 +113,7 @@ class ClaudeService:
                 },
                 "stop_reason": response.stop_reason
             }
-            
+
         except AnthropicError as e:
             logger.error(
                 "Claude API error",
@@ -127,23 +127,23 @@ class ClaudeService:
                 error=str(e)
             )
             raise
-    
-    def generate_response_stream(
+
+    async def generate_response_stream(
         self,
         user_message: str,
         context: str = "",
         conversation_history: List[Dict[str, str]] = None,
         system_prompt: Optional[str] = None
-    ) -> Generator[str, None, None]:
+    ) -> AsyncGenerator[str, None]:
         """
-        Generate a streaming response from Claude
-        
+        Generate a streaming response from Claude (async)
+
         Args:
             user_message: User's question
             context: Retrieved context from RAG
             conversation_history: Previous messages
             system_prompt: Custom system prompt
-            
+
         Yields:
             Text chunks as they arrive
         """
@@ -152,11 +152,11 @@ class ClaudeService:
                 "Starting Claude streaming response",
                 message_length=len(user_message)
             )
-            
+
             # Build system prompt
             if not system_prompt:
                 system_prompt = self._build_system_prompt(context)
-            
+
             # Build messages
             messages = []
             if conversation_history:
@@ -165,34 +165,34 @@ class ClaudeService:
                 "role": "user",
                 "content": user_message
             })
-            
-            # Stream response
-            with self.client.messages.stream(
+
+            # Stream response (async)
+            async with self.client.messages.stream(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
                 system=system_prompt,
                 messages=messages
             ) as stream:
-                for text in stream.text_stream:
+                async for text in stream.text_stream:
                     yield text
-            
+
             logger.info("Streaming response completed")
-            
+
         except AnthropicError as e:
             logger.error("Claude streaming error", error=str(e))
             raise
         except Exception as e:
             logger.error("Streaming failed", error=str(e))
             raise
-    
+
     def _build_system_prompt(self, context: str = "") -> str:
         """
         Build system prompt for Claude
-        
+
         Args:
             context: Retrieved context from RAG
-            
+
         Returns:
             System prompt string
         """
@@ -216,28 +216,28 @@ Guidelines:
 
         if context:
             base_prompt += f"\n\n<context>\n{context}\n</context>\n\nUse the information in the context above to answer the user's question. If the context doesn't contain relevant information, say so."
-        
+
         return base_prompt
-    
+
     def extract_sources(
         self,
         context_chunks: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Extract source information from context chunks
-        
+
         Args:
             context_chunks: RAG retrieved chunks
-            
+
         Returns:
             List of source dictionaries
         """
         sources = []
         seen_docs = set()
-        
+
         for i, chunk in enumerate(context_chunks, 1):
             doc_id = chunk["metadata"].get("doc_id", "unknown")
-            
+
             if doc_id not in seen_docs:
                 sources.append({
                     "source_id": i,
@@ -248,12 +248,13 @@ Guidelines:
                     "relevance_score": chunk["score"]
                 })
                 seen_docs.add(doc_id)
-        
+
         return sources
-    
+
     def classify_intent(self, question: str) -> Dict[str, Any]:
         """
         Classify the intent of a user question for better routing.
+        This is a sync method as it doesn't call external APIs.
 
         Args:
             question: User's question
@@ -295,7 +296,7 @@ Guidelines:
             "all_intents": scores
         }
 
-    def generate_follow_ups(
+    async def generate_follow_ups(
         self,
         question: str,
         answer: str,
@@ -333,8 +334,8 @@ Requirements:
 
 Return ONLY 3 questions, one per line, no numbering or bullets."""
 
-            # Use a quick Claude call with lower tokens for efficiency
-            response = self.client.messages.create(
+            # Use a quick Claude call with lower tokens for efficiency (async)
+            response = await self.client.messages.create(
                 model=self.model,
                 max_tokens=150,  # Short response needed
                 temperature=0.4,  # Slightly more creative for variety
@@ -399,27 +400,23 @@ Return ONLY 3 questions, one per line, no numbering or bullets."""
             "What results can be expected?"
         ]
 
-    def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> Dict[str, Any]:
         """
-        Check if Claude API is accessible
-        
+        Check if Claude API is accessible (async)
+
         Returns:
             Health status
         """
         try:
-            # Try to create a simple message
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=10,
-                messages=[{"role": "user", "content": "Hi"}]
-            )
-            
+            # Just verify the client can be created - don't make actual API call
+            # (expensive and slow for health checks)
+            _ = self.client
             return {
                 "status": "healthy",
                 "model": self.model,
-                "api_version": "2023-06-01"
+                "key_configured": True
             }
-            
+
         except Exception as e:
             return {
                 "status": "unhealthy",
@@ -429,6 +426,7 @@ Return ONLY 3 questions, one per line, no numbering or bullets."""
 
 # Singleton instance
 _claude_service = None
+
 
 def get_claude_service() -> ClaudeService:
     """Get singleton Claude service instance"""
