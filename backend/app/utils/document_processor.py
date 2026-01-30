@@ -18,6 +18,13 @@ except ImportError:
     print("Warning: PDF libraries not installed. Run: pip install PyPDF2 pdfplumber pymupdf")
 
 from .chunking import TextChunker, Chunk
+from .hierarchical_chunking import (
+    ChunkingStrategyFactory,
+    HierarchicalChunk,
+    DocumentType,
+    ChunkType,
+    chunk_document_hybrid
+)
 
 
 class DocumentProcessor:
@@ -26,81 +33,142 @@ class DocumentProcessor:
     Extracts text, metadata, structure, and prepares chunks
     """
     
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+    def __init__(
+        self,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
+        use_hierarchical: bool = True
+    ):
         """
         Args:
-            chunk_size: Target size for text chunks
+            chunk_size: Target size for text chunks (used for legacy chunking)
             chunk_overlap: Overlap between chunks for context
+            use_hierarchical: Use hybrid hierarchical chunking (recommended)
         """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self.use_hierarchical = use_hierarchical
         self.chunker = TextChunker(chunk_size, chunk_overlap)
     
     def process_pdf(
         self,
         file_path: str,
         doc_id: str = None,
-        doc_type: str = "document"
+        doc_type: str = None,
+        folder_name: str = None
     ) -> Dict[str, Any]:
         """
-        Process a PDF file completely
-        
+        Process a PDF file completely with hybrid hierarchical chunking
+
         Args:
             file_path: Path to PDF file
             doc_id: Unique document identifier
-            doc_type: Type of document (product, protocol, clinical_paper, etc.)
-            
+            doc_type: Type of document (auto-detected if not provided)
+            folder_name: Folder name for document type detection
+
         Returns:
             Dictionary with processed document data:
             {
                 "doc_id": str,
                 "doc_type": str,
+                "detected_type": str,
                 "metadata": dict,
                 "full_text": str,
                 "pages": list,
                 "chunks": list,
-                "tables": list
+                "hierarchical_chunks": list,
+                "tables": list,
+                "chunking_strategy": str
             }
         """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
-        
+
         # Generate doc_id if not provided
         if not doc_id:
             doc_id = Path(file_path).stem
-        
+
+        # Extract folder name from path if not provided
+        if not folder_name:
+            folder_name = Path(file_path).parent.name
+
         print(f"Processing PDF: {file_path}")
-        
+
         # Extract metadata
         metadata = self._extract_pdf_metadata(file_path)
         metadata["doc_id"] = doc_id
-        metadata["doc_type"] = doc_type
         metadata["source_file"] = os.path.basename(file_path)
         metadata["processed_at"] = datetime.utcnow().isoformat()
-        
+        metadata["folder_name"] = folder_name
+
         # Extract text by page
         pages = self._extract_text_by_page(file_path)
-        
+
         # Combine all pages
         full_text = "\n\n".join(page["text"] for page in pages if page["text"])
-        
+
         # Extract tables (optional, using pdfplumber)
         tables = self._extract_tables(file_path)
-        
-        # Create chunks
-        chunks = self._create_chunks(pages, metadata)
-        
+
+        # Detect document type if not provided
+        if not doc_type or doc_type == "document":
+            detected_type = ChunkingStrategyFactory.detect_document_type(
+                text=full_text,
+                file_path=file_path,
+                folder_name=folder_name
+            )
+            doc_type = detected_type.value
+        else:
+            detected_type = DocumentType(doc_type) if doc_type in [dt.value for dt in DocumentType] else DocumentType.UNKNOWN
+
+        metadata["doc_type"] = doc_type
+        metadata["detected_type"] = detected_type.value
+
+        # Create chunks using appropriate strategy
+        if self.use_hierarchical:
+            # Use hybrid hierarchical chunking
+            hierarchical_chunks, _ = ChunkingStrategyFactory.chunk_document(
+                text=full_text,
+                doc_id=doc_id,
+                file_path=file_path,
+                folder_name=folder_name,
+                metadata=metadata
+            )
+
+            # Convert to storage format
+            chunks = [chunk.to_dict() for chunk in hierarchical_chunks]
+
+            # Track parent-child relationships
+            parent_chunks = [c for c in chunks if c.get("chunk_type") == "section"]
+            child_chunks = [c for c in chunks if c.get("chunk_type") == "detail"]
+            flat_chunks = [c for c in chunks if c.get("chunk_type") == "flat"]
+
+            chunking_strategy = ChunkingStrategyFactory.get_chunker(detected_type).__class__.__name__
+        else:
+            # Legacy chunking
+            chunks = self._create_chunks(pages, metadata)
+            hierarchical_chunks = []
+            parent_chunks = []
+            child_chunks = []
+            flat_chunks = chunks
+            chunking_strategy = "TextChunker (legacy)"
+
         return {
             "doc_id": doc_id,
             "doc_type": doc_type,
+            "detected_type": detected_type.value,
             "metadata": metadata,
             "full_text": full_text,
             "pages": pages,
             "chunks": chunks,
             "tables": tables,
+            "chunking_strategy": chunking_strategy,
             "stats": {
                 "num_pages": len(pages),
                 "num_chunks": len(chunks),
+                "num_parent_chunks": len(parent_chunks),
+                "num_child_chunks": len(child_chunks),
+                "num_flat_chunks": len(flat_chunks),
                 "num_tables": len(tables),
                 "total_chars": len(full_text)
             }
@@ -367,44 +435,53 @@ class DocumentBatch:
     def process_directory(
         self,
         directory: str,
-        doc_type: str = "document",
-        file_pattern: str = "*.pdf"
+        doc_type: str = None,
+        file_pattern: str = "*.pdf",
+        auto_detect_type: bool = True
     ) -> List[Dict[str, Any]]:
         """
-        Process all PDFs in a directory
-        
+        Process all PDFs in a directory with automatic type detection
+
         Args:
             directory: Path to directory
-            doc_type: Type of documents
+            doc_type: Type of documents (auto-detected from folder if None)
             file_pattern: Glob pattern for files
-            
+            auto_detect_type: Auto-detect document type from folder name
+
         Returns:
             List of processed document results
         """
         directory_path = Path(directory)
-        
+
         if not directory_path.exists():
             raise FileNotFoundError(f"Directory not found: {directory}")
-        
+
         # Find all matching files
         pdf_files = list(directory_path.glob(file_pattern))
-        
+
+        # Get folder name for type detection
+        folder_name = directory_path.name
+
         print(f"Found {len(pdf_files)} files in {directory}")
-        
+        print(f"Folder name for type detection: {folder_name}")
+
         results = []
         for pdf_file in pdf_files:
             try:
                 result = self.processor.process_pdf(
                     str(pdf_file),
                     doc_id=pdf_file.stem,
-                    doc_type=doc_type
+                    doc_type=doc_type,
+                    folder_name=folder_name if auto_detect_type else None
                 )
                 results.append({
                     "success": True,
                     "file": str(pdf_file),
+                    "detected_type": result.get("detected_type"),
+                    "chunking_strategy": result.get("chunking_strategy"),
                     "result": result
                 })
-                print(f"✓ Processed: {pdf_file.name}")
+                print(f"✓ Processed: {pdf_file.name} (type: {result.get('detected_type')}, strategy: {result.get('chunking_strategy')})")
             except Exception as e:
                 print(f"✗ Failed: {pdf_file.name} - {e}")
                 results.append({
@@ -412,31 +489,56 @@ class DocumentBatch:
                     "file": str(pdf_file),
                     "error": str(e)
                 })
-        
+
         self.results = results
         return results
     
     def get_summary(self) -> Dict[str, Any]:
         """
         Get summary statistics of batch processing
-        
+
         Returns:
-            Summary dictionary
+            Summary dictionary with hierarchical chunk breakdown
         """
         total = len(self.results)
         successful = sum(1 for r in self.results if r["success"])
         failed = total - successful
-        
-        total_chunks = sum(
-            r["result"]["stats"]["num_chunks"]
-            for r in self.results
-            if r["success"]
-        )
-        
+
+        # Aggregate chunk statistics
+        total_chunks = 0
+        total_parent_chunks = 0
+        total_child_chunks = 0
+        total_flat_chunks = 0
+        doc_types = {}
+        strategies = {}
+
+        for r in self.results:
+            if r["success"]:
+                stats = r["result"]["stats"]
+                total_chunks += stats.get("num_chunks", 0)
+                total_parent_chunks += stats.get("num_parent_chunks", 0)
+                total_child_chunks += stats.get("num_child_chunks", 0)
+                total_flat_chunks += stats.get("num_flat_chunks", 0)
+
+                # Track document types
+                detected_type = r.get("detected_type", "unknown")
+                doc_types[detected_type] = doc_types.get(detected_type, 0) + 1
+
+                # Track chunking strategies
+                strategy = r.get("chunking_strategy", "unknown")
+                strategies[strategy] = strategies.get(strategy, 0) + 1
+
         return {
             "total_files": total,
             "successful": successful,
             "failed": failed,
             "total_chunks": total_chunks,
+            "chunk_breakdown": {
+                "parent_chunks": total_parent_chunks,
+                "child_chunks": total_child_chunks,
+                "flat_chunks": total_flat_chunks
+            },
+            "document_types": doc_types,
+            "chunking_strategies": strategies,
             "success_rate": successful / total if total > 0 else 0
         }

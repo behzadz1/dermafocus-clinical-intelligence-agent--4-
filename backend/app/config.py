@@ -63,6 +63,62 @@ class Settings(BaseSettings):
     )
     upload_dir: str = Field(default="./data/uploads", alias="UPLOAD_DIR")
     processed_dir: str = Field(default="./data/processed", alias="PROCESSED_DIR")
+
+    # Hierarchical Chunking Configuration
+    use_hierarchical_chunking: bool = Field(
+        default=True,
+        alias="USE_HIERARCHICAL_CHUNKING"
+    )
+
+    # Clinical Paper chunking (hierarchical with parent-child)
+    clinical_paper_parent_chunk_size: int = Field(
+        default=2000,
+        alias="CLINICAL_PAPER_PARENT_CHUNK_SIZE"
+    )
+    clinical_paper_child_chunk_size: int = Field(
+        default=500,
+        alias="CLINICAL_PAPER_CHILD_CHUNK_SIZE"
+    )
+    clinical_paper_child_overlap: int = Field(
+        default=50,
+        alias="CLINICAL_PAPER_CHILD_OVERLAP"
+    )
+
+    # Case Study chunking (adaptive)
+    case_study_chunk_size: int = Field(
+        default=800,
+        alias="CASE_STUDY_CHUNK_SIZE"
+    )
+    case_study_overlap: int = Field(
+        default=100,
+        alias="CASE_STUDY_OVERLAP"
+    )
+
+    # Protocol chunking (step-aware)
+    protocol_chunk_size: int = Field(
+        default=600,
+        alias="PROTOCOL_CHUNK_SIZE"
+    )
+    protocol_overlap: int = Field(
+        default=50,
+        alias="PROTOCOL_OVERLAP"
+    )
+
+    # Factsheet/Brochure chunking (section-based)
+    factsheet_chunk_size: int = Field(
+        default=400,
+        alias="FACTSHEET_CHUNK_SIZE"
+    )
+    brochure_chunk_size: int = Field(
+        default=500,
+        alias="BROCHURE_CHUNK_SIZE"
+    )
+
+    # Minimum chunk size (applies to all strategies)
+    min_chunk_size: int = Field(
+        default=100,
+        alias="MIN_CHUNK_SIZE"
+    )
     
     # Vector Search Configuration
     embedding_model: str = Field(
@@ -80,6 +136,20 @@ class Settings(BaseSettings):
     )
     claude_max_tokens: int = Field(default=2000, alias="CLAUDE_MAX_TOKENS")
     claude_temperature: float = Field(default=0.2, alias="CLAUDE_TEMPERATURE")
+
+    # Response Customization
+    default_audience: str = Field(
+        default="physician",
+        alias="DEFAULT_AUDIENCE"
+    )  # physician, nurse_practitioner, aesthetician, clinic_staff, patient
+    default_response_style: str = Field(
+        default="clinical",
+        alias="DEFAULT_RESPONSE_STYLE"
+    )  # clinical, conversational, concise, detailed, educational
+    customizer_preset: str = Field(
+        default="physician_clinical",
+        alias="CUSTOMIZER_PRESET"
+    )  # physician_clinical, physician_concise, nurse_practical, aesthetician_educational, staff_simple
     
     # Logging
     log_file: str = Field(default="./logs/app.log", alias="LOG_FILE")
@@ -126,6 +196,36 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         """Check if running in development environment"""
         return self.environment.lower() == "development"
+
+    @property
+    def chunking_config(self) -> dict:
+        """Get chunking configuration by document type"""
+        return {
+            "clinical_paper": {
+                "parent_chunk_size": self.clinical_paper_parent_chunk_size,
+                "child_chunk_size": self.clinical_paper_child_chunk_size,
+                "child_overlap": self.clinical_paper_child_overlap,
+                "min_chunk_size": self.min_chunk_size
+            },
+            "case_study": {
+                "chunk_size": self.case_study_chunk_size,
+                "overlap": self.case_study_overlap,
+                "min_chunk_size": self.min_chunk_size
+            },
+            "protocol": {
+                "chunk_size": self.protocol_chunk_size,
+                "overlap": self.protocol_overlap,
+                "min_chunk_size": self.min_chunk_size
+            },
+            "factsheet": {
+                "chunk_size": self.factsheet_chunk_size,
+                "min_chunk_size": self.min_chunk_size
+            },
+            "brochure": {
+                "chunk_size": self.brochure_chunk_size,
+                "min_chunk_size": self.min_chunk_size
+            }
+        }
 
 
 # Global settings instance

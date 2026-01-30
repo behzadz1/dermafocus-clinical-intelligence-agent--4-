@@ -99,29 +99,66 @@ class Message(BaseModel):
     timestamp: Optional[datetime] = None
 
 
+class CustomizationOptions(BaseModel):
+    """Options to customize response style per request"""
+    audience: Optional[str] = Field(
+        None,
+        description="Target audience: physician, nurse_practitioner, aesthetician, clinic_staff, patient"
+    )
+    style: Optional[str] = Field(
+        None,
+        description="Response style: clinical, conversational, concise, detailed, educational"
+    )
+    preset: Optional[str] = Field(
+        None,
+        description="Use preset: physician_clinical, physician_concise, nurse_practical, aesthetician_educational, staff_simple"
+    )
+
+
 class ChatRequest(BaseModel):
     """Chat request payload"""
     question: str = Field(..., description="User's question", min_length=1, max_length=2000)
     conversation_id: Optional[str] = Field(None, description="Conversation ID for context")
     history: Optional[List[Message]] = Field(default=[], description="Conversation history")
-    
+    customization: Optional[CustomizationOptions] = Field(None, description="Response customization options")
+
     class Config:
         json_schema_extra = {
             "example": {
                 "question": "What is the needle size for Plinest Eye?",
                 "conversation_id": "conv_123abc",
-                "history": []
+                "history": [],
+                "customization": {
+                    "audience": "physician",
+                    "style": "concise"
+                }
             }
         }
 
 
 class Source(BaseModel):
-    """Source citation from knowledge base"""
-    document: str = Field(..., description="Document name")
+    """Source citation from knowledge base with clickable links"""
+    document: str = Field(..., description="Document name/ID")
+    title: str = Field(..., description="Human-readable document title")
     page: int = Field(..., description="Page number")
     section: Optional[str] = Field(None, description="Section name")
     relevance_score: float = Field(..., description="Relevance score (0-1)")
     text_snippet: Optional[str] = Field(None, description="Relevant text snippet")
+    view_url: str = Field(..., description="URL to view the document at this page")
+    download_url: str = Field(..., description="URL to download the document")
+
+
+class KnowledgeUsage(BaseModel):
+    """Tracks how the response uses document vs general knowledge"""
+    primary_source: str = Field(..., description="Primary knowledge source: document, clinical_knowledge, or hybrid")
+    document_ratio: float = Field(..., description="Ratio of document-sourced content (0-1)")
+    knowledge_blend: str = Field(..., description="document-heavy, clinical-heavy, or balanced")
+
+
+class ResponseCustomization(BaseModel):
+    """Shows what customization was applied"""
+    audience: str = Field(..., description="Target audience used")
+    style: str = Field(..., description="Response style used")
 
 
 class ChatResponse(BaseModel):
@@ -132,6 +169,8 @@ class ChatResponse(BaseModel):
     confidence: float = Field(..., description="Response confidence (0-1)")
     conversation_id: str = Field(..., description="Conversation ID")
     follow_ups: List[str] = Field(default=[], description="Suggested follow-up questions")
+    knowledge_usage: Optional[KnowledgeUsage] = Field(None, description="How document vs general knowledge was used")
+    customization_applied: Optional[ResponseCustomization] = Field(None, description="Customization settings used for this response")
     
     class Config:
         json_schema_extra = {
@@ -139,11 +178,14 @@ class ChatResponse(BaseModel):
                 "answer": "Plinest Eye uses a 30G ½ needle...",
                 "sources": [
                     {
-                        "document": "Mastelli_Portfolio",
+                        "document": "Plinest_Eye_Factsheet",
+                        "title": "Plinest® Eye Factsheet",
                         "page": 9,
                         "section": "Product Specifications",
                         "relevance_score": 0.95,
-                        "text_snippet": "...30G ½ needle provided in pack..."
+                        "text_snippet": "...30G ½ needle provided in pack...",
+                        "view_url": "/api/documents/view?doc_id=Plinest_Eye_Factsheet&page=9",
+                        "download_url": "/api/documents/download/Plinest_Eye_Factsheet"
                     }
                 ],
                 "intent": "product_info",
@@ -184,30 +226,53 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
     try:
         from app.services.rag_service import get_rag_service
         from app.services.claude_service import get_claude_service
-        
+        from app.services.prompt_customization import AudienceType, ResponseStyle
+
         rag_service = get_rag_service()
         claude_service = get_claude_service()
-        
-        # Step 1: Retrieve relevant context from RAG
-        logger.info("Retrieving context from RAG")
+
+        # Apply per-request customization if provided
+        if request.customization:
+            if request.customization.preset:
+                claude_service.set_customization(preset=request.customization.preset)
+            else:
+                audience = None
+                style = None
+                if request.customization.audience:
+                    try:
+                        audience = AudienceType(request.customization.audience)
+                    except ValueError:
+                        pass
+                if request.customization.style:
+                    try:
+                        style = ResponseStyle(request.customization.style)
+                    except ValueError:
+                        pass
+                if audience or style:
+                    claude_service.set_customization(audience=audience, style=style)
+
+        # Step 1: Classify query intent early for retrieval routing
+        intent_data = claude_service.classify_intent(request.question)
+        detected_intent = intent_data["intent"]
+        logger.info("Intent classified", intent=detected_intent, intent_confidence=intent_data["confidence"])
+
+        # Step 2: Retrieve relevant context from RAG
+        doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
+        logger.info("Retrieving context from RAG", doc_type=doc_type_filter)
         context_data = rag_service.get_context_for_query(
             query=request.question,
-            max_chunks=8  # Increased from 5 for better coverage
+            max_chunks=8,  # Increased from 5 for better coverage
+            doc_type=doc_type_filter
         )
-        
+
         context_text = context_data["context_text"]
         retrieved_chunks = context_data["chunks"]
-        
+
         logger.info(
             "Context retrieved",
             chunks_found=len(retrieved_chunks),
             context_length=len(context_text)
         )
-        
-        # Step 2: Classify query intent
-        intent_data = claude_service.classify_intent(request.question)
-        detected_intent = intent_data["intent"]
-        logger.info("Intent classified", intent=detected_intent, intent_confidence=intent_data["confidence"])
 
         # Step 3: Build conversation history for Claude
         conversation_history = []
@@ -228,15 +293,26 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
 
         answer = claude_response["answer"]
 
-        # Step 4: Extract and format sources
+        # Step 4: Extract and format sources with clickable citations
+        from app.services.citation_service import get_citation_service
+        from urllib.parse import quote
+
+        citation_service = get_citation_service()
         sources = []
         for chunk in retrieved_chunks:
+            doc_id = chunk["metadata"].get("doc_id", "unknown")
+            page_num = chunk["metadata"].get("page_number", 1) or 1
+            doc_title = citation_service.get_document_title(doc_id)
+
             sources.append(Source(
-                document=chunk["metadata"].get("doc_id", "unknown"),
-                page=chunk["metadata"].get("page_number", 0),
+                document=doc_id,
+                title=doc_title,
+                page=page_num,
                 section=chunk["metadata"].get("section"),
                 relevance_score=chunk["score"],
-                text_snippet=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"]
+                text_snippet=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"],
+                view_url=f"/api/documents/view?doc_id={quote(doc_id)}&page={page_num}",
+                download_url=f"/api/documents/download/{quote(doc_id)}"
             ))
 
         # Step 5: Generate follow-up questions (async)
@@ -245,20 +321,35 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
             answer=answer,
             context=context_text
         )
-        
+
         # Step 6: Calculate confidence using weighted formula
         confidence = calculate_weighted_confidence(retrieved_chunks)
-        
+
+        # Step 7: Analyze knowledge usage (document vs general knowledge)
+        knowledge_analysis = claude_service.analyze_knowledge_usage(answer, context_text)
+
         # Generate conversation ID if not provided
         conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
-        
+
+        # Get customization info from response
+        customization_info = claude_response.get("customization", {})
+
         response = ChatResponse(
             answer=answer,
             sources=sources,
             intent=detected_intent,  # Use classified intent instead of generic "answered"
             confidence=confidence,
             conversation_id=conversation_id,
-            follow_ups=follow_ups
+            follow_ups=follow_ups,
+            knowledge_usage=KnowledgeUsage(
+                primary_source=knowledge_analysis["primary_source"],
+                document_ratio=knowledge_analysis["document_ratio"],
+                knowledge_blend=knowledge_analysis["knowledge_blend"]
+            ),
+            customization_applied=ResponseCustomization(
+                audience=customization_info.get("audience", "physician"),
+                style=customization_info.get("style", "clinical")
+            )
         )
         
         logger.info(
@@ -267,6 +358,8 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
             answer_length=len(answer),
             sources_count=len(sources),
             confidence=confidence,
+            knowledge_source=knowledge_analysis["primary_source"],
+            document_ratio=knowledge_analysis["document_ratio"],
             tokens_used=claude_response["usage"]["input_tokens"] + claude_response["usage"]["output_tokens"]
         )
         
@@ -317,10 +410,16 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
             rag_service = get_rag_service()
             claude_service = get_claude_service()
             
+            # Classify intent for retrieval routing
+            intent_data = claude_service.classify_intent(request.question)
+            detected_intent = intent_data["intent"]
+            doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
+
             # Retrieve context
             context_data = rag_service.get_context_for_query(
                 query=request.question,
-                max_chunks=8  # Increased from 5 for better coverage
+                max_chunks=8,  # Increased from 5 for better coverage
+                doc_type=doc_type_filter
             )
             
             context_text = context_data["context_text"]

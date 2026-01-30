@@ -1,6 +1,7 @@
 """
 Claude AI Service
 Handles interactions with Anthropic's Claude API using async client
+Includes customization for Dermafocus brand voice and clinical communication
 """
 
 from typing import List, Dict, Any, Optional, AsyncGenerator
@@ -8,6 +9,12 @@ from anthropic import AsyncAnthropic, AnthropicError
 import structlog
 
 from app.config import settings
+from app.services.prompt_customization import (
+    OutputCustomizer,
+    get_customizer,
+    AudienceType,
+    ResponseStyle
+)
 
 logger = structlog.get_logger()
 
@@ -17,14 +24,44 @@ class ClaudeService:
     Service for interacting with Claude AI (async version)
     """
 
-    def __init__(self):
-        """Initialize Claude client"""
+    def __init__(
+        self,
+        customizer_preset: str = "physician_clinical",
+        audience: AudienceType = None,
+        style: ResponseStyle = None
+    ):
+        """
+        Initialize Claude client with customization options
+
+        Args:
+            customizer_preset: Pre-configured customization preset
+                Options: physician_clinical, physician_concise, nurse_practical,
+                         aesthetician_educational, staff_simple
+            audience: Override audience type (optional)
+            style: Override response style (optional)
+        """
         self.api_key = settings.anthropic_api_key
         self.model = settings.claude_model
         self.max_tokens = settings.claude_max_tokens
         self.temperature = settings.claude_temperature
 
         self._client = None
+
+        # Initialize customizer
+        self.customizer = get_customizer(customizer_preset)
+
+        # Override audience/style if specified
+        if audience:
+            self.customizer.audience = audience
+        if style:
+            self.customizer.style = style
+
+        logger.info(
+            "Claude service initialized",
+            model=self.model,
+            audience=self.customizer.audience.value,
+            style=self.customizer.style.value
+        )
 
     @property
     def client(self) -> AsyncAnthropic:
@@ -65,9 +102,9 @@ class ClaudeService:
                 history_length=len(conversation_history) if conversation_history else 0
             )
 
-            # Build system prompt
+            # Build system prompt with customization
             if not system_prompt:
-                system_prompt = self._build_system_prompt(context)
+                system_prompt = self._build_system_prompt(context, query=user_message)
 
             # Build messages
             messages = []
@@ -97,11 +134,16 @@ class ClaudeService:
                 if block.type == "text":
                     answer += block.text
 
+            # Apply terminology corrections (ensure brand names are correct)
+            answer = self.customizer.apply_terminology(answer)
+
             logger.info(
                 "Claude response generated",
                 answer_length=len(answer),
                 input_tokens=response.usage.input_tokens,
-                output_tokens=response.usage.output_tokens
+                output_tokens=response.usage.output_tokens,
+                audience=self.customizer.audience.value,
+                style=self.customizer.style.value
             )
 
             return {
@@ -111,7 +153,11 @@ class ClaudeService:
                     "input_tokens": response.usage.input_tokens,
                     "output_tokens": response.usage.output_tokens
                 },
-                "stop_reason": response.stop_reason
+                "stop_reason": response.stop_reason,
+                "customization": {
+                    "audience": self.customizer.audience.value,
+                    "style": self.customizer.style.value
+                }
             }
 
         except AnthropicError as e:
@@ -153,9 +199,9 @@ class ClaudeService:
                 message_length=len(user_message)
             )
 
-            # Build system prompt
+            # Build system prompt with customization
             if not system_prompt:
-                system_prompt = self._build_system_prompt(context)
+                system_prompt = self._build_system_prompt(context, query=user_message)
 
             # Build messages
             messages = []
@@ -186,38 +232,155 @@ class ClaudeService:
             logger.error("Streaming failed", error=str(e))
             raise
 
-    def _build_system_prompt(self, context: str = "") -> str:
+    def _build_system_prompt(self, context: str = "", query: str = "") -> str:
         """
-        Build system prompt for Claude
+        Build system prompt for Claude with hybrid knowledge approach and customization.
+
+        Combines:
+        1. Brand voice and customization rules
+        2. Retrieved document context (PRIMARY for Dermafocus-specific info)
+        3. Claude's medical/clinical knowledge (SUPPLEMENTARY for general context)
 
         Args:
             context: Retrieved context from RAG
+            query: User query for template matching (optional)
 
         Returns:
             System prompt string
         """
-        base_prompt = """You are DermaAI CKPA, an expert AI assistant specializing in aesthetic medicine and Dermafocus products.
+        # Get customization instructions
+        customization_prompt = self.customizer.build_customization_prompt()
 
-Your role is to provide accurate, helpful information about:
-- Dermafocus aesthetic products (Plinest, Newest, etc.)
-- Treatment protocols and techniques
-- Clinical applications and indications
-- Product compositions and mechanisms
-- Safety information and contraindications
+        # Get query-specific template if applicable
+        query_category = self.customizer.classify_query_category(query) if query else None
+        template_hint = ""
+        if query_category:
+            template = self.customizer.get_query_template(query_category)
+            if template:
+                template_hint = f"\n\n## RESPONSE TEMPLATE GUIDANCE\nFor this type of query ({query_category.value}), structure your response similar to:\n{template[:500]}..."
 
-Guidelines:
-1. Always base your answers on the provided context from official documents
-2. If the context doesn't contain relevant information, clearly state this
-3. Never make up information about products or treatments
-4. Cite specific products, protocols, or documents when applicable
-5. Use clear, professional language appropriate for medical professionals
-6. If asked about something outside your expertise, politely redirect to appropriate resources
-7. Prioritize safety: always mention contraindications and proper usage"""
+        base_prompt = f"""{customization_prompt}
+
+---
+
+# CORE IDENTITY
+
+You are DermaAI CKPA, an expert AI assistant specializing in aesthetic medicine and Dermafocus products.
+
+## YOUR KNOWLEDGE SOURCES
+
+You have access to TWO types of knowledge:
+
+1. **DOCUMENT KNOWLEDGE** (Primary Source)
+   - Official Dermafocus product documentation
+   - Clinical papers and case studies
+   - Treatment protocols and techniques
+   - Product specifications and safety data
+   - This is provided in the <context> section below
+
+2. **CLINICAL KNOWLEDGE** (Supplementary Source)
+   - Your training in dermatology and aesthetic medicine
+   - General medical principles and best practices
+   - Anatomy, physiology, and pharmacology
+   - Standard injection techniques and safety protocols
+
+## HOW TO USE BOTH SOURCES
+
+**For Dermafocus-specific questions** (products, protocols, dosing):
+- ALWAYS prioritize information from the <context> documents
+- Only cite specific product claims that appear in the documents
+- If the documents don't contain the specific product info, say so clearly
+
+**For general clinical questions** (anatomy, technique principles, patient care):
+- You MAY supplement with your clinical knowledge
+- Clearly indicate when you're providing general medical context
+- Frame it as: "Based on general clinical practice..." or "From a dermatological perspective..."
+
+**For hybrid questions** (product + general context):
+- Lead with document-sourced product information
+- Supplement with relevant clinical context
+- Distinguish between the two: "According to the Dermafocus documentation... Additionally, from a clinical standpoint..."
+
+## RESPONSE STRUCTURE
+
+When answering:
+1. **Document-sourced info**: State facts from the provided context
+2. **Clinical context**: Add relevant medical/clinical background (labeled as such)
+3. **Practical guidance**: Combine both for actionable recommendations
+4. **Sources**: Always cite which documents informed your answer
+
+## CRITICAL RULES
+
+1. NEVER fabricate product specifications, dosing, or claims not in documents
+2. NEVER present general knowledge as if it came from Dermafocus documents
+3. ALWAYS prioritize safety information from official documents
+4. CLEARLY distinguish between document facts and general clinical knowledge
+5. If documents conflict with general practice, note the discrepancy
+6. For contraindications and safety, always defer to official documentation"""
 
         if context:
-            base_prompt += f"\n\n<context>\n{context}\n</context>\n\nUse the information in the context above to answer the user's question. If the context doesn't contain relevant information, say so."
+            base_prompt += f"""
+
+## DOCUMENT CONTEXT
+
+<context>
+{context}
+</context>
+
+## YOUR TASK
+
+Answer the user's question by:
+1. First, extracting relevant information from the documents above
+2. Then, supplementing with your clinical knowledge where appropriate
+3. Clearly distinguishing between document-sourced and general knowledge
+4. Citing specific documents when referencing their content
+
+If the documents don't contain specific product information requested, say:
+"The provided Dermafocus documentation doesn't include [specific info]. However, from general clinical knowledge, [relevant context]."
+"""
+        else:
+            base_prompt += """
+
+## NOTE: No document context was provided for this query.
+
+You may answer using your general clinical knowledge, but:
+1. Clearly state you're providing general information, not Dermafocus-specific guidance
+2. Recommend consulting official Dermafocus documentation for product-specific questions
+3. Do not make specific claims about Dermafocus products without documentation
+"""
+
+        # Add template hint if available
+        if template_hint:
+            base_prompt += template_hint
 
         return base_prompt
+
+    def set_customization(
+        self,
+        audience: AudienceType = None,
+        style: ResponseStyle = None,
+        preset: str = None
+    ):
+        """
+        Update customization settings at runtime
+
+        Args:
+            audience: Target audience type
+            style: Response style preference
+            preset: Use a preset configuration
+        """
+        if preset:
+            self.customizer = get_customizer(preset)
+        if audience:
+            self.customizer.audience = audience
+        if style:
+            self.customizer.style = style
+
+        logger.info(
+            "Customization updated",
+            audience=self.customizer.audience.value,
+            style=self.customizer.style.value
+        )
 
     def extract_sources(
         self,
@@ -250,6 +413,88 @@ Guidelines:
                 seen_docs.add(doc_id)
 
         return sources
+
+    def analyze_knowledge_usage(self, answer: str, context: str) -> Dict[str, Any]:
+        """
+        Analyze how an answer uses document vs general knowledge.
+
+        Args:
+            answer: The generated answer
+            context: The provided document context
+
+        Returns:
+            Analysis of knowledge sources used
+        """
+        answer_lower = answer.lower()
+        context_lower = context.lower() if context else ""
+
+        # Indicators of document-sourced information
+        doc_indicators = [
+            "according to the documentation",
+            "the document states",
+            "based on the provided",
+            "from the context",
+            "the dermafocus documentation",
+            "[source",
+            "as stated in",
+            "the factsheet indicates",
+            "the clinical paper shows",
+            "per the protocol"
+        ]
+
+        # Indicators of general clinical knowledge
+        general_indicators = [
+            "from a clinical standpoint",
+            "based on general clinical practice",
+            "in dermatological practice",
+            "from a medical perspective",
+            "generally speaking",
+            "standard practice",
+            "clinically",
+            "in aesthetic medicine",
+            "medical literature suggests",
+            "general consensus"
+        ]
+
+        # Count indicators
+        doc_count = sum(1 for ind in doc_indicators if ind in answer_lower)
+        general_count = sum(1 for ind in general_indicators if ind in answer_lower)
+
+        # Check if answer contains specific terms from context
+        context_terms_used = 0
+        if context:
+            # Extract key terms from context (product names, medical terms)
+            import re
+            context_terms = set(re.findall(r'\b[A-Z][a-z]+®?\b', context))
+            for term in context_terms:
+                if term.lower() in answer_lower:
+                    context_terms_used += 1
+
+        # Determine primary knowledge source
+        if doc_count > general_count and context_terms_used > 0:
+            primary_source = "document"
+        elif general_count > doc_count:
+            primary_source = "clinical_knowledge"
+        elif context_terms_used > 2:
+            primary_source = "document"
+        else:
+            primary_source = "hybrid"
+
+        # Calculate blend ratio
+        total_indicators = doc_count + general_count
+        if total_indicators > 0:
+            doc_ratio = doc_count / total_indicators
+        else:
+            doc_ratio = 0.5 if context else 0.0
+
+        return {
+            "primary_source": primary_source,
+            "document_indicators": doc_count,
+            "clinical_indicators": general_count,
+            "context_terms_matched": context_terms_used,
+            "document_ratio": round(doc_ratio, 2),
+            "knowledge_blend": "document-heavy" if doc_ratio > 0.7 else "clinical-heavy" if doc_ratio < 0.3 else "balanced"
+        }
 
     def classify_intent(self, question: str) -> Dict[str, Any]:
         """

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(pytest:*)",
+      "Bash(uvicorn:*)",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": []
+  },
+  "enabledSkills": [
+    "chunking-expert",
+    "pdf-preprocessor",
+    "rag-validator"
+  ]
+}

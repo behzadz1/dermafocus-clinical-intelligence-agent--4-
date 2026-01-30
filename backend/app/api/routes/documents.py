@@ -7,6 +7,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, status, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from pathlib import Path
 import structlog
 
 from app.config import settings
@@ -15,6 +16,16 @@ from app.api.routes.products import clear_products_cache
 
 router = APIRouter()
 logger = structlog.get_logger()
+
+
+def _safe_vector_id(value: str) -> str:
+    """
+    Normalize IDs to ASCII-safe strings for Pinecone vector IDs.
+    """
+    import re
+    safe = value.encode("ascii", "ignore").decode("ascii")
+    safe = re.sub(r"[^a-zA-Z0-9_-]+", "_", safe).strip("_").lower()
+    return safe or "doc"
 
 
 # ==============================================================================
@@ -118,16 +129,24 @@ async def index_chunks_to_pinecone(
 
     # Prepare vectors for Pinecone
     vectors = []
+    skipped = 0
+    safe_doc_id = _safe_vector_id(doc_id)
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-        vector_id = f"{doc_id}_chunk_{i}"
+        text = (chunk.get('text', '') or '').strip()
+        if not text or embedding is None:
+            skipped += 1
+            continue
+
+        vector_id = f"{safe_doc_id}_chunk_{i}"
         metadata = chunk.get('metadata', {})
 
         # Ensure required metadata
         metadata.update({
             'doc_id': doc_id,
+            'doc_id_safe': safe_doc_id,
             'doc_type': doc_type,
             'chunk_index': i,
-            'text': chunk.get('text', '')[:1000]  # Store truncated text for reference
+            'text': text[:1000]  # Store truncated text for reference
         })
 
         vectors.append({
@@ -135,6 +154,13 @@ async def index_chunks_to_pinecone(
             'values': embedding,
             'metadata': metadata
         })
+
+    if skipped:
+        logger.warning(
+            "chunks_skipped_empty_text",
+            doc_id=doc_id,
+            skipped=skipped
+        )
 
     # Upsert to Pinecone
     result = pinecone_service.upsert_vectors(vectors, namespace=namespace)
@@ -178,6 +204,13 @@ async def upload_document(
         content_type=file.content_type,
         doc_type=doc_type
     )
+    if any(ord(ch) > 127 for ch in file.filename):
+        safe_name = _safe_vector_id(Path(file.filename).stem)
+        logger.warning(
+            "non_ascii_filename_detected",
+            filename=file.filename,
+            safe_id=safe_name
+        )
     
     # Validate file extension
     if not file.filename:
@@ -545,22 +578,323 @@ async def delete_document(
 async def reprocess_document(doc_id: str):
     """
     Reprocess a document (useful after processing failures or updates)
-    
+
     Args:
         doc_id: Unique document identifier
-    
+
     Returns: Processing status
-    
+
     NOTE: This is a placeholder. Implementation in Phase 2.
     """
     logger.info("document_reprocess_requested", doc_id=doc_id)
-    
+
     # TODO: Phase 2 - Implement reprocessing
     # from app.services.document_service import DocumentService
     # doc_service = DocumentService()
     # await doc_service.reprocess_document(doc_id)
-    
+
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
         detail="Document reprocessing not yet implemented."
     )
+
+
+# ==============================================================================
+# PDF VIEWING ENDPOINTS (For Clickable Citations)
+# ==============================================================================
+
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+
+
+class DocumentViewInfo(BaseModel):
+    """Information for viewing a document"""
+    doc_id: str
+    title: str
+    file_path: str
+    file_exists: bool
+    total_pages: Optional[int] = None
+    file_size: int = 0
+    view_url: str
+    download_url: str
+
+
+@router.get("/view", response_class=HTMLResponse)
+async def view_document_page(
+    doc_id: str = Query(..., description="Document ID to view"),
+    page: int = Query(1, ge=1, description="Page number to display")
+):
+    """
+    View a document in the browser with PDF.js viewer
+
+    This endpoint returns an HTML page that embeds the PDF viewer
+    and automatically navigates to the specified page.
+
+    Args:
+        doc_id: Document identifier
+        page: Page number to navigate to (1-indexed)
+
+    Returns:
+        HTML page with embedded PDF viewer
+    """
+    from app.services.citation_service import get_citation_service
+
+    citation_service = get_citation_service()
+    file_path = citation_service.get_document_path(doc_id)
+
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document '{doc_id}' not found"
+        )
+
+    title = citation_service.get_document_title(doc_id)
+
+    # Return HTML with PDF.js viewer
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{title} - DermaFocus</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: #1a1a2e;
+                color: #eee;
+            }}
+            .header {{
+                background: #16213e;
+                padding: 12px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #0f3460;
+            }}
+            .header h1 {{
+                font-size: 16px;
+                font-weight: 500;
+            }}
+            .header .page-info {{
+                font-size: 14px;
+                color: #888;
+            }}
+            .header .actions {{
+                display: flex;
+                gap: 10px;
+            }}
+            .header button {{
+                background: #0f3460;
+                color: #fff;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 13px;
+            }}
+            .header button:hover {{
+                background: #1a4980;
+            }}
+            .pdf-container {{
+                width: 100%;
+                height: calc(100vh - 60px);
+            }}
+            iframe {{
+                width: 100%;
+                height: 100%;
+                border: none;
+            }}
+            .loading {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: calc(100vh - 60px);
+                font-size: 18px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>{title}</h1>
+            <span class="page-info">Page {page}</span>
+            <div class="actions">
+                <button onclick="window.history.back()">← Back</button>
+                <button onclick="downloadPDF()">Download PDF</button>
+            </div>
+        </div>
+        <div class="pdf-container">
+            <iframe
+                id="pdf-viewer"
+                src="/api/documents/file/{doc_id}#page={page}"
+                title="{title}"
+            ></iframe>
+        </div>
+        <script>
+            function downloadPDF() {{
+                window.location.href = '/api/documents/download/{doc_id}';
+            }}
+        </script>
+    </body>
+    </html>
+    """
+
+    return HTMLResponse(content=html_content)
+
+
+@router.get("/file/{doc_id}")
+async def get_document_file(doc_id: str):
+    """
+    Serve the actual PDF file for embedding
+
+    Args:
+        doc_id: Document identifier
+
+    Returns:
+        PDF file for browser rendering
+    """
+    from app.services.citation_service import get_citation_service
+    import os
+
+    citation_service = get_citation_service()
+    file_path = citation_service.get_document_path(doc_id)
+
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document '{doc_id}' not found"
+        )
+
+    return FileResponse(
+        path=file_path,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"inline; filename={os.path.basename(file_path)}"
+        }
+    )
+
+
+@router.get("/download/{doc_id}")
+async def download_document(doc_id: str):
+    """
+    Download the PDF file
+
+    Args:
+        doc_id: Document identifier
+
+    Returns:
+        PDF file as download
+    """
+    from app.services.citation_service import get_citation_service
+    import os
+
+    citation_service = get_citation_service()
+    file_path = citation_service.get_document_path(doc_id)
+
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document '{doc_id}' not found"
+        )
+
+    title = citation_service.get_document_title(doc_id)
+    safe_filename = "".join(c for c in title if c.isalnum() or c in " -_").strip() + ".pdf"
+
+    return FileResponse(
+        path=file_path,
+        media_type="application/pdf",
+        filename=safe_filename,
+        headers={
+            "Content-Disposition": f"attachment; filename={safe_filename}"
+        }
+    )
+
+
+@router.get("/info/{doc_id}", response_model=DocumentViewInfo)
+async def get_document_info(doc_id: str):
+    """
+    Get document information for the frontend
+
+    Args:
+        doc_id: Document identifier
+
+    Returns:
+        Document metadata including viewing URLs
+    """
+    from app.services.citation_service import get_citation_service
+    import os
+
+    citation_service = get_citation_service()
+    file_path = citation_service.get_document_path(doc_id)
+    title = citation_service.get_document_title(doc_id)
+
+    file_exists = file_path is not None and os.path.exists(file_path)
+    file_size = os.path.getsize(file_path) if file_exists else 0
+
+    # Try to get page count
+    total_pages = None
+    if file_exists:
+        try:
+            import fitz
+            doc = fitz.open(file_path)
+            total_pages = len(doc)
+            doc.close()
+        except:
+            pass
+
+    return DocumentViewInfo(
+        doc_id=doc_id,
+        title=title,
+        file_path=file_path or "",
+        file_exists=file_exists,
+        total_pages=total_pages,
+        file_size=file_size,
+        view_url=f"/api/documents/view?doc_id={doc_id}",
+        download_url=f"/api/documents/download/{doc_id}"
+    )
+
+
+@router.get("/sources/list")
+async def list_available_sources():
+    """
+    List all available source documents that can be cited
+
+    Returns:
+        List of all documents with their metadata
+    """
+    from app.services.citation_service import get_citation_service
+    import os
+
+    citation_service = get_citation_service()
+
+    sources = []
+    for doc_id, file_path in citation_service._doc_path_cache.items():
+        # Skip normalized duplicates
+        if doc_id != citation_service._normalize_doc_id(doc_id):
+            continue
+
+        if os.path.exists(file_path):
+            # Determine folder/category
+            path_parts = Path(file_path).parts
+            category = "Other"
+            for part in path_parts:
+                if part in ["Clinical Papers", "Case Studies", "Fact Sheets", "Brochures", "Protocols"]:
+                    category = part
+                    break
+
+            sources.append({
+                "doc_id": doc_id,
+                "title": citation_service.get_document_title(doc_id),
+                "category": category,
+                "file_path": file_path,
+                "view_url": f"/api/documents/view?doc_id={doc_id}"
+            })
+
+    return {
+        "total": len(sources),
+        "sources": sorted(sources, key=lambda x: (x["category"], x["title"]))
+    }

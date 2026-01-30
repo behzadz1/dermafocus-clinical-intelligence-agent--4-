@@ -3,7 +3,7 @@ Embedding Service
 Generates vector embeddings using OpenAI
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from openai import OpenAI
 import structlog
 
@@ -76,7 +76,7 @@ class EmbeddingService:
         self,
         texts: List[str],
         batch_size: int = 100
-    ) -> List[List[float]]:
+    ) -> List[Optional[List[float]]]:
         """
         Generate embeddings for multiple texts in batches
         
@@ -94,36 +94,37 @@ class EmbeddingService:
                 batch_size=batch_size
             )
             
-            all_embeddings = []
+            all_embeddings: List[Optional[List[float]]] = [None] * len(texts)
             
             # Process in batches
             for i in range(0, len(texts), batch_size):
                 batch = texts[i:i + batch_size]
                 
-                # Clean texts
+                # Clean texts and keep index mapping for alignment.
                 cleaned_batch = [
                     text.replace("\n", " ").strip()
                     for text in batch
                 ]
+                indexed_inputs = [(idx, text) for idx, text in enumerate(cleaned_batch) if text]
                 
-                # Filter out empty texts
-                non_empty = [t for t in cleaned_batch if t]
-                
-                if not non_empty:
+                if not indexed_inputs:
                     logger.warning(
                         "Empty batch skipped",
                         batch_index=i // batch_size
                     )
                     continue
                 
+                indices, inputs = zip(*indexed_inputs)
+                
                 # Generate embeddings
                 response = self.client.embeddings.create(
                     model=self.model,
-                    input=non_empty
+                    input=list(inputs)
                 )
                 
                 batch_embeddings = [item.embedding for item in response.data]
-                all_embeddings.extend(batch_embeddings)
+                for local_idx, embedding in zip(indices, batch_embeddings):
+                    all_embeddings[i + local_idx] = embedding
                 
                 logger.info(
                     "Batch processed",
@@ -135,6 +136,13 @@ class EmbeddingService:
                 "All embeddings generated",
                 total=len(all_embeddings)
             )
+            
+            missing = sum(1 for emb in all_embeddings if emb is None)
+            if missing:
+                logger.warning(
+                    "Empty texts skipped during embedding",
+                    skipped=missing
+                )
             
             return all_embeddings
             
@@ -174,8 +182,18 @@ class EmbeddingService:
             embeddings = self.generate_embeddings_batch(texts)
             
             # Add embeddings to chunks
+            skipped = 0
             for chunk, embedding in zip(chunks, embeddings):
+                if embedding is None:
+                    skipped += 1
+                    continue
                 chunk["embedding"] = embedding
+            
+            if skipped:
+                logger.warning(
+                    "Skipped empty chunks during embedding",
+                    skipped=skipped
+                )
             
             logger.info(
                 "Chunks embedded successfully",

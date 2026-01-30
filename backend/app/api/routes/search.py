@@ -51,6 +51,23 @@ class SearchResponse(BaseModel):
     search_time_ms: float = Field(..., description="Search execution time in milliseconds")
 
 
+class DebugChunk(BaseModel):
+    """Debug info for a retrieved chunk"""
+    chunk_id: str
+    doc_id: str
+    score: float
+    adjusted_score: Optional[float] = None
+    page: Optional[int] = None
+    doc_type: Optional[str] = None
+
+
+class DebugSearchResponse(BaseModel):
+    """Debug response with raw top-k chunks"""
+    query: str
+    top_k: int
+    results: List[DebugChunk]
+
+
 class NamespaceStats(BaseModel):
     """Statistics for a Pinecone namespace"""
     namespace: str
@@ -154,6 +171,66 @@ async def semantic_search(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Search failed: {str(e)}"
+        )
+
+
+@router.post("/debug", response_model=DebugSearchResponse, status_code=status.HTTP_200_OK)
+async def debug_search(
+    query: str = Query(..., description="Search query", min_length=1, max_length=1000),
+    namespace: Optional[str] = Query("default", description="Pinecone namespace to search"),
+    top_k: int = Query(10, ge=1, le=50, description="Number of results to return"),
+    filter_metadata: Optional[dict] = None
+):
+    """
+    Debug search for inspecting top-k chunk IDs and scores.
+    """
+    logger.info(
+        "debug_search_request",
+        query=query[:100],
+        namespace=namespace,
+        top_k=top_k
+    )
+
+    try:
+        from app.services.rag_service import get_rag_service
+
+        rag_service = get_rag_service()
+
+        doc_type = None
+        if filter_metadata and "doc_type" in filter_metadata:
+            doc_type = filter_metadata["doc_type"]
+
+        chunks = rag_service.search(
+            query=query,
+            top_k=top_k,
+            namespace=namespace,
+            doc_type=doc_type,
+            min_score=0.0
+        )
+
+        results = []
+        for chunk in chunks:
+            metadata = chunk.get("metadata", {})
+            results.append(DebugChunk(
+                chunk_id=chunk.get("chunk_id", ""),
+                doc_id=metadata.get("doc_id", "unknown"),
+                score=chunk.get("score", 0.0),
+                adjusted_score=chunk.get("adjusted_score"),
+                page=metadata.get("page_number"),
+                doc_type=metadata.get("doc_type")
+            ))
+
+        return DebugSearchResponse(
+            query=query,
+            top_k=top_k,
+            results=results
+        )
+
+    except Exception as e:
+        logger.error("debug_search_failed", query=query[:100], error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Debug search failed: {str(e)}"
         )
 
 
