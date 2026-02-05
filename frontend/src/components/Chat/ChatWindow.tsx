@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Message, Source } from '../../types';
 import { apiService, ChatResponse } from '../../services/apiService';
+import { API_BASE_URL } from '../../config';
 
 interface ChatWindowProps {}
 
@@ -29,8 +30,6 @@ const STATIC_SUGGESTIONS = [
   { text: "Purasomes mechanism of action", icon: Zap },
   { text: "Contraindications for polynucleotides", icon: Shield }
 ];
-
-const API_BASE = 'http://localhost:8000';
 
 // Confidence configuration
 const getConfidenceConfig = (confidence: number) => {
@@ -471,7 +470,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
                               {msg.sources.map((source, idx) => (
                                 <a
                                   key={idx}
-                                  href={source.view_url ? `${API_BASE}${source.view_url}` : '#'}
+                                  href={source.view_url ? `${API_BASE_URL}${source.view_url}` : '#'}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-slate-50 to-white hover:from-teal-50 hover:to-white border border-slate-100 hover:border-teal-200 transition-all duration-200"

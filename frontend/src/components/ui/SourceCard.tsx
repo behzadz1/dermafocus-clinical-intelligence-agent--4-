@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileText, ExternalLink, ChevronRight } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 interface Source {
   document: string;
@@ -18,10 +19,8 @@ interface SourceCardProps {
   compact?: boolean;
 }
 
-const API_BASE = 'http://localhost:8000';
-
 export const SourceCard: React.FC<SourceCardProps> = ({ source, index, compact = false }) => {
-  const url = source.view_url ? `${API_BASE}${source.view_url}` : '#';
+  const url = source.view_url ? `${API_BASE_URL}${source.view_url}` : '#';
   const relevancePercent = Math.round(source.relevance_score * 100);
 
   // Relevance color based on score

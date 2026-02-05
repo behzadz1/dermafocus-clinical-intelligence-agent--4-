@@ -3,8 +3,7 @@
  * Replaces the Gemini service with calls to our FastAPI backend
  */
 
-// Get API URL from environment variable or use localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../config';
 
 // Types matching backend response models
 export interface Message {
