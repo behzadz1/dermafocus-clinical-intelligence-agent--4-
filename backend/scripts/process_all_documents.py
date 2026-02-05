@@ -308,6 +308,7 @@ class HierarchicalDocumentProcessor:
         try:
             from app.services.embedding_service import get_embedding_service
             from app.services.pinecone_service import get_pinecone_service
+            from app.utils.metadata_enrichment import build_canonical_metadata
 
             embedding_service = get_embedding_service()
             pinecone_service = get_pinecone_service()
@@ -335,7 +336,7 @@ class HierarchicalDocumentProcessor:
                         print(f"   ⏭️  No chunks to upload")
                         continue
 
-                    # Prepare texts for embedding
+                    # Prepare texts for embedding (alignment-safe)
                     texts = [chunk.get("text", "") for chunk in chunks]
                     chunk_ids = [chunk.get("id", f"chunk_{j}") for j, chunk in enumerate(chunks)]
 
@@ -346,19 +347,27 @@ class HierarchicalDocumentProcessor:
                     # Prepare vectors
                     vectors = []
                     for j, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+                        chunk_text = (chunk.get("text", "") or "").strip()
+                        if not chunk_text or embedding is None:
+                            continue
+
                         # Create safe vector ID
                         vector_id = self._safe_vector_id(chunk_ids[j])
 
-                        # Prepare metadata (Pinecone has limits on metadata size)
-                        metadata = {
-                            "doc_id": doc_data.get("doc_id", ""),
-                            "doc_type": doc_data.get("doc_type", ""),
+                        base_metadata = {
+                            **(doc_data.get("metadata") or {}),
+                            **(chunk.get("metadata") or {}),
                             "chunk_type": chunk.get("chunk_type", "flat"),
-                            "parent_id": chunk.get("parent_id", ""),
-                            "section": chunk.get("section", "")[:100],
-                            "text": chunk.get("text", "")[:1000],  # Truncate for metadata limits
-                            "page_number": chunk.get("metadata", {}).get("page_number", 0)
+                            "parent_id": chunk.get("parent_id") or "",
+                            "section": chunk.get("section") or "",
                         }
+                        metadata = build_canonical_metadata(
+                            doc_id=doc_data.get("doc_id", ""),
+                            doc_type=doc_data.get("detected_type", "") or doc_data.get("doc_type", "") or "unknown",
+                            chunk_index=j,
+                            text=chunk_text,
+                            metadata=base_metadata
+                        )
 
                         vectors.append({
                             "id": vector_id,

@@ -13,6 +13,7 @@ import structlog
 from app.config import settings
 from app.api.routes.protocols import clear_protocols_cache
 from app.api.routes.products import clear_products_cache
+from app.utils.metadata_enrichment import build_canonical_metadata
 
 router = APIRouter()
 logger = structlog.get_logger()
@@ -138,16 +139,14 @@ async def index_chunks_to_pinecone(
             continue
 
         vector_id = f"{safe_doc_id}_chunk_{i}"
-        metadata = chunk.get('metadata', {})
-
-        # Ensure required metadata
-        metadata.update({
-            'doc_id': doc_id,
-            'doc_id_safe': safe_doc_id,
-            'doc_type': doc_type,
-            'chunk_index': i,
-            'text': text[:1000]  # Store truncated text for reference
-        })
+        metadata = build_canonical_metadata(
+            doc_id=doc_id,
+            doc_type=doc_type,
+            chunk_index=i,
+            text=text,
+            metadata=chunk.get('metadata', {})
+        )
+        metadata["doc_id_safe"] = safe_doc_id
 
         vectors.append({
             'id': vector_id,
@@ -161,6 +160,14 @@ async def index_chunks_to_pinecone(
             doc_id=doc_id,
             skipped=skipped
         )
+
+    if not vectors:
+        logger.warning(
+            "no_vectors_to_upsert",
+            doc_id=doc_id,
+            namespace=namespace
+        )
+        return 0
 
     # Upsert to Pinecone
     result = pinecone_service.upsert_vectors(vectors, namespace=namespace)
@@ -493,6 +500,7 @@ async def view_document_page(
     View a document in the browser with PDF.js viewer
     """
     from app.services.citation_service import get_citation_service
+    from urllib.parse import quote
 
     citation_service = get_citation_service()
     file_path = citation_service.get_document_path(doc_id)
@@ -504,6 +512,8 @@ async def view_document_page(
         )
 
     title = citation_service.get_document_title(doc_id)
+    # URL-encode the doc_id for use in URLs
+    encoded_doc_id = quote(doc_id)
 
     html_content = f"""
     <!DOCTYPE html>
@@ -535,10 +545,10 @@ async def view_document_page(
             </div>
         </div>
         <div class="pdf-container">
-            <iframe id="pdf-viewer" src="/api/documents/file/{doc_id}#page={page}" title="{title}"></iframe>
+            <iframe id="pdf-viewer" src="/api/documents/file/{encoded_doc_id}#page={page}" title="{title}"></iframe>
         </div>
         <script>
-            function downloadPDF() {{ window.location.href = '/api/documents/download/{doc_id}'; }}
+            function downloadPDF() {{ window.location.href = '/api/documents/download/{encoded_doc_id}'; }}
         </script>
     </body>
     </html>

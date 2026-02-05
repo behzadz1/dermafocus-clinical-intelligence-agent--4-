@@ -143,7 +143,7 @@ If information is not available for a field, use empty string "" or empty array 
 Documentation context:
 {context_text}"""
 
-            response = claude_service.generate_response(
+            response = await claude_service.generate_response(
                 user_message=extraction_prompt,
                 context="",
                 system_prompt="You are a medical protocol extraction assistant. Extract structured treatment protocol information from clinical documentation. Return ONLY valid JSON, no markdown formatting, no explanations."

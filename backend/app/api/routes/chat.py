@@ -43,13 +43,9 @@ def redact_phi(text: str) -> str:
 
 def calculate_weighted_confidence(chunks: list) -> float:
     """
-    Calculate confidence score using weighted factors for better accuracy.
+    Calculate confidence score based on retrieval quality.
 
-    Factors:
-    - Top chunk score (35%): Best match matters most
-    - Average score (30%): Overall retrieval quality
-    - Coverage score (20%): Multiple high-quality sources
-    - Consistency score (15%): Agreement between sources
+    Adjusted for realistic embedding similarity scores (typically 0.3-0.7).
 
     Returns:
         Confidence score between 0.0 and 0.95
@@ -58,34 +54,44 @@ def calculate_weighted_confidence(chunks: list) -> float:
         return 0.0
 
     scores = [c["score"] for c in chunks]
-
-    # Factor 1: Top chunk score (most important match)
     top_score = scores[0] if scores else 0
 
-    # Factor 2: Average score across all chunks
-    avg_score = sum(scores) / len(scores)
-
-    # Factor 3: Coverage - how many high-quality chunks (score > 0.6)
-    high_quality_count = sum(1 for s in scores if s > 0.6)
-    coverage_score = min(high_quality_count / 3.0, 1.0)  # Expect at least 3 good chunks
-
-    # Factor 4: Consistency - low variance means sources agree
-    if len(scores) > 1:
-        variance = sum((s - avg_score) ** 2 for s in scores) / len(scores)
-        consistency_score = max(0, 1 - (variance * 4))  # Penalize high variance
+    # Normalize scores: 0.3 = low, 0.5 = medium, 0.7+ = high
+    # Map to confidence: top_score of 0.5 -> ~70% confidence
+    if top_score >= 0.6:
+        confidence = 0.85 + (top_score - 0.6) * 0.25  # 0.6->0.85, 0.8->0.90
+    elif top_score >= 0.4:
+        confidence = 0.65 + (top_score - 0.4) * 1.0   # 0.4->0.65, 0.6->0.85
+    elif top_score >= 0.3:
+        confidence = 0.50 + (top_score - 0.3) * 1.5   # 0.3->0.50, 0.4->0.65
     else:
-        consistency_score = 0.5  # Neutral if only one chunk
+        confidence = top_score * 1.67  # Below 0.3 is low confidence
 
-    # Weighted combination
-    confidence = (
-        top_score * 0.35 +
-        avg_score * 0.30 +
-        coverage_score * 0.20 +
-        consistency_score * 0.15
-    )
+    # Boost if multiple good sources found
+    good_sources = sum(1 for s in scores if s > 0.35)
+    if good_sources >= 3:
+        confidence = min(confidence + 0.05, 0.95)
 
-    # Cap at 0.95 to indicate we're never 100% certain
-    return min(round(confidence, 3), 0.95)
+    return min(round(confidence, 2), 0.95)
+
+
+STRICT_REFUSAL_MESSAGE = (
+    "I do not have sufficient documented evidence in the current Dermafocus knowledge base "
+    "to answer this safely. Please upload or reference the relevant source document."
+)
+
+
+def resolve_page_number(metadata: dict) -> int:
+    """Resolve best page number from chunk metadata."""
+    for key in ("page_number", "page_start", "page"):
+        value = metadata.get(key)
+        try:
+            page = int(value)
+        except (TypeError, ValueError):
+            continue
+        if page > 0:
+            return page
+    return 1
 
 
 # ==============================================================================
@@ -261,18 +267,45 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
         logger.info("Retrieving context from RAG", doc_type=doc_type_filter)
         context_data = rag_service.get_context_for_query(
             query=request.question,
-            max_chunks=8,  # Increased from 5 for better coverage
+            max_chunks=5,  # Enough for good context without overwhelming
             doc_type=doc_type_filter
         )
 
         context_text = context_data["context_text"]
         retrieved_chunks = context_data["chunks"]
+        evidence = context_data.get("evidence", {})
 
         logger.info(
             "Context retrieved",
             chunks_found=len(retrieved_chunks),
-            context_length=len(context_text)
+            context_length=len(context_text),
+            evidence_sufficient=evidence.get("sufficient", False),
+            evidence_reason=evidence.get("reason")
         )
+
+        # Strict refusal when evidence is missing/weak.
+        if not evidence.get("sufficient", False):
+            conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+            return ChatResponse(
+                answer=STRICT_REFUSAL_MESSAGE,
+                sources=[],
+                intent="insufficient_evidence",
+                confidence=0.0,
+                conversation_id=conversation_id,
+                follow_ups=[
+                    "Which source document should I use?",
+                    "Can you upload the relevant protocol or factsheet?"
+                ],
+                knowledge_usage=KnowledgeUsage(
+                    primary_source="document",
+                    document_ratio=1.0,
+                    knowledge_blend="document-heavy"
+                ),
+                customization_applied=ResponseCustomization(
+                    audience=claude_service.customizer.audience.value,
+                    style=claude_service.customizer.style.value
+                )
+            )
 
         # Step 3: Build conversation history for Claude
         conversation_history = []
@@ -293,25 +326,38 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
 
         answer = claude_response["answer"]
 
-        # Step 4: Extract and format sources with clickable citations
+        # Step 5: Extract and format sources - DEDUPLICATED, TOP 3 UNIQUE DOCS
         from app.services.citation_service import get_citation_service
         from urllib.parse import quote
 
         citation_service = get_citation_service()
         sources = []
+        seen_docs = set()
+        MAX_SOURCES = 3  # Show only top 3 unique documents
+
         for chunk in retrieved_chunks:
             doc_id = chunk["metadata"].get("doc_id", "unknown")
-            page_num = chunk["metadata"].get("page_number", 1) or 1
+
+            # Skip if we already have this document
+            if doc_id in seen_docs:
+                continue
+            seen_docs.add(doc_id)
+
+            # Stop after MAX_SOURCES unique documents
+            if len(sources) >= MAX_SOURCES:
+                break
+
+            page_num = resolve_page_number(chunk.get("metadata", {}))
             doc_title = citation_service.get_document_title(doc_id)
 
             sources.append(Source(
                 document=doc_id,
                 title=doc_title,
-                page=page_num,
+                page=max(page_num, 1),  # Ensure page is at least 1
                 section=chunk["metadata"].get("section"),
-                relevance_score=chunk["score"],
-                text_snippet=chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"],
-                view_url=f"/api/documents/view?doc_id={quote(doc_id)}&page={page_num}",
+                relevance_score=round(chunk["score"], 2),
+                text_snippet=chunk["text"][:150] + "..." if len(chunk["text"]) > 150 else chunk["text"],
+                view_url=f"/api/documents/view?doc_id={quote(doc_id)}&page={max(page_num, 1)}",
                 download_url=f"/api/documents/download/{quote(doc_id)}"
             ))
 
@@ -418,12 +464,30 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
             # Retrieve context
             context_data = rag_service.get_context_for_query(
                 query=request.question,
-                max_chunks=8,  # Increased from 5 for better coverage
+                max_chunks=5,  # Balanced for good context
                 doc_type=doc_type_filter
             )
             
             context_text = context_data["context_text"]
             retrieved_chunks = context_data["chunks"]
+            evidence = context_data.get("evidence", {})
+
+            if not evidence.get("sufficient", False):
+                data = {"type": "content", "content": STRICT_REFUSAL_MESSAGE}
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {"type": "sources", "sources": []}
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {
+                    "type": "follow_ups",
+                    "follow_ups": [
+                        "Which source document should I use?",
+                        "Can you upload the relevant protocol or factsheet?"
+                    ]
+                }
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {"type": "done"}
+                yield f"data: {json.dumps(data)}\n\n"
+                return
             
             # Build conversation history
             conversation_history = []
@@ -445,13 +509,32 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
                 data = {"type": "content", "content": chunk}
                 yield f"data: {json.dumps(data)}\n\n"
 
-            # Send sources at the end
+            # Send sources at the end - deduplicated, with full metadata
+            from app.services.citation_service import get_citation_service
+            from urllib.parse import quote
+
+            citation_service = get_citation_service()
             sources = []
+            seen_docs = set()
+            MAX_SOURCES = 3
+
             for chunk in retrieved_chunks:
+                doc_id = chunk["metadata"].get("doc_id", "unknown")
+                if doc_id in seen_docs:
+                    continue
+                seen_docs.add(doc_id)
+                if len(sources) >= MAX_SOURCES:
+                    break
+
+                page_num = resolve_page_number(chunk.get("metadata", {}))
                 sources.append({
-                    "document": chunk["metadata"].get("doc_id", "unknown"),
-                    "page": chunk["metadata"].get("page_number", 0),
-                    "relevance_score": chunk["score"]
+                    "document": doc_id,
+                    "title": citation_service.get_document_title(doc_id),
+                    "page": max(page_num, 1),
+                    "section": chunk["metadata"].get("section"),
+                    "relevance_score": round(chunk["score"], 2),
+                    "view_url": f"/api/documents/view?doc_id={quote(doc_id)}&page={max(page_num, 1)}",
+                    "download_url": f"/api/documents/download/{quote(doc_id)}"
                 })
 
             data = {"type": "sources", "sources": sources}

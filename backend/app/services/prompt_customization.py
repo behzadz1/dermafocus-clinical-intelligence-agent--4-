@@ -472,14 +472,17 @@ You represent {self.brand_voice.brand_name} - "{self.brand_voice.tagline}"
 
     def apply_terminology(self, text: str) -> str:
         """
-        Apply terminology corrections to output text
+        Apply terminology corrections to output text.
+        Uses negative lookahead to avoid double ® symbols.
         """
+        import re
         result = text
 
         # Apply product name corrections (case-insensitive)
+        # Use negative lookahead (?!®) to avoid replacing if ® already follows
         for informal, formal in self.terminology.product_names.items():
-            import re
-            pattern = re.compile(re.escape(informal), re.IGNORECASE)
+            # Match the informal term only if NOT followed by ®
+            pattern = re.compile(re.escape(informal) + r'(?!®)', re.IGNORECASE)
             result = pattern.sub(formal, result)
 
         return result

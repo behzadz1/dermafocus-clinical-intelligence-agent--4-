@@ -231,7 +231,7 @@ If information is not available for a field, use empty string "" or empty array 
 Documentation context:
 {context_text}"""
 
-            response = claude_service.generate_response(
+            response = await claude_service.generate_response(
                 user_message=extraction_prompt,
                 context="",
                 system_prompt="You are a medical data extraction assistant. Extract structured product information from clinical documentation. Return ONLY valid JSON, no markdown formatting, no explanations."
@@ -467,7 +467,7 @@ Return ONLY a valid JSON object with these exact fields:
 Documentation:
 {context_data["context_text"]}"""
 
-        response = claude_service.generate_response(
+        response = await claude_service.generate_response(
             user_message=extraction_prompt,
             context="",
             system_prompt="You are a medical data extraction assistant. Extract structured product information. Return ONLY valid JSON."

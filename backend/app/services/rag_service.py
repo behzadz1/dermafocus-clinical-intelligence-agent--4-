@@ -21,6 +21,7 @@ logger = structlog.get_logger()
 CHUNK_TYPE_SECTION = "section"  # Parent chunks (section summaries)
 CHUNK_TYPE_DETAIL = "detail"    # Child chunks (detailed content)
 CHUNK_TYPE_FLAT = "flat"        # Non-hierarchical chunks
+DEFAULT_MAX_CONTEXT_CHARS = 7000
 
 
 class RAGService:
@@ -43,17 +44,15 @@ class RAGService:
 
         Returns:
             doc_type string or None for no filtering
+
+        Note: Actual doc_types in Pinecone are:
+        - clinical_paper, brochure, factsheet, case_study
+
+        We return None for most intents to avoid over-filtering.
+        The semantic search will find relevant content regardless.
         """
-        intent_map = {
-            "product_info": "product",
-            "protocol": "protocol",
-            "dosing": "protocol",
-            "scheduling": "protocol",
-            "equipment": "protocol",
-            "contraindications": "clinical_paper",
-            "safety": "clinical_paper"
-        }
-        return intent_map.get(intent)
+        # Avoid aggressive filtering. Safety answers often live in factsheets/protocols.
+        return None
 
     def _extract_product_terms(self, query: str) -> List[str]:
         """
@@ -73,6 +72,44 @@ class RAGService:
             "sgc100+"
         ]
         return [term for term in product_terms if term in query_lower]
+
+    def _extract_safety_terms(self, query: str) -> List[str]:
+        """
+        Identify safety/contraindication intent terms for lexical boosting.
+        """
+        query_lower = query.lower()
+        safety_terms = [
+            "contraindication",
+            "contraindications",
+            "side effect",
+            "side effects",
+            "adverse event",
+            "adverse events",
+            "warning",
+            "warnings",
+            "precaution",
+            "precautions",
+            "do not use",
+            "avoid",
+            "safety",
+        ]
+        return [term for term in safety_terms if term in query_lower]
+
+    def _expand_query_for_retrieval(self, query: str) -> str:
+        """
+        Expand queries in high-risk categories to improve retrieval recall.
+        """
+        expanded = query
+        query_lower = query.lower()
+        safety_terms = self._extract_safety_terms(query)
+        if safety_terms:
+            expanded += (
+                " contraindications side effects adverse events warnings precautions"
+                " avoid do not use safety"
+            )
+            if "contraindication" in query_lower:
+                expanded += " consensus report factsheet contraindications section"
+        return expanded
     
     def search(
         self,
@@ -103,8 +140,9 @@ class RAGService:
                 doc_type=doc_type
             )
             
-            # Generate query embedding
-            query_embedding = self.embedding_service.embed_query(query)
+            # Expand query for recall-sensitive intents, then embed.
+            retrieval_query = self._expand_query_for_retrieval(query)
+            query_embedding = self.embedding_service.embed_query(retrieval_query)
             
             # Build metadata filter
             metadata_filter = {}
@@ -134,22 +172,44 @@ class RAGService:
 
             # Apply lightweight lexical boost for explicit product mentions
             product_terms = self._extract_product_terms(query)
+            safety_terms = self._extract_safety_terms(query)
             if product_terms:
                 for chunk in relevant_chunks:
                     text_blob = " ".join([
                         chunk.get("text", ""),
+                        str(chunk.get("metadata", {}).get("section", "")),
                         str(chunk.get("metadata", {}).get("doc_id", "")),
                         str(chunk.get("metadata", {}).get("title", ""))
                     ]).lower()
                     boost = 0.0
                     if any(term in text_blob for term in product_terms):
                         boost += 0.08
-                    if chunk.get("metadata", {}).get("doc_type") in {"product", "protocol"}:
+                    if safety_terms and any(term in text_blob for term in safety_terms):
+                        boost += 0.08
+                    if safety_terms and any(
+                        token in text_blob
+                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
+                    ):
+                        boost += 0.04
+                    if chunk.get("metadata", {}).get("doc_type") in {"product", "protocol", "factsheet", "brochure"}:
                         boost += 0.03
                     chunk["adjusted_score"] = min(chunk["score"] + boost, 1.0)
             else:
                 for chunk in relevant_chunks:
-                    chunk["adjusted_score"] = chunk["score"]
+                    text_blob = " ".join([
+                        chunk.get("text", ""),
+                        str(chunk.get("metadata", {}).get("section", "")),
+                        str(chunk.get("metadata", {}).get("doc_id", "")),
+                    ]).lower()
+                    boost = 0.0
+                    if safety_terms and any(term in text_blob for term in safety_terms):
+                        boost += 0.08
+                    if safety_terms and any(
+                        token in text_blob
+                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
+                    ):
+                        boost += 0.04
+                    chunk["adjusted_score"] = min(chunk["score"] + boost, 1.0)
 
             # Limit to top_k after reranking
             relevant_chunks = sorted(
@@ -209,8 +269,9 @@ class RAGService:
                 doc_type=doc_type
             )
 
-            # Generate query embedding
-            query_embedding = self.embedding_service.embed_query(query)
+            # Expand query for recall-sensitive intents, then embed.
+            retrieval_query = self._expand_query_for_retrieval(query)
+            query_embedding = self.embedding_service.embed_query(retrieval_query)
 
             # Build metadata filter
             metadata_filter = {}
@@ -314,16 +375,40 @@ class RAGService:
 
             # Apply product term boosting
             product_terms = self._extract_product_terms(query)
+            safety_terms = self._extract_safety_terms(query)
             if product_terms:
                 for chunk in enriched_chunks:
                     text_blob = " ".join([
                         chunk.get("text", ""),
                         chunk.get("parent_context", ""),
+                        str(chunk.get("metadata", {}).get("section", "")),
                         str(chunk.get("metadata", {}).get("doc_id", "")),
                     ]).lower()
 
                     if any(term in text_blob for term in product_terms):
                         chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.08, 1.0)
+                    if safety_terms and any(term in text_blob for term in safety_terms):
+                        chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.08, 1.0)
+                    if safety_terms and any(
+                        token in text_blob
+                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
+                    ):
+                        chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.04, 1.0)
+            elif safety_terms:
+                for chunk in enriched_chunks:
+                    text_blob = " ".join([
+                        chunk.get("text", ""),
+                        chunk.get("parent_context", ""),
+                        str(chunk.get("metadata", {}).get("section", "")),
+                        str(chunk.get("metadata", {}).get("doc_id", "")),
+                    ]).lower()
+                    if any(term in text_blob for term in safety_terms):
+                        chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.08, 1.0)
+                    if any(
+                        token in text_blob
+                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
+                    ):
+                        chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.04, 1.0)
 
             # Sort by adjusted score and return top_k
             enriched_chunks = sorted(
@@ -401,7 +486,8 @@ class RAGService:
         query: str,
         max_chunks: int = 5,
         doc_type: Optional[str] = None,
-        use_hierarchical: bool = True
+        use_hierarchical: bool = True,
+        max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS
     ) -> Dict[str, Any]:
         """
         Get context for a query to pass to LLM.
@@ -438,12 +524,20 @@ class RAGService:
                     "chunks": [],
                     "context_text": "",
                     "sources": [],
-                    "hierarchy_stats": {}
+                    "hierarchy_stats": {},
+                    "evidence": {
+                        "sufficient": False,
+                        "reason": "no_chunks",
+                        "top_score": 0.0,
+                        "strong_matches": 0
+                    }
                 }
 
             # Prepare context text with hierarchical awareness
             context_parts = []
             sources = []
+            used_parent_contexts = set()
+            remaining_chars = max_context_chars
             hierarchy_stats = {
                 "parent_matches": 0,
                 "child_matches": 0,
@@ -470,15 +564,28 @@ class RAGService:
 
                 # Include parent context for child chunks
                 parent_context = chunk.get("parent_context", "")
-                if parent_context and hierarchy_match in ["both", "child_only"]:
-                    context_parts.append(
+                source_block = ""
+                parent_id = chunk.get("parent_id")
+                if (
+                    parent_context
+                    and hierarchy_match in ["both", "child_only"]
+                    and parent_id
+                    and parent_id not in used_parent_contexts
+                ):
+                    source_block = (
                         f"[Source {i} - {section_prefix}Context]\n{parent_context[:500]}...\n\n"
                         f"[Source {i} - {section_prefix}Detail]\n{chunk['text']}\n"
                     )
+                    used_parent_contexts.add(parent_id)
                 else:
-                    context_parts.append(
-                        f"[Source {i}]{section_prefix}\n{chunk['text']}\n"
-                    )
+                    source_block = f"[Source {i}]{section_prefix}\n{chunk['text']}\n"
+
+                if remaining_chars <= 0:
+                    continue
+                if len(source_block) > remaining_chars:
+                    source_block = source_block[:remaining_chars].rstrip() + "\n"
+                context_parts.append(source_block)
+                remaining_chars -= len(source_block)
 
                 # Track source with hierarchy info
                 sources.append({
@@ -486,26 +593,29 @@ class RAGService:
                     "doc_id": chunk["metadata"].get("doc_id"),
                     "doc_type": chunk["metadata"].get("doc_type"),
                     "section": section,
-                    "page": chunk["metadata"].get("page_number"),
+                    "page": self._resolve_page_number(chunk.get("metadata", {})),
                     "relevance_score": chunk.get("adjusted_score", chunk["score"]),
                     "hierarchy_match": hierarchy_match,
                     "chunk_type": chunk.get("chunk_type", "flat")
                 })
 
             context_text = "\n".join(context_parts)
+            evidence = self._assess_evidence(chunks)
 
             logger.info(
                 "Hierarchical context prepared",
                 chunks_used=len(chunks),
                 total_chars=len(context_text),
-                hierarchy_stats=hierarchy_stats
+                hierarchy_stats=hierarchy_stats,
+                evidence_sufficient=evidence["sufficient"]
             )
 
             return {
                 "chunks": chunks,
                 "context_text": context_text,
                 "sources": sources,
-                "hierarchy_stats": hierarchy_stats
+                "hierarchy_stats": hierarchy_stats,
+                "evidence": evidence
             }
 
         except Exception as e:
@@ -515,6 +625,44 @@ class RAGService:
                 query=query[:100]
             )
             raise
+
+    def _resolve_page_number(self, metadata: Dict[str, Any]) -> Optional[int]:
+        """Resolve page number from metadata with fallbacks."""
+        for key in ("page_number", "page_start", "page"):
+            value = metadata.get(key)
+            try:
+                page = int(value)
+            except (TypeError, ValueError):
+                continue
+            if page > 0:
+                return page
+        return 1
+
+    def _assess_evidence(self, chunks: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Determine if retrieved evidence is strong enough for grounded answering.
+        """
+        if not chunks:
+            return {
+                "sufficient": False,
+                "reason": "no_chunks",
+                "top_score": 0.0,
+                "strong_matches": 0
+            }
+
+        scores = [float(chunk.get("adjusted_score", chunk.get("score", 0.0))) for chunk in chunks]
+        top_score = max(scores) if scores else 0.0
+        strong_matches = sum(1 for score in scores if score >= 0.35)
+
+        sufficient = top_score >= 0.35 and strong_matches >= 1
+        reason = "ok" if sufficient else "low_retrieval_confidence"
+
+        return {
+            "sufficient": sufficient,
+            "reason": reason,
+            "top_score": round(top_score, 3),
+            "strong_matches": strong_matches
+        }
     
     def rerank_results(
         self,

@@ -56,6 +56,25 @@ jobs:
         run: |
           pytest tests/ -v --cov=app --cov-report=xml
 
+      - name: Run RAG eval gate
+        if: ${{ secrets.OPENAI_API_KEY != '' && secrets.PINECONE_API_KEY != '' && secrets.ANTHROPIC_API_KEY != '' && secrets.SECRET_KEY != '' }}
+        working-directory: backend
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
+          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
+          VALID_API_KEYS: ${{ secrets.VALID_API_KEYS }}
+        run: |
+          python scripts/run_rag_eval.py \
+            --dataset tests/fixtures/rag_eval_dataset.json \
+            --report data/processed/rag_eval_report_ci.json \
+            --min-pass-rate 0.9 \
+            --min-refusal-accuracy 1.0 \
+            --min-citation-page-valid-rate 1.0
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

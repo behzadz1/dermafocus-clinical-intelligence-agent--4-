@@ -117,10 +117,12 @@ class CitationService:
         title = re.sub(r'\s*(processed|final|v\d+)$', '', title, flags=re.IGNORECASE)
         # Title case
         title = title.title()
-        # Fix common terms
+        # Fix common terms - only add ® if not already present
         title = title.replace("Pn Hpt", "PN-HPT®")
-        title = title.replace("Plinest", "Plinest®")
-        title = title.replace("Newest", "Newest®")
+        if "Plinest" in title and "Plinest®" not in title:
+            title = title.replace("Plinest", "Plinest®")
+        if "Newest" in title and "Newest®" not in title:
+            title = title.replace("Newest", "Newest®")
         return title
 
     def create_citations_from_sources(

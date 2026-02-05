@@ -104,8 +104,8 @@ class DocumentProcessor:
         # Extract text by page
         pages = self._extract_text_by_page(file_path)
 
-        # Combine all pages
-        full_text = "\n\n".join(page["text"] for page in pages if page["text"])
+        # Combine all pages while preserving page-level character spans
+        full_text, page_spans = self._build_full_text_with_page_spans(pages)
 
         # Extract tables (optional, using pdfplumber)
         tables = self._extract_tables(file_path)
@@ -137,6 +137,9 @@ class DocumentProcessor:
 
             # Convert to storage format
             chunks = [chunk.to_dict() for chunk in hierarchical_chunks]
+
+            # Attach page provenance for reliable citations downstream.
+            self._attach_page_provenance_to_chunks(chunks, full_text, page_spans)
 
             # Track parent-child relationships
             parent_chunks = [c for c in chunks if c.get("chunk_type") == "section"]
@@ -334,7 +337,95 @@ class DocumentProcessor:
                 })
         
         return all_chunks
-    
+
+    def _build_full_text_with_page_spans(
+        self,
+        pages: List[Dict[str, Any]]
+    ) -> Tuple[str, List[Dict[str, int]]]:
+        """
+        Build full text and track per-page character spans for provenance.
+
+        Returns:
+            Tuple of (full_text, page_spans)
+            where page_spans entries are {"page_number": int, "start": int, "end": int}
+        """
+        full_text_parts: List[str] = []
+        page_spans: List[Dict[str, int]] = []
+        cursor = 0
+        separator = "\n\n"
+
+        for page in pages:
+            page_text = (page.get("text") or "").strip()
+            if not page_text:
+                continue
+
+            if full_text_parts:
+                cursor += len(separator)
+
+            start = cursor
+            end = start + len(page_text)
+            page_spans.append({
+                "page_number": int(page.get("page_number", 0) or 0),
+                "start": start,
+                "end": end
+            })
+
+            full_text_parts.append(page_text)
+            cursor = end
+
+        return separator.join(full_text_parts), page_spans
+
+    def _attach_page_provenance_to_chunks(
+        self,
+        chunks: List[Dict[str, Any]],
+        full_text: str,
+        page_spans: List[Dict[str, int]]
+    ) -> None:
+        """
+        Add page_number/page_start/page_end metadata to chunks.
+        """
+        if not chunks or not page_spans:
+            return
+
+        search_cursor = 0
+
+        for chunk in chunks:
+            metadata = chunk.setdefault("metadata", {})
+            start = chunk.get("char_start")
+            end = chunk.get("char_end")
+
+            # Some chunkers don't provide reliable offsets; derive best-effort offsets.
+            if not isinstance(start, int) or not isinstance(end, int) or end <= start:
+                chunk_text = (chunk.get("text") or "").strip()
+                if chunk_text and full_text:
+                    probe = chunk_text[:160]
+                    found_at = full_text.find(probe, search_cursor)
+                    if found_at == -1:
+                        found_at = full_text.find(probe)
+                    if found_at != -1:
+                        start = found_at
+                        end = found_at + len(probe)
+                        search_cursor = found_at + len(probe)
+
+            pages = []
+            if isinstance(start, int) and isinstance(end, int) and end > start:
+                for span in page_spans:
+                    overlap_start = max(start, span["start"])
+                    overlap_end = min(end, span["end"])
+                    if overlap_start < overlap_end:
+                        pages.append(span["page_number"])
+
+            # Fallback to existing metadata if overlap matching failed.
+            if not pages:
+                fallback_page = metadata.get("page_number")
+                if isinstance(fallback_page, int) and fallback_page > 0:
+                    pages = [fallback_page]
+
+            if pages:
+                metadata["page_number"] = pages[0]
+                metadata["page_start"] = pages[0]
+                metadata["page_end"] = pages[-1]
+
     def _clean_text(self, text: str) -> str:
         """
         Clean extracted text
@@ -347,21 +438,22 @@ class DocumentProcessor:
         """
         if not text:
             return ""
-        
-        # Remove excessive whitespace
-        text = re.sub(r'\s+', ' ', text)
-        
-        # Remove page numbers at end of lines (e.g., "Page 1", "1/10")
-        text = re.sub(r'\s+Page\s+\d+\s*$', '', text, flags=re.IGNORECASE)
-        text = re.sub(r'\s+\d+/\d+\s*$', '', text)
+
+        # Normalize line endings and keep line structure for section detection.
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+
+        # Remove extra spaces/tabs while preserving newlines.
+        text = re.sub(r"[ \t]+", " ", text)
+        text = "\n".join(line.strip() for line in text.split("\n"))
+        text = re.sub(r"\n{3,}", "\n\n", text)
+
+        # Remove standalone page number lines (e.g., "Page 1", "1/10")
+        text = re.sub(r"(?im)^\s*Page\s+\d+\s*$", "", text)
+        text = re.sub(r"(?m)^\s*\d+/\d+\s*$", "", text)
         
         # Remove common PDF artifacts
         text = re.sub(r'\x00', '', text)  # Null bytes
         text = re.sub(r'\ufffd', '', text)  # Replacement characters
-        
-        # Normalize quotes
-        text = text.replace('"', '"').replace('"', '"')
-        text = text.replace("'", "'").replace("'", "'")
         
         return text.strip()
     

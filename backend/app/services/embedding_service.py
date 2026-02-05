@@ -6,6 +6,7 @@ Generates vector embeddings using OpenAI
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
 import structlog
+import re
 
 from app.config import settings
 
@@ -22,6 +23,9 @@ class EmbeddingService:
         self.api_key = settings.openai_api_key
         self.model = settings.embedding_model
         self.dimension = settings.embedding_dimension
+        # Conservative char cap to avoid embedding token overflows.
+        self.max_chars_per_input = 20000
+        self.max_segments_per_text = 8
         
         self._client = None
     
@@ -49,20 +53,17 @@ class EmbeddingService:
         """
         try:
             # Clean text
-            text = text.replace("\n", " ").strip()
+            text = self._normalize_text(text)
             
             if not text:
                 raise ValueError("Empty text provided")
-            
-            # Generate embedding
-            response = self.client.embeddings.create(
-                model=self.model,
-                input=text
-            )
-            
-            embedding = response.data[0].embedding
-            
-            return embedding
+
+            segments = self._split_text_for_embedding(text)
+            if len(segments) == 1:
+                return self._embed_single_with_retry(segments[0])
+
+            segment_embeddings = self._embed_inputs_with_retry(segments)
+            return self._mean_pool_embeddings(segment_embeddings)
             
         except Exception as e:
             logger.error(
@@ -95,41 +96,52 @@ class EmbeddingService:
             )
             
             all_embeddings: List[Optional[List[float]]] = [None] * len(texts)
-            
+
             # Process in batches
             for i in range(0, len(texts), batch_size):
                 batch = texts[i:i + batch_size]
-                
-                # Clean texts and keep index mapping for alignment.
-                cleaned_batch = [
-                    text.replace("\n", " ").strip()
-                    for text in batch
-                ]
-                indexed_inputs = [(idx, text) for idx, text in enumerate(cleaned_batch) if text]
-                
-                if not indexed_inputs:
+                expanded_inputs: List[str] = []
+                expanded_to_global_idx: List[int] = []
+                split_count = 0
+
+                for local_idx, text in enumerate(batch):
+                    normalized = self._normalize_text(text)
+                    if not normalized:
+                        continue
+
+                    segments = self._split_text_for_embedding(normalized)
+                    if len(segments) > 1:
+                        split_count += 1
+
+                    for segment in segments:
+                        expanded_inputs.append(segment)
+                        expanded_to_global_idx.append(i + local_idx)
+
+                if not expanded_inputs:
                     logger.warning(
                         "Empty batch skipped",
                         batch_index=i // batch_size
                     )
                     continue
-                
-                indices, inputs = zip(*indexed_inputs)
-                
-                # Generate embeddings
-                response = self.client.embeddings.create(
-                    model=self.model,
-                    input=list(inputs)
-                )
-                
-                batch_embeddings = [item.embedding for item in response.data]
-                for local_idx, embedding in zip(indices, batch_embeddings):
-                    all_embeddings[i + local_idx] = embedding
-                
+
+                embeddings_by_idx: Dict[int, List[List[float]]] = {}
+                for j in range(0, len(expanded_inputs), batch_size):
+                    input_slice = expanded_inputs[j:j + batch_size]
+                    idx_slice = expanded_to_global_idx[j:j + batch_size]
+
+                    output_embeddings = self._embed_inputs_with_retry(input_slice)
+
+                    for global_idx, embedding in zip(idx_slice, output_embeddings):
+                        embeddings_by_idx.setdefault(global_idx, []).append(embedding)
+
+                for global_idx, segment_embeddings in embeddings_by_idx.items():
+                    all_embeddings[global_idx] = self._mean_pool_embeddings(segment_embeddings)
+
                 logger.info(
                     "Batch processed",
                     batch_index=i // batch_size,
-                    embeddings_generated=len(batch_embeddings)
+                    embeddings_generated=len(embeddings_by_idx),
+                    split_texts=split_count
                 )
             
             logger.info(
@@ -153,6 +165,132 @@ class EmbeddingService:
                 total_texts=len(texts)
             )
             raise
+
+    def _normalize_text(self, text: str) -> str:
+        """Normalize text before embedding."""
+        if not text:
+            return ""
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        text = re.sub(r"[ \t]+", " ", text)
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        return text.strip()
+
+    def _split_text_for_embedding(self, text: str) -> List[str]:
+        """
+        Split long text into safe-size segments for embedding.
+        """
+        if len(text) <= self.max_chars_per_input:
+            return [text]
+
+        segments: List[str] = []
+        remaining = text
+        while remaining and len(segments) < self.max_segments_per_text:
+            if len(remaining) <= self.max_chars_per_input:
+                segments.append(remaining.strip())
+                break
+
+            split_at = remaining.rfind("\n", 0, self.max_chars_per_input)
+            if split_at < int(self.max_chars_per_input * 0.5):
+                split_at = remaining.rfind(" ", 0, self.max_chars_per_input)
+            if split_at < int(self.max_chars_per_input * 0.5):
+                split_at = self.max_chars_per_input
+
+            chunk = remaining[:split_at].strip()
+            if chunk:
+                segments.append(chunk)
+            remaining = remaining[split_at:].strip()
+
+        if remaining and len(segments) >= self.max_segments_per_text:
+            logger.warning(
+                "Embedding text truncated after max segments",
+                original_chars=len(text),
+                kept_chars=sum(len(seg) for seg in segments)
+            )
+
+        return segments or [text[:self.max_chars_per_input]]
+
+    def _mean_pool_embeddings(self, embeddings: List[List[float]]) -> List[float]:
+        """Average multiple segment embeddings into one vector."""
+        if not embeddings:
+            raise ValueError("Cannot mean-pool empty embeddings")
+        if len(embeddings) == 1:
+            return embeddings[0]
+
+        dims = len(embeddings[0])
+        pooled = [0.0] * dims
+        for embedding in embeddings:
+            for idx, value in enumerate(embedding):
+                pooled[idx] += value
+
+        count = float(len(embeddings))
+        return [value / count for value in pooled]
+
+    def _embed_inputs_with_retry(self, inputs: List[str]) -> List[List[float]]:
+        """
+        Embed a list of inputs; fallback to per-input retries on length errors.
+        """
+        try:
+            response = self.client.embeddings.create(
+                model=self.model,
+                input=inputs
+            )
+            return [item.embedding for item in response.data]
+        except Exception as e:
+            if not self._is_context_length_error(e):
+                raise
+
+            logger.warning(
+                "Embedding batch exceeded model context, retrying per input",
+                input_count=len(inputs)
+            )
+            return [self._embed_single_with_retry(text) for text in inputs]
+
+    def _embed_single_with_retry(self, text: str, depth: int = 0) -> List[float]:
+        """
+        Embed one input with recursive split fallback when context is too long.
+        """
+        try:
+            response = self.client.embeddings.create(
+                model=self.model,
+                input=text
+            )
+            return response.data[0].embedding
+        except Exception as e:
+            if not self._is_context_length_error(e) or depth >= 4 or len(text) < 800:
+                raise
+
+            split_at = self._find_split_point(text, max(400, len(text) // 2))
+            left = text[:split_at].strip()
+            right = text[split_at:].strip()
+            segments = [part for part in (left, right) if part]
+            if len(segments) < 2:
+                raise
+
+            logger.warning(
+                "Retrying long embedding input with recursive split",
+                depth=depth,
+                text_length=len(text)
+            )
+            segment_embeddings = [self._embed_single_with_retry(part, depth + 1) for part in segments]
+            return self._mean_pool_embeddings(segment_embeddings)
+
+    def _is_context_length_error(self, error: Exception) -> bool:
+        return "maximum context length" in str(error).lower()
+
+    def _find_split_point(self, text: str, target: int) -> int:
+        """
+        Find a natural split near target index.
+        """
+        if target <= 0 or target >= len(text):
+            return max(1, min(len(text) - 1, target))
+
+        split_at = text.rfind("\n", 0, target)
+        if split_at < int(target * 0.5):
+            split_at = text.rfind(" ", 0, target)
+        if split_at < int(target * 0.5):
+            split_at = target
+
+        return max(1, min(len(text) - 1, split_at))
     
     def embed_chunks(
         self,

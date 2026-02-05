@@ -1,0 +1,1734 @@
+[
+  {
+    "id": "RAG-001",
+    "question": "What is the composition of Plinest?",
+    "expected_doc_ids": [
+      "Plinest Factsheet"
+    ],
+    "expected_keywords": [
+      "composition",
+      "polynucleotides",
+      "plinest"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "composition"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-002",
+    "question": "Explain Plinest Eye in two clinical points.",
+    "expected_doc_ids": [
+      "Plinest Eye Factsheet"
+    ],
+    "expected_keywords": [
+      "periocular",
+      "plinest eye"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "semantic"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-003",
+    "question": "What problem does Plinest Hair target?",
+    "expected_doc_ids": [
+      "Plinest Hair Factsheet"
+    ],
+    "expected_keywords": [
+      "hair",
+      "scalp",
+      "alopecia"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "hair"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-004",
+    "question": "Describe Newest mechanism of action.",
+    "expected_doc_ids": [
+      "Newest Factsheet"
+    ],
+    "expected_keywords": [
+      "newest",
+      "mechanism",
+      "regeneration"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "mechanism"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-005",
+    "question": "What is NewGyn used for?",
+    "expected_doc_ids": [
+      "NewGyn Factsheet"
+    ],
+    "expected_keywords": [
+      "newgyn",
+      "indication",
+      "vulvovaginal"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "indication"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-006",
+    "question": "Summarize Purasomes XCell in plain clinical language.",
+    "expected_doc_ids": [
+      "Purasomes XCell Card"
+    ],
+    "expected_keywords": [
+      "purasomes",
+      "xcell",
+      "exosomes"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "semantic"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-007",
+    "question": "Which PN product is intended for periocular skin quality?",
+    "expected_doc_ids": [
+      "Plinest Eye Factsheet"
+    ],
+    "expected_keywords": [
+      "periocular",
+      "pn-hpt",
+      "eye"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "semantic"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-008",
+    "question": "How is Plinest different from a generic skin booster description?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "plinest",
+      "polynucleotides"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "semantic"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-009",
+    "question": "Give a short definition of PN-HPT.",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "pn-hpt",
+      "polynucleotides"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "semantic",
+      "mechanism"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-010",
+    "question": "What are key benefits of Newest for facial rejuvenation?",
+    "expected_doc_ids": [
+      "Newest Factsheet"
+    ],
+    "expected_keywords": [
+      "newest",
+      "benefits",
+      "facial"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "benefits"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-011",
+    "question": "What does Plinest Eye factsheet say about indication scope?",
+    "expected_doc_ids": [
+      "Plinest Eye Factsheet"
+    ],
+    "expected_keywords": [
+      "indications",
+      "eye",
+      "periocular"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "factsheet"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-012",
+    "question": "Name two use-cases for Plinest Hair.",
+    "expected_doc_ids": [
+      "Plinest Hair Factsheet"
+    ],
+    "expected_keywords": [
+      "hair",
+      "scalp",
+      "use"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "hair"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-013",
+    "question": "What is the intended audience for HCP brochure content?",
+    "expected_doc_ids": [
+      "HCP Brochure"
+    ],
+    "expected_keywords": [
+      "hcp",
+      "clinical",
+      "practitioner"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "semantic",
+      "audience"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-014",
+    "question": "Extract product-level summary for Plinest in 3 bullets.",
+    "expected_doc_ids": [
+      "Plinest Factsheet"
+    ],
+    "expected_keywords": [
+      "plinest",
+      "summary",
+      "product"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "summary"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-015",
+    "question": "How would you describe NewGyn to a clinician?",
+    "expected_doc_ids": [
+      "NewGyn Factsheet"
+    ],
+    "expected_keywords": [
+      "newgyn",
+      "clinician",
+      "indications"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "product",
+      "semantic"
+    ],
+    "notes": "Product semantic coverage"
+  },
+  {
+    "id": "RAG-016",
+    "question": "What is the treatment protocol for Plinest Face?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-017",
+    "question": "List steps for Plinest Eye protocol.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-018",
+    "question": "Outline Newest hand rejuvenation protocol.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-019",
+    "question": "Describe protocol for neck and decolletage using Newest.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-020",
+    "question": "How many sessions are typically recommended in PN protocols?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-021",
+    "question": "What is the interval between PN treatment sessions?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-022",
+    "question": "Provide an injection-sequence style summary for periocular treatment.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-023",
+    "question": "What are preparation steps before PN injection?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-024",
+    "question": "Which protocol elements are mandatory versus optional?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-025",
+    "question": "Summarize aftercare guidance after PN treatment.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-026",
+    "question": "How do protocols differ for face vs periocular area?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-027",
+    "question": "What does Treatment Protocols document recommend first?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-028",
+    "question": "Extract vector/area guidance from protocol docs.",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-029",
+    "question": "How should follow-up be scheduled in protocol documents?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-030",
+    "question": "Protocol quiz: what comes after preparation phase?",
+    "expected_doc_ids": [
+      "Treatment Protocols"
+    ],
+    "expected_keywords": [
+      "protocol",
+      "sessions",
+      "injection"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "protocol",
+      "procedure"
+    ],
+    "notes": "Protocol understanding"
+  },
+  {
+    "id": "RAG-031",
+    "question": "List contraindications for polynucleotide treatments.",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-032",
+    "question": "What warnings should be checked before PN-HPT treatment?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-033",
+    "question": "What adverse events are documented for PN injections?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-034",
+    "question": "Which patients should avoid NewGyn treatment?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-035",
+    "question": "What side effects are noted for periocular PN treatment?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-036",
+    "question": "What precautions reduce complication risk during injection?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-037",
+    "question": "Summarize safety points from consensus guidance.",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-038",
+    "question": "Are active infections a contraindication in available docs?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-039",
+    "question": "How should clinicians counsel patients on expected reactions?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-040",
+    "question": "Safety quiz: which condition is a red flag before treatment?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-041",
+    "question": "What does documentation say about allergy-related cautions?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-042",
+    "question": "How to handle risk communication before session one?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-043",
+    "question": "Any contraindication differences between products?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-044",
+    "question": "What are common transient reactions post-procedure?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-045",
+    "question": "What are serious adverse signals that require stopping treatment?",
+    "expected_doc_ids": [
+      "Consensus report on the use of PN-HPT"
+    ],
+    "expected_keywords": [
+      "contraindications",
+      "safety",
+      "adverse"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "safety"
+    ],
+    "notes": "Safety retrieval"
+  },
+  {
+    "id": "RAG-046",
+    "question": "Compare Plinest vs Newest in composition and indication.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-047",
+    "question": "Compare Plinest Eye vs Plinest for treatment area.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-048",
+    "question": "How do PN and PRP compare for androgenetic alopecia?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-049",
+    "question": "Compare NewGyn and face-focused PN products.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-050",
+    "question": "Difference between Purasomes XCell and PN-HPT products?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-051",
+    "question": "What is different in protocol complexity: eye vs hand rejuvenation?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-052",
+    "question": "Comparison quiz: which product is periocular-focused?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-053",
+    "question": "Compare brochure-level claims vs clinical paper detail.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-054",
+    "question": "How does consensus guidance compare with individual factsheets?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-055",
+    "question": "Compare safety framing across product docs.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "indication"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "comparison"
+    ],
+    "notes": "Comparative reasoning"
+  },
+  {
+    "id": "RAG-056",
+    "question": "Need something for tired under-eye skin quality decline; what aligns?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-057",
+    "question": "Patient wants regenerative option for thinning scalp hair.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-058",
+    "question": "Which PN option maps to intimate health concerns?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-059",
+    "question": "Looking for full-face revitalization with PN; where to start?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-060",
+    "question": "How to interpret PN-HPT references in docs without brand names?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-061",
+    "question": "Perioral aging protocol hints from available content?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-062",
+    "question": "What docs mention middle third rejuvenation outcomes?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-063",
+    "question": "Find guidance relevant to post-facelift scarring regeneration.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-064",
+    "question": "What content addresses striae albae treatment with PN-HPT?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-065",
+    "question": "Which evidence covers hand rejuvenation expected benefits?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "treatment",
+      "pn",
+      "rejuvenation"
+    ],
+    "should_refuse": false,
+    "max_chunks": 8,
+    "tags": [
+      "semantic",
+      "recall"
+    ],
+    "notes": "Semantic retrieval robustness"
+  },
+  {
+    "id": "RAG-066",
+    "question": "Quiz: Which product is specifically positioned for the periocular area?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-067",
+    "question": "Quiz: PN-HPT stands for what in the documents?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-068",
+    "question": "Quiz: Which doc type is best for formal contraindication checks?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-069",
+    "question": "Quiz: For hair-focused indication, which product family appears most?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-070",
+    "question": "Quiz: Which source category usually has step-by-step technique?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-071",
+    "question": "Quiz: What should be verified before first treatment session?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-072",
+    "question": "Quiz: Which content type best supports patient counseling language?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-073",
+    "question": "Quiz: Which phrase signals safety-focused material?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-074",
+    "question": "Quiz: What metric implies stronger retrieval grounding in eval?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-075",
+    "question": "Quiz: Which product is mapped to vulvovaginal indications?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "quiz",
+      "clinical",
+      "protocol"
+    ],
+    "should_refuse": false,
+    "max_chunks": 5,
+    "tags": [
+      "quiz",
+      "semantic"
+    ],
+    "notes": "Quiz-like prompts"
+  },
+  {
+    "id": "RAG-076",
+    "question": "How many sessions are suggested for Newest protocols?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-077",
+    "question": "What interval is common between PN sessions?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-078",
+    "question": "What dosing phrasing appears for per-session volume?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-079",
+    "question": "Needle or cannula: what does protocol content suggest?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-080",
+    "question": "What does documentation say about treatment cadence?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-081",
+    "question": "How to plan maintenance after initial PN cycle?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-082",
+    "question": "How is session scheduling described for periocular protocols?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-083",
+    "question": "What technique notes exist for middle third rejuvenation?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-084",
+    "question": "What timing guidance appears for hand treatments?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-085",
+    "question": "How should dose discussions be framed when docs are limited?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "sessions",
+      "interval",
+      "dose"
+    ],
+    "should_refuse": false,
+    "max_chunks": 7,
+    "tags": [
+      "scheduling",
+      "technique"
+    ],
+    "notes": "Scheduling and dosing"
+  },
+  {
+    "id": "RAG-086",
+    "question": "Return answer with strongest citation source for Plinest Eye.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-087",
+    "question": "Which source section is most relevant for contraindications?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-088",
+    "question": "Identify likely source document for NewGyn indications.",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-089",
+    "question": "When evidence is weak, what should response behavior be?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-090",
+    "question": "What metadata fields support citation quality checks?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-091",
+    "question": "Which page-aware fields are expected in chunk metadata?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-092",
+    "question": "How to differentiate parent context vs detail chunk evidence?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-093",
+    "question": "What indicates hierarchical match quality in retrieval output?",
+    "expected_doc_ids": [],
+    "expected_keywords": [
+      "source",
+      "citation",
+      "evidence"
+    ],
+    "should_refuse": false,
+    "max_chunks": 6,
+    "tags": [
+      "citation",
+      "pipeline"
+    ],
+    "notes": "Citation and provenance behavior"
+  },
+  {
+    "id": "RAG-094",
+    "question": "What is the capital of Peru?",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-095",
+    "question": "Write legal defense advice for malpractice litigation.",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-096",
+    "question": "Predict tomorrow's Bitcoin price.",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-097",
+    "question": "Generate a Java tutorial for multithreading.",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-098",
+    "question": "Who won the latest Champions League final?",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-099",
+    "question": "Give me tax optimization advice for Delaware LLC.",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  },
+  {
+    "id": "RAG-100",
+    "question": "Explain quantum chromodynamics equations in full derivation.",
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
+    "max_chunks": 4,
+    "tags": [
+      "refusal",
+      "ood"
+    ],
+    "notes": "Should refuse without evidence"
+  }
+]

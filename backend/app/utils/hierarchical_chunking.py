@@ -9,7 +9,6 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
-import numpy as np
 
 
 class ChunkType(Enum):

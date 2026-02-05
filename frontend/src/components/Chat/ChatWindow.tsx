@@ -1,53 +1,93 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Loader2, RefreshCw, ShieldCheck, Zap, MessageCircle, FileText } from 'lucide-react';
+import {
+  Send,
+  User,
+  Loader2,
+  RefreshCw,
+  MessageCircle,
+  Sparkles,
+  Bot,
+  ChevronRight,
+  FileText,
+  ExternalLink,
+  BookOpen,
+  Zap,
+  Shield,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle
+} from 'lucide-react';
 import { Message, Source } from '../../types';
 import { apiService, ChatResponse } from '../../services/apiService';
 
-interface ChatWindowProps { }
+interface ChatWindowProps {}
 
 const STATIC_SUGGESTIONS = [
-  "Plinest Eye injection protocol",
-  "Newest dosing for facial rejuvenation",
-  "Purasomes Skin Glow composition",
-  "NewGyn vulvar treatment protocol",
-  "Contraindications for polynucleotides"
+  { text: "What is Newest?", icon: Sparkles },
+  { text: "Plinest Eye injection protocol", icon: BookOpen },
+  { text: "Purasomes mechanism of action", icon: Zap },
+  { text: "Contraindications for polynucleotides", icon: Shield }
 ];
 
-// Confidence tier classification for better UX
-const getConfidenceTier = (confidence: number): { label: string; color: string; bgColor: string } => {
+const API_BASE = 'http://localhost:8000';
+
+// Confidence configuration
+const getConfidenceConfig = (confidence: number) => {
   if (confidence >= 0.75) {
-    return { label: 'High', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200' };
-  } else if (confidence >= 0.55) {
-    return { label: 'Medium', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200' };
-  } else {
-    return { label: 'Low', color: 'text-red-600', bgColor: 'bg-red-50 border-red-200' };
+    return {
+      label: 'High Confidence',
+      short: 'High',
+      icon: CheckCircle2,
+      gradient: 'from-emerald-500 to-emerald-600',
+      bg: 'bg-emerald-50',
+      border: 'border-emerald-200',
+      text: 'text-emerald-700',
+      dot: 'bg-emerald-500'
+    };
   }
+  if (confidence >= 0.55) {
+    return {
+      label: 'Medium Confidence',
+      short: 'Medium',
+      icon: AlertCircle,
+      gradient: 'from-amber-500 to-amber-600',
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      text: 'text-amber-700',
+      dot: 'bg-amber-500'
+    };
+  }
+  return {
+    label: 'Low Confidence',
+    short: 'Low',
+    icon: HelpCircle,
+    gradient: 'from-red-500 to-red-600',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
+    text: 'text-red-600',
+    dot: 'bg-red-500'
+  };
 };
 
 const ChatWindow: React.FC<ChatWindowProps> = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'model',
-      text: "System Ready. I am the DermaFocus Clinical Reference Agent.\n\nConnected to DermaAI CKPA Backend API. Every clinical fact will be cited with document and page references for regulatory defensibility. \n\nHow can I assist your clinical practice today?",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [useStreaming, setUseStreaming] = useState(true);
+  const [useStreaming] = useState(true);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [conversationId, setConversationId] = useState<string>(`conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Build conversation history for multi-turn context (last 10 messages)
+  const isWelcomeState = messages.length === 0;
+
   const buildConversationHistory = () => {
     return messages
-      .filter(m => m.id !== 'welcome') // Exclude welcome message
-      .slice(-10) // Keep last 10 messages for context
+      .slice(-10)
       .map(m => ({
         role: m.role === 'user' ? 'user' as const : 'assistant' as const,
-        content: m.text.replace(/<follow_ups>[\s\S]*?<\/follow_ups>/, '').trim() // Clean follow-ups tags
+        content: m.text.replace(/<follow_ups>[\s\S]*?<\/follow_ups>/, '').trim()
       }));
   };
 
@@ -58,6 +98,10 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSendStreaming = async (query: string) => {
     const userMsg: Message = {
@@ -70,7 +114,6 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Create placeholder for streaming message
     const botMsgId = (Date.now() + 1).toString();
     const botMsg: Message = {
       id: botMsgId,
@@ -88,11 +131,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
       let fullText = '';
       let sources: Source[] = [];
       let followUps: string[] = [];
-
-      // Build history before adding current message
       const history = buildConversationHistory();
 
-      // Stream the response with conversation context
       for await (const chunk of apiService.sendMessageStream(
         query,
         conversationId,
@@ -102,13 +142,10 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         },
         (receivedFollowUps) => {
           followUps = receivedFollowUps;
-          // Update dynamic suggestions immediately when received
           setDynamicSuggestions(receivedFollowUps);
         }
       )) {
         fullText += chunk;
-
-        // Update message with new text
         setMessages(prev => prev.map(msg =>
           msg.id === botMsgId
             ? { ...msg, text: fullText, isStreaming: true }
@@ -116,7 +153,6 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         ));
       }
 
-      // Finalize message with sources and follow-ups
       let finalText = fullText;
       if (followUps.length > 0) {
         finalText += `\n\n<follow_ups>${JSON.stringify(followUps)}</follow_ups>`;
@@ -143,8 +179,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
           ? {
             ...msg,
             text: error instanceof Error
-              ? `System Error: ${error.message}`
-              : 'Streaming error occurred',
+              ? `Unable to process request: ${error.message}`
+              : 'An error occurred',
             isStreaming: false
           }
           : msg
@@ -160,13 +196,11 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
 
     setInput('');
 
-    // Use streaming or instant based on toggle
     if (useStreaming) {
       await handleSendStreaming(query);
       return;
     }
 
-    // Original instant response handling
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -178,10 +212,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     setIsLoading(true);
 
     try {
-      // Build history before adding current message
       const history = buildConversationHistory();
-
-      // Call backend API with conversation context
       const response: ChatResponse = await apiService.sendMessage(query, conversationId, history);
 
       const botMsg: Message = {
@@ -194,10 +225,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         confidence: response.confidence
       };
 
-      // Add follow-ups to the message text if present
       if (response.follow_ups && response.follow_ups.length > 0) {
         botMsg.text += `\n\n<follow_ups>${JSON.stringify(response.follow_ups)}</follow_ups>`;
-        // Update dynamic suggestions for the suggestion bar
         setDynamicSuggestions(response.follow_ups);
       }
 
@@ -209,8 +238,8 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         id: Date.now().toString(),
         role: 'model',
         text: error instanceof Error
-          ? `System Error: ${error.message}\n\nPlease ensure the backend server is running at http://localhost:8000`
-          : "System fault: Unable to retrieve clinical evidence. Please check your connection and try again.",
+          ? `Connection error: ${error.message}`
+          : "Unable to connect to the server.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -220,17 +249,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   };
 
   const handleReset = () => {
-    // Clear messages and reset conversation with new ID
     setConversationId(`conv_${Date.now()}`);
     setDynamicSuggestions([]);
-    setMessages([
-      {
-        id: Date.now().toString(),
-        role: 'model',
-        text: "Session cleared. Clinical context reset. Ready for new query.",
-        timestamp: new Date()
-      }
-    ]);
+    setMessages([]);
   };
 
   const formatTime = (date: Date) => {
@@ -241,242 +262,333 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     return text.replace(/<follow_ups>[\s\S]*?<\/follow_ups>/, '').trim();
   };
 
-  const formatMessageText = (text: string) => {
+  // Render formatted message content
+  const renderMessageContent = (text: string) => {
     const lines = cleanText(text).split('\n');
+
     return lines.map((line, i) => {
-      // Step 1: Split by bold text
-      let parts: (string | React.ReactNode)[] = line.split(/(\*\*.*?\*\*)/g);
+      // Headers
+      if (line.startsWith('## ')) {
+        return (
+          <h2 key={i} className="text-base font-semibold text-slate-800 mt-4 mb-2 first:mt-0">
+            {line.slice(3)}
+          </h2>
+        );
+      }
+      if (line.startsWith('### ')) {
+        return (
+          <h3 key={i} className="text-sm font-semibold text-slate-700 mt-3 mb-1.5">
+            {line.slice(4)}
+          </h3>
+        );
+      }
 
-      // Step 2: Handle Citations: [Document Name, p. X]
-      parts = parts.flatMap((part) => {
-        if (typeof part !== 'string') return part;
-
-        const subParts = part.split(/(\[.*?, p\. \d+\])/g);
-        return subParts.map((sub, k) => {
-          if (sub.startsWith('[') && sub.includes(', p. ') && sub.endsWith(']')) {
-            return (
-              <span key={`cite-${k}`} className="inline-flex items-center gap-1 bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-teal-200 mx-1 align-middle whitespace-nowrap">
-                <ShieldCheck size={10} />
-                {sub.slice(1, -1)}
-              </span>
-            );
+      // Bold text handling
+      let content: React.ReactNode = line;
+      if (line.includes('**')) {
+        const parts = line.split(/(\*\*.*?\*\*)/g);
+        content = parts.map((part, j) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={j} className="font-semibold text-slate-800">{part.slice(2, -2)}</strong>;
           }
-          if (sub.startsWith('**') && sub.endsWith('**')) {
-            return <strong key={`bold-${k}`} className="font-semibold text-slate-900">{sub.slice(2, -2)}</strong>;
-          }
-          // Bullets formatting
-          if (sub.trim().startsWith('- ') || sub.trim().startsWith('* ')) {
-            return (
-              <span key={k} className="flex items-start gap-2 py-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 shrink-0" />
-                <span>{sub.trim().slice(2)}</span>
-              </span>
-            );
-          }
-          return sub;
+          return part;
         });
-      });
+      }
 
-      return (
-        <div key={i} className="min-h-[1.2em] mb-1">
-          {parts}
-        </div>
-      );
+      // Bullet points
+      if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+        return (
+          <div key={i} className="flex items-start gap-2.5 py-1 ml-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-teal-400 to-teal-500 mt-2 shrink-0" />
+            <span className="text-slate-600 leading-relaxed">{typeof content === 'string' ? line.trim().slice(2) : content}</span>
+          </div>
+        );
+      }
+
+      // Regular paragraph
+      if (line.trim()) {
+        return (
+          <p key={i} className="text-slate-600 leading-relaxed mb-2 last:mb-0">
+            {content}
+          </p>
+        );
+      }
+
+      return <div key={i} className="h-2" />;
     });
   };
 
-  return (
-    <div className="flex flex-col h-full bg-slate-50 relative">
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <button
-          onClick={() => setUseStreaming(!useStreaming)}
-          className={`px-3 py-2 rounded-full shadow-sm border transition-all flex items-center gap-2 text-xs font-bold ${useStreaming
-              ? 'bg-teal-50 text-teal-600 border-teal-200 hover:bg-teal-100'
-              : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'
-            }`}
-          title={useStreaming ? 'Streaming Mode (word-by-word)' : 'Instant Mode (full response)'}
-        >
-          <Zap size={16} className={useStreaming ? 'text-teal-500' : 'text-slate-400'} />
-          <span className="hidden sm:inline">{useStreaming ? 'Streaming' : 'Instant'}</span>
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="bg-white p-2 rounded-full shadow-sm text-slate-400 hover:text-teal-600 border border-slate-200 transition-all"
-          title="Reset Retrieval Cache"
-        >
-          <RefreshCw size={16} />
-        </button>
+  // Welcome Screen Component
+  const WelcomeScreen = () => (
+    <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      {/* Hero Section */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-500/25 mb-6">
+          <Sparkles size={36} className="text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-800 mb-3">
+          Clinical Intelligence Assistant
+        </h1>
+        <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
+          Access product documentation, clinical papers, and treatment protocols.
+          Every response is grounded in official materials with source citations.
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <div className={`flex gap-3 w-full ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`
-                w-8 h-8 rounded-full flex items-center justify-center shrink-0
-                ${msg.role === 'user' ? 'bg-slate-200 text-slate-600' : 'bg-slate-900 text-teal-400'}
-              `}>
-                {msg.role === 'user' ? <User size={16} /> : <ShieldCheck size={16} />}
-              </div>
+      {/* Quick Start Cards */}
+      <div className="w-full max-w-2xl">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 text-center">
+          Try asking about
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {STATIC_SUGGESTIONS.map((suggestion, idx) => {
+            const Icon = suggestion.icon;
+            return (
+              <button
+                key={idx}
+                onClick={() => handleSend(suggestion.text)}
+                disabled={isLoading}
+                className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-300 hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 text-left"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 group-hover:from-teal-100 group-hover:to-teal-50 flex items-center justify-center transition-colors">
+                  <Icon size={18} className="text-slate-500 group-hover:text-teal-600 transition-colors" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+                    {suggestion.text}
+                  </span>
+                </div>
+                <ArrowRight size={16} className="text-slate-300 group-hover:text-teal-500 group-hover:translate-x-1 transition-all" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-              <div className={`
-                max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-3 shadow-sm text-sm leading-relaxed
-                ${msg.role === 'user'
-                  ? 'bg-white text-slate-800 rounded-tr-none border border-slate-200'
-                  : 'bg-white text-slate-800 rounded-tl-none border border-teal-100'}
-              `}>
-                {msg.role === 'model' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="relative flex h-2 w-2">
-                      {msg.isStreaming ? (
-                        <>
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500 animate-pulse"></span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-                        </>
-                      )}
-                    </span>
-                    <span className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">
-                      {msg.isStreaming ? 'Streaming...' : 'Verified Clinical Evidence'}
-                    </span>
-                  </div>
-                )}
-                <div className="text-slate-700 whitespace-pre-wrap">
-                  {formatMessageText(msg.text)}
-                  {msg.isStreaming && (
-                    <span className="inline-block w-0.5 h-4 bg-teal-500 ml-1 animate-pulse"></span>
-                  )}
+      {/* Features */}
+      <div className="flex items-center gap-6 mt-10 text-xs text-slate-400">
+        <div className="flex items-center gap-1.5">
+          <CheckCircle2 size={12} className="text-emerald-500" />
+          <span>RAG-Powered</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <FileText size={12} className="text-teal-500" />
+          <span>Source Citations</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Shield size={12} className="text-blue-500" />
+          <span>Clinical Accuracy</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      {/* Messages Area or Welcome Screen */}
+      {isWelcomeState ? (
+        <WelcomeScreen />
+      ) : (
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+              >
+                {/* Avatar */}
+                <div className={`
+                  w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 shadow-md
+                  ${msg.role === 'user'
+                    ? 'bg-gradient-to-br from-slate-700 to-slate-800'
+                    : 'bg-gradient-to-br from-teal-500 to-emerald-600'}
+                `}>
+                  {msg.role === 'user'
+                    ? <User size={16} className="text-white" />
+                    : <Bot size={16} className="text-white" />}
                 </div>
 
-                {/* Display Sources */}
-                {msg.role === 'model' && !msg.isStreaming && msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-slate-100 animate-fadeIn">
-                    <div className="flex items-center gap-2 mb-2">
-                      <FileText size={12} className="text-teal-600" />
-                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                        Sources ({msg.sources.length})
-                      </span>
-                      {msg.confidence !== undefined && msg.confidence > 0 && (
-                        <span className={`text-[9px] font-semibold ml-auto px-2 py-0.5 rounded border ${getConfidenceTier(msg.confidence).bgColor} ${getConfidenceTier(msg.confidence).color}`}>
-                          {getConfidenceTier(msg.confidence).label} Confidence ({(msg.confidence * 100).toFixed(0)}%)
-                        </span>
-                      )}
+                {/* Message Content */}
+                <div className={`max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  {/* User Message */}
+                  {msg.role === 'user' && (
+                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white px-5 py-3.5 rounded-2xl rounded-tr-md shadow-lg shadow-slate-900/10">
+                      <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
-                    <div className="space-y-2">
-                      {msg.sources.map((source, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px]"
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <div className="flex items-center gap-1.5 text-teal-700 font-semibold">
-                              <ShieldCheck size={11} className="shrink-0" />
-                              <span className="truncate">{source.document}</span>
-                            </div>
-                            <span className="text-teal-600 font-mono shrink-0">
-                              p. {source.page}
-                            </span>
+                  )}
+
+                  {/* Bot Message */}
+                  {msg.role === 'model' && (
+                    <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-md shadow-sm overflow-hidden">
+                      {/* Streaming Header */}
+                      {msg.isStreaming && (
+                        <div className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-teal-100/50">
+                          <div className="flex gap-1">
+                            <span className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
-                          {source.section && (
-                            <div className="text-slate-500 text-[10px] mb-1">
-                              Section: {source.section}
-                            </div>
+                          <span className="text-xs font-semibold text-teal-700">
+                            Generating response...
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Message Text */}
+                      <div className="px-5 py-4">
+                        <div className="text-sm">
+                          {renderMessageContent(msg.text)}
+                          {msg.isStreaming && (
+                            <span className="inline-block w-0.5 h-4 bg-teal-500 ml-0.5 animate-pulse" />
                           )}
-                          {source.text_snippet && (
-                            <div className="text-slate-600 text-[10px] leading-relaxed mt-1.5 pt-1.5 border-t border-slate-200">
-                              "{source.text_snippet}"
+                        </div>
+                      </div>
+
+                      {/* Sources Section */}
+                      {!msg.isStreaming && msg.sources && msg.sources.length > 0 && (
+                        <div className="px-5 pb-4">
+                          <div className="pt-4 border-t border-slate-100">
+                            {/* Sources Header */}
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                                  <FileText size={12} className="text-slate-500" />
+                                </div>
+                                <span className="text-xs font-semibold text-slate-600">
+                                  Sources ({msg.sources.length})
+                                </span>
+                              </div>
+                              {msg.confidence !== undefined && msg.confidence > 0 && (
+                                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${getConfidenceConfig(msg.confidence).bg} ${getConfidenceConfig(msg.confidence).border} border ${getConfidenceConfig(msg.confidence).text}`}>
+                                  <div className={`w-1.5 h-1.5 rounded-full ${getConfidenceConfig(msg.confidence).dot}`} />
+                                  {getConfidenceConfig(msg.confidence).short} ({Math.round(msg.confidence * 100)}%)
+                                </div>
+                              )}
                             </div>
-                          )}
-                          <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-slate-200">
-                            <span className="text-slate-400 text-[9px]">
-                              Relevance: {(source.relevance_score * 100).toFixed(0)}%
-                            </span>
+
+                            {/* Source Cards */}
+                            <div className="space-y-2">
+                              {msg.sources.map((source, idx) => (
+                                <a
+                                  key={idx}
+                                  href={source.view_url ? `${API_BASE}${source.view_url}` : '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-slate-50 to-white hover:from-teal-50 hover:to-white border border-slate-100 hover:border-teal-200 transition-all duration-200"
+                                >
+                                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-sm">
+                                    <span className="text-[11px] font-bold text-white">{idx + 1}</span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-700 group-hover:text-teal-700 truncate transition-colors">
+                                      {source.title || source.document}
+                                    </p>
+                                    <p className="text-[11px] text-slate-400 mt-0.5">
+                                      Page {source.page} {source.section && `• ${source.section}`}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                      {Math.round(source.relevance_score * 100)}% match
+                                    </span>
+                                    <ExternalLink size={14} className="text-slate-300 group-hover:text-teal-500 transition-colors" />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="mt-2 text-[10px] text-slate-400 text-right font-mono">
-                  {formatTime(msg.timestamp)}
+                  {/* Timestamp */}
+                  <p className={`text-[10px] text-slate-400 mt-1.5 ${msg.role === 'user' ? 'text-right mr-1' : 'ml-1'}`}>
+                    {formatTime(msg.timestamp)}
+                  </p>
                 </div>
               </div>
-            </div>
+            ))}
 
+            {/* Loading State */}
+            {isLoading && messages[messages.length - 1]?.role !== 'model' && (
+              <div className="flex gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-md">
+                  <Bot size={16} className="text-white" />
+                </div>
+                <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-md px-5 py-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <Loader2 size={16} className="animate-spin text-teal-500" />
+                    <span className="text-sm text-slate-500">Searching documentation...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        {isLoading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-900 text-teal-400 flex items-center justify-center">
-              <ShieldCheck size={16} className="animate-pulse" />
-            </div>
-            <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none border border-teal-100 flex items-center gap-2">
-              <Loader2 size={16} className="animate-spin text-teal-600" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                {useStreaming ? 'Retrieving Evidence...' : 'Querying Backend API...'}
-              </span>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+        </div>
+      )}
 
       {/* Input Section */}
-      <div className="bg-white border-t border-slate-200 p-4">
-        {/* Quick Query Suggestions - Dynamic or Static */}
-        <div className="max-w-4xl mx-auto mb-4 overflow-x-auto scrollbar-hide flex items-center gap-2 py-1">
-          {(dynamicSuggestions.length > 0 ? dynamicSuggestions : STATIC_SUGGESTIONS).map((suggestion, idx) => (
+      <div className="border-t border-slate-200/60 bg-white/80 backdrop-blur-xl">
+        <div className="max-w-3xl mx-auto px-4 py-4">
+          {/* Dynamic Suggestions */}
+          {!isWelcomeState && (
+            <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {(dynamicSuggestions.length > 0 ? dynamicSuggestions : STATIC_SUGGESTIONS.map(s => s.text)).slice(0, 4).map((suggestion, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSend(typeof suggestion === 'string' ? suggestion : suggestion)}
+                  disabled={isLoading}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                    dynamicSuggestions.length > 0
+                      ? 'bg-gradient-to-r from-teal-50 to-emerald-50 hover:from-teal-100 hover:to-emerald-100 text-teal-700 border-teal-200 hover:border-teal-300'
+                      : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300'
+                  } disabled:opacity-50 shadow-sm`}
+                >
+                  {dynamicSuggestions.length > 0 && <MessageCircle size={12} />}
+                  <span className="truncate max-w-[200px]">{suggestion}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Input Field */}
+          <div className="relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Ask about products, protocols, or clinical guidelines..."
+              className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl pl-5 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 focus:bg-white transition-all placeholder:text-slate-400 text-sm shadow-sm"
+            />
             <button
-              key={idx}
-              onClick={() => handleSend(suggestion)}
-              disabled={isLoading}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                dynamicSuggestions.length > 0
-                  ? 'bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 hover:border-teal-300'
-                  : 'bg-slate-50 hover:bg-teal-50 text-slate-600 hover:text-teal-700 border border-slate-200 hover:border-teal-200'
-              }`}
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isLoading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-teal-500/25 disabled:shadow-none"
             >
-              {dynamicSuggestions.length > 0 && <MessageCircle size={10} className="inline mr-1.5 text-teal-500" />}
-              {suggestion}
+              <Send size={16} />
             </button>
-          ))}
-        </div>
+          </div>
 
-        <div className="max-w-4xl mx-auto relative">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Search clinical manual or protocols..."
-            className="w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-xl pl-4 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all placeholder:text-slate-400 text-sm font-medium"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2 top-2.5 p-1.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
-          >
-            <Send size={18} />
-          </button>
-        </div>
-
-        <div className="flex justify-between items-center mt-3 px-1 max-w-4xl mx-auto">
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter flex items-center gap-1">
-            <ShieldCheck size={10} className="text-teal-500" />
-            Regulatory-Gated Verification Active
-          </p>
-          <p className="text-[9px] text-slate-400 italic">
-            DermaFocus © 2025 Clinical AI
-          </p>
+          {/* Footer */}
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-[11px] text-slate-400">
+              Responses sourced from official DermaFocus documentation
+            </p>
+            {messages.length > 0 && (
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <RefreshCw size={10} />
+                <span>New conversation</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

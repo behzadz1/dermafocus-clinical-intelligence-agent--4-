@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.services.embedding_service import get_embedding_service
 from app.services.pinecone_service import get_pinecone_service
+from app.utils.metadata_enrichment import build_canonical_metadata
 
 
 def get_index_stats(pinecone_service, namespace: str) -> dict:
@@ -97,16 +98,10 @@ def upload_documents(
 
             stats["total_chunks"] += len(chunks)
 
-            # Prepare texts for embedding
-            texts = []
-            chunk_ids = []
-            for j, chunk in enumerate(chunks):
-                text = chunk.get("text", "")
-                if text.strip():
-                    texts.append(text)
-                    chunk_ids.append(chunk.get("id", f"chunk_{j}"))
+            # Prepare texts for embedding (keep alignment with original chunks)
+            texts = [chunk.get("text", "") for chunk in chunks]
 
-            if not texts:
+            if not any((text or "").strip() for text in texts):
                 print(f"   No text content to embed")
                 continue
 
@@ -117,23 +112,27 @@ def upload_documents(
             # Prepare vectors
             vectors = []
             for j, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-                if not chunk.get("text", "").strip():
+                chunk_text = (chunk.get("text", "") or "").strip()
+                if not chunk_text or embedding is None:
                     continue
 
-                vector_id = safe_vector_id(chunk_ids[j] if j < len(chunk_ids) else f"chunk_{j}")
+                vector_id = safe_vector_id(chunk.get("id", f"chunk_{j}"))
 
-                # Prepare metadata (Pinecone has 40KB limit per vector)
-                # IMPORTANT: Pinecone doesn't accept null values - use empty strings
-                metadata = {
-                    "doc_id": doc_data.get("doc_id", "") or "",
-                    "doc_type": doc_data.get("detected_type", "") or "",
+                base_metadata = {
+                    **(doc_data.get("metadata") or {}),
+                    **(chunk.get("metadata") or {}),
                     "chunk_type": chunk.get("chunk_type", "flat") or "flat",
-                    "parent_id": chunk.get("parent_id", "") or "",  # Convert None to ""
-                    "section": (chunk.get("section", "") or "")[:100],
-                    "text": chunk.get("text", "")[:1000],  # Truncate for metadata limits
-                    "page_number": chunk.get("metadata", {}).get("page_number", 0) or 0,
-                    "chunk_index": j
+                    "parent_id": chunk.get("parent_id") or "",
+                    "section": chunk.get("section") or "",
+                    "doc_id_safe": safe_vector_id(doc_data.get("doc_id", "") or ""),
                 }
+                metadata = build_canonical_metadata(
+                    doc_id=doc_data.get("doc_id", "") or "",
+                    doc_type=doc_data.get("detected_type", "") or doc_data.get("doc_type", "") or "unknown",
+                    chunk_index=j,
+                    text=chunk_text,
+                    metadata=base_metadata
+                )
 
                 # Add children info if parent chunk
                 children_ids = chunk.get("children_ids")

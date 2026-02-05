@@ -8,10 +8,13 @@ export enum ViewState {
 
 export interface Source {
   document: string;
+  title: string;
   page: number;
   section?: string;
   relevance_score: number;
   text_snippet?: string;
+  view_url: string;
+  download_url: string;
 }
 
 export interface Message {
