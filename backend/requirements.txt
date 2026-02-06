@@ -38,7 +38,7 @@ psycopg2-binary==2.9.9
 pycparser==2.23
 pydantic==2.5.0
 pydantic-settings==2.1.0
-pydantic_core==2.14.1
+#pydantic_core==2.14.1
 PyMuPDF==1.23.9
 PyMuPDFb==1.23.9
 PyPDF2==3.0.1
