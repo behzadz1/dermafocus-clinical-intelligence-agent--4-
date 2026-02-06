@@ -30,11 +30,11 @@ class Settings(BaseSettings):
     )
     
     # API Keys - AI Services
-    anthropic_api_key: str = Field(..., alias="ANTHROPIC_API_KEY")
-    pinecone_api_key: str = Field(..., alias="PINECONE_API_KEY")
+    anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
+    pinecone_api_key: str = Field(default="", alias="PINECONE_API_KEY")
     pinecone_environment: str = Field(default="us-east-1", alias="PINECONE_ENVIRONMENT")
     pinecone_index_name: str = Field(default="dermaai-ckpa", alias="PINECONE_INDEX_NAME")
-    openai_api_key: str = Field(..., alias="OPENAI_API_KEY")
+    openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
     
     # Database Configuration
     database_url: str = Field(
@@ -47,7 +47,10 @@ class Settings(BaseSettings):
     redis_password: str = Field(default="", alias="REDIS_PASSWORD")
     
     # Security
-    secret_key: str = Field(..., alias="SECRET_KEY")
+    secret_key: str = Field(
+        default="change-this-to-a-random-secret-key-in-production",
+        alias="SECRET_KEY"
+    )
     api_key_header: str = Field(default="X-API-Key", alias="API_KEY_HEADER")
     valid_api_keys: str = Field(default="", alias="VALID_API_KEYS")  # Comma-separated list of valid API keys
     
