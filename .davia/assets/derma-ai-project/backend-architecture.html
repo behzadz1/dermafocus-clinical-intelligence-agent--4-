@@ -1,0 +1,89 @@
+<h1>Backend Architecture</h1>
+
+<p><strong>FastAPI + Python 3.11</strong> — async-first API with clean service boundaries. ⚙️</p>
+
+<hr />
+
+<h2>🏗️ Service Architecture</h2>
+
+<excalidraw data-path="data/backend-architecture.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>📦 Tech Stack</h2>
+
+<ul>
+  <li><strong>Framework:</strong> FastAPI (async, OpenAPI docs, Pydantic validation)</li>
+  <li><strong>Python:</strong> 3.11+ with type hints</li>
+  <li><strong>Logging:</strong> structlog for structured JSON logs</li>
+  <li><strong>Config:</strong> pydantic-settings with .env support</li>
+</ul>
+
+<hr />
+
+<h2>🛣️ API Endpoints</h2>
+
+<database-view data-path="data/api-endpoints.json"></database-view>
+
+<p></p>
+
+<hr />
+
+<h2>⚙️ Core Services</h2>
+
+<ul>
+  <li><strong>RAGService:</strong> Orchestrates search, retrieval, and context assembly</li>
+  <li><strong>ClaudeService:</strong> Handles Claude API calls with async streaming</li>
+  <li><strong>EmbeddingService:</strong> OpenAI embeddings with batch processing</li>
+  <li><strong>PineconeService:</strong> Vector DB operations (query, upsert, fetch)</li>
+  <li><strong>CacheService:</strong> Redis caching for frequent queries</li>
+  <li><strong>CitationService:</strong> Source tracking and citation formatting</li>
+</ul>
+
+<hr />
+
+<h2>🔧 Utilities</h2>
+
+<ul>
+  <li><strong>chunking.py:</strong> Sentence-aware text chunking</li>
+  <li><strong>hierarchical_chunking.py:</strong> Parent-child chunk relationships</li>
+  <li><strong>document_processor.py:</strong> PDF text extraction</li>
+  <li><strong>metadata_enrichment.py:</strong> doc_type, section, page extraction</li>
+</ul>
+
+<hr />
+
+<h2>🔐 Middleware</h2>
+
+<ul>
+  <li><strong>CORS:</strong> Configured for frontend origins</li>
+  <li><strong>Auth:</strong> API key validation via X-API-Key header</li>
+  <li><strong>Rate Limiting:</strong> 60 req/min per API key</li>
+</ul>
+
+<hr />
+
+<h2>⚙️ Configuration (config.py)</h2>
+
+<pre><code># Key settings loaded from .env
+ANTHROPIC_API_KEY=...
+OPENAI_API_KEY=...
+PINECONE_API_KEY=...
+PINECONE_INDEX_NAME=dermaai-ckpa
+CLAUDE_MODEL=claude-sonnet-4-20250514
+EMBEDDING_MODEL=text-embedding-3-small
+</code></pre>
+
+<hr />
+
+<h2>🔄 Request Flow</h2>
+
+<ol>
+  <li><strong>Request arrives</strong> → CORS check → Auth validation</li>
+  <li><strong>Route handler</strong> → Pydantic request validation</li>
+  <li><strong>Service layer</strong> → Business logic execution</li>
+  <li><strong>External APIs</strong> → Claude, OpenAI, Pinecone calls</li>
+  <li><strong>Response</strong> → Pydantic response serialization → JSON</li>
+</ol>

@@ -1,0 +1,76 @@
+<h1>Compliance & Safety</h1>
+
+<p><strong>AI guardrails, medical compliance, and data privacy</strong> — built for trust. 🔒</p>
+
+<hr />
+
+<h2>🛡️ AI Safety Architecture</h2>
+
+<excalidraw data-path="data/ai-guardrails.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>🚫 Hard Boundaries (Never Crossed)</h2>
+
+<ul>
+  <li><strong>No Diagnosis:</strong> AI never diagnoses medical conditions</li>
+  <li><strong>No Prescription:</strong> AI never recommends treatments to patients directly</li>
+  <li><strong>No Fabrication:</strong> All claims must have document sources</li>
+  <li><strong>No External Knowledge:</strong> Only DermaFocus-approved documents are used</li>
+</ul>
+
+<hr />
+
+<h2>🧠 Hallucination Prevention</h2>
+
+<ul>
+  <li><strong>Strict System Prompt:</strong> "ONLY use information from provided context"</li>
+  <li><strong>Evidence Threshold:</strong> top_score ≥ 0.35 required for grounded response</li>
+  <li><strong>Graceful Refusal:</strong> "Insufficient documented evidence" when unsure</li>
+  <li><strong>Temperature Control:</strong> 0.2 for minimal creativity</li>
+</ul>
+
+<hr />
+
+<h2>👀 Human-in-the-Loop</h2>
+
+<ul>
+  <li><strong>Low Confidence Flag:</strong> Responses below threshold flagged for review</li>
+  <li><strong>Safety Query Alert:</strong> Contraindication queries logged separately</li>
+  <li><strong>Escalation Path:</strong> "Contact DermaFocus clinical support" for edge cases</li>
+</ul>
+
+<hr />
+
+<h2>📋 Audit & Compliance</h2>
+
+<ul>
+  <li><strong>Full Logging:</strong> Every query, response, and source logged</li>
+  <li><strong>Token Tracking:</strong> Input/output tokens for cost monitoring</li>
+  <li><strong>Source Traceability:</strong> doc_id, page, section for every citation</li>
+  <li><strong>Retention Policy:</strong> Logs retained per regulatory requirements</li>
+</ul>
+
+<hr />
+
+<h2>🔐 Data Privacy (GDPR-Ready)</h2>
+
+<ul>
+  <li><strong>Patient Data Separation:</strong> B2C patient data isolated from B2B</li>
+  <li><strong>Encryption:</strong> At-rest (database) and in-transit (TLS)</li>
+  <li><strong>Access Controls:</strong> RBAC with principle of least privilege</li>
+  <li><strong>Data Minimization:</strong> Only collect what's necessary</li>
+  <li><strong>Right to Erasure:</strong> Patient data deletion on request</li>
+</ul>
+
+<hr />
+
+<h2>⚠️ Regulatory Considerations</h2>
+
+<ul>
+  <li><strong>Medical Device Status:</strong> Informational tool, not a medical device</li>
+  <li><strong>Disclaimers:</strong> Clear "not medical advice" for patient-facing</li>
+  <li><strong>HCP Verification:</strong> Professional user authentication for clinical content</li>
+</ul>

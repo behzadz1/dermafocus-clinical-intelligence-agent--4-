@@ -1,0 +1,73 @@
+<h1>RAG Architecture</h1>
+
+<p><strong>Core AI pipeline:</strong> Document ingestion → Embedding → Retrieval → Grounded Generation. 🧠</p>
+
+<hr />
+
+<h2>🔄 RAG Pipeline Flow</h2>
+
+<excalidraw data-path="data/rag-pipeline.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>📥 Document Ingestion Pipeline</h2>
+
+<ul>
+  <li><strong>PDF Processing:</strong> PyMuPDF (fitz), PyPDF2, pdfplumber for text extraction</li>
+  <li><strong>Text Cleaning:</strong> Remove headers, footers, page numbers, normalize whitespace</li>
+  <li><strong>Metadata Extraction:</strong> doc_type, title, section, page_number, product</li>
+</ul>
+
+<hr />
+
+<h2>✂️ Chunking Strategies</h2>
+
+<p><em>Different document types require different chunking approaches:</em></p>
+
+<database-view data-path="data/chunking-strategies.json"></database-view>
+
+<p></p>
+
+<hr />
+
+<h2>🔢 Embedding Layer</h2>
+
+<ul>
+  <li><strong>Model:</strong> OpenAI <code>text-embedding-3-small</code></li>
+  <li><strong>Dimensions:</strong> 1536</li>
+  <li><strong>Batch Processing:</strong> Chunked uploads with retry logic</li>
+</ul>
+
+<hr />
+
+<h2>🔍 Retrieval Strategy</h2>
+
+<ul>
+  <li><strong>Primary:</strong> Semantic search via Pinecone (cosine similarity)</li>
+  <li><strong>Boosting:</strong> Lexical boost for product terms + safety keywords</li>
+  <li><strong>Hierarchy:</strong> Parent-child matching with confidence boost for both</li>
+  <li><strong>Min Score:</strong> 0.25 threshold (0.35 for "strong" match)</li>
+</ul>
+
+<hr />
+
+<h2>🤖 Generation Layer</h2>
+
+<ul>
+  <li><strong>LLM:</strong> Claude claude-sonnet-4-20250514 (Anthropic)</li>
+  <li><strong>Temperature:</strong> 0.2 (low creativity, high precision)</li>
+  <li><strong>Max Tokens:</strong> 2000</li>
+  <li><strong>Context Window:</strong> 7000 chars max from retrieved chunks</li>
+</ul>
+
+<hr />
+
+<h2>📑 Citation Generation</h2>
+
+<ul>
+  <li><strong>Source Tracking:</strong> Each chunk linked to doc_id, page, section</li>
+  <li><strong>In-Response Citations:</strong> [Source 1], [Source 2] format</li>
+  <li><strong>Relevance Scores:</strong> Exposed in API response</li>
+</ul>

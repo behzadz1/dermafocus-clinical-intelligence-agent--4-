@@ -1,0 +1,30 @@
+[
+  {
+    "persona": "Supplier Admin",
+    "role": "DermaFocus Product Manager",
+    "goals": "Scale product education, track clinic engagement, drive orders",
+    "pain_points": "Limited rep bandwidth, inconsistent messaging, no usage analytics",
+    "derma_ai_benefit": "AI handles repetitive queries, analytics dashboard, consistent messaging"
+  },
+  {
+    "persona": "Clinic Owner / HCP",
+    "role": "Physician / Medical Director",
+    "goals": "Access protocols quickly, ensure patient safety, stay updated",
+    "pain_points": "Info buried in PDFs, waiting for rep callbacks, uncertainty on techniques",
+    "derma_ai_benefit": "Instant AI answers, protocol library, grounded safety info"
+  },
+  {
+    "persona": "Clinic Staff",
+    "role": "Nurse / Aesthetician",
+    "goals": "Prepare treatments correctly, answer patient questions",
+    "pain_points": "Training gaps, no quick reference, fear of mistakes",
+    "derma_ai_benefit": "Step-by-step protocols, simple language mode, confidence badges"
+  },
+  {
+    "persona": "Patient / Consumer",
+    "role": "Treatment Seeker",
+    "goals": "Understand treatments, find trusted clinics, book appointments",
+    "pain_points": "Confusing online info, no trusted source, difficulty comparing",
+    "derma_ai_benefit": "Educational AI chat, clinic discovery, transparent information"
+  }
+]

@@ -1,0 +1,79 @@
+<h1>Frontend Architecture</h1>
+
+<p><strong>React + TypeScript + Vite</strong> — modern clinical dashboard with AI chat interface. 🖥️</p>
+
+<hr />
+
+<h2>🏗️ Component Structure</h2>
+
+<excalidraw data-path="data/frontend-architecture.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>📦 Tech Stack</h2>
+
+<ul>
+  <li><strong>Framework:</strong> React 18 with TypeScript</li>
+  <li><strong>Build Tool:</strong> Vite (fast dev server, optimized production builds)</li>
+  <li><strong>Styling:</strong> Tailwind CSS for utility-first styling</li>
+  <li><strong>Icons:</strong> Lucide React icon library</li>
+</ul>
+
+<hr />
+
+<h2>📄 Key Views</h2>
+
+<ul>
+  <li><strong>Dashboard (HOME):</strong> Stats cards, recommended protocols, quick actions</li>
+  <li><strong>Chat (ASSISTANT):</strong> AI chat interface with streaming responses</li>
+  <li><strong>Protocols:</strong> Protocol list with search and detail views</li>
+  <li><strong>Products:</strong> Product catalog hub</li>
+  <li><strong>Safety:</strong> Safety guidelines and contraindications panel</li>
+</ul>
+
+<hr />
+
+<h2>🧩 Reusable Components</h2>
+
+<ul>
+  <li><strong>ConfidenceBadge:</strong> Visual indicator of AI response confidence</li>
+  <li><strong>SourceCard:</strong> Displays citation information for RAG sources</li>
+  <li><strong>Badge:</strong> Generic badge component for status indicators</li>
+  <li><strong>Sidebar:</strong> Navigation sidebar (desktop layout)</li>
+</ul>
+
+<hr />
+
+<h2>🔄 State Management</h2>
+
+<ul>
+  <li><strong>Local State:</strong> React useState for component-level state</li>
+  <li><strong>View State:</strong> Enum-based navigation (ViewState.CHAT, ViewState.PROTOCOLS, etc.)</li>
+  <li><strong>API Interaction:</strong> Fetch-based calls to FastAPI backend</li>
+</ul>
+
+<hr />
+
+<h2>📡 API Integration Pattern</h2>
+
+<pre><code>// Example: Chat API call
+const response = await fetch(`${API_BASE}/api/chat`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ message, history })
+});
+const data = await response.json();
+</code></pre>
+
+<hr />
+
+<h2>🎨 Design System</h2>
+
+<ul>
+  <li><strong>Colors:</strong> Slate (neutral), Teal (primary), Emerald (success)</li>
+  <li><strong>Typography:</strong> System fonts with semibold headings</li>
+  <li><strong>Spacing:</strong> Consistent 4px grid system</li>
+  <li><strong>Border Radius:</strong> Rounded corners (xl, 2xl) for modern feel</li>
+</ul>

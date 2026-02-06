@@ -1,0 +1,51 @@
+[
+  {
+    "risk": "Regulatory Classification",
+    "category": "Regulatory",
+    "impact": "High",
+    "probability": "Medium",
+    "mitigation": "Clear 'informational only' positioning, legal review, disclaimers"
+  },
+  {
+    "risk": "AI Hallucination",
+    "category": "Technical",
+    "impact": "High",
+    "probability": "Low",
+    "mitigation": "Strict grounding prompts, evidence thresholds, graceful refusal"
+  },
+  {
+    "risk": "HCP Trust & Adoption",
+    "category": "Market",
+    "impact": "High",
+    "probability": "Medium",
+    "mitigation": "Visible citations, confidence scoring, human escalation path"
+  },
+  {
+    "risk": "Data Breach",
+    "category": "Security",
+    "impact": "High",
+    "probability": "Low",
+    "mitigation": "Encryption, access controls, security audits, GDPR compliance"
+  },
+  {
+    "risk": "API Cost Overruns",
+    "category": "Financial",
+    "impact": "Medium",
+    "probability": "Medium",
+    "mitigation": "Caching, query optimization, usage monitoring, cost alerts"
+  },
+  {
+    "risk": "Competitor Entry",
+    "category": "Market",
+    "impact": "Medium",
+    "probability": "High",
+    "mitigation": "First-mover advantage, data moat, supplier partnerships"
+  },
+  {
+    "risk": "Document Quality",
+    "category": "Operational",
+    "impact": "Medium",
+    "probability": "Medium",
+    "mitigation": "Ingestion QA, supplier document standards, version control"
+  }
+]

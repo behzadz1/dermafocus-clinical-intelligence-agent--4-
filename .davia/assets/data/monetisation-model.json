@@ -1,0 +1,37 @@
+[
+  {
+    "tier": "Free",
+    "target": "Trial Clinics",
+    "price": "$0/mo",
+    "features": "10 AI queries/day, basic protocols",
+    "revenue_model": "Lead generation"
+  },
+  {
+    "tier": "Professional",
+    "target": "Individual Clinics",
+    "price": "$199/mo",
+    "features": "Unlimited queries, full protocol library, priority support",
+    "revenue_model": "SaaS subscription"
+  },
+  {
+    "tier": "Enterprise",
+    "target": "Clinic Chains",
+    "price": "Custom",
+    "features": "Multi-location, analytics, API access, dedicated support",
+    "revenue_model": "SaaS + services"
+  },
+  {
+    "tier": "Supplier Platform",
+    "target": "Product Suppliers",
+    "price": "Revenue share",
+    "features": "White-label AI, document management, clinic analytics",
+    "revenue_model": "Platform fee + transaction %"
+  },
+  {
+    "tier": "Patient Leads",
+    "target": "Clinics via B2C",
+    "price": "$50-150/lead",
+    "features": "Qualified patient referrals from consumer portal",
+    "revenue_model": "Lead fee"
+  }
+]

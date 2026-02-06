@@ -1,0 +1,42 @@
+[
+  {
+    "doc_type": "clinical_paper",
+    "strategy": "Hierarchical Parent-Child",
+    "parent_size": "2000 chars",
+    "child_size": "500 chars",
+    "overlap": "50 chars",
+    "use_case": "Section summaries + detailed content"
+  },
+  {
+    "doc_type": "case_study",
+    "strategy": "Adaptive Chunking",
+    "parent_size": "N/A",
+    "child_size": "800 chars",
+    "overlap": "100 chars",
+    "use_case": "Preserve narrative flow"
+  },
+  {
+    "doc_type": "protocol",
+    "strategy": "Step-Aware",
+    "parent_size": "N/A",
+    "child_size": "600 chars",
+    "overlap": "50 chars",
+    "use_case": "Keep procedure steps intact"
+  },
+  {
+    "doc_type": "factsheet",
+    "strategy": "Section-Based",
+    "parent_size": "N/A",
+    "child_size": "400 chars",
+    "overlap": "0 chars",
+    "use_case": "Quick fact retrieval"
+  },
+  {
+    "doc_type": "brochure",
+    "strategy": "Section-Based",
+    "parent_size": "N/A",
+    "child_size": "500 chars",
+    "overlap": "0 chars",
+    "use_case": "Marketing content chunks"
+  }
+]

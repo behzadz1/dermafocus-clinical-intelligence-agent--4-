@@ -1,0 +1,61 @@
+<h1>User Journeys</h1>
+
+<p><strong>Step-by-step flows</strong> for B2B (Supplier→Clinic) and B2C (Clinic→Patient) interactions. 🚶</p>
+
+<hr />
+
+<h2>🔄 B2B: Clinic Query Flow</h2>
+
+<excalidraw data-path="data/user-journey-b2b.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>📋 B2B Journey: Protocol Query</h2>
+
+<ol>
+  <li><strong>HCP opens DermaAI chat</strong> — launches from dashboard or quick action</li>
+  <li><strong>Enters clinical question</strong> — e.g., "What is the NEWEST protocol for perioral?"</li>
+  <li><strong>System classifies intent</strong> — determines query category (protocol, dosing, safety)</li>
+  <li><strong>RAG retrieves context</strong> — semantic search + lexical boosting</li>
+  <li><strong>Evidence assessment</strong> — checks if retrieval confidence is sufficient</li>
+  <li><strong>Claude generates response</strong> — grounded answer with source citations</li>
+  <li><strong>UI displays result</strong> — confidence badge, sources panel, follow-up suggestions</li>
+</ol>
+
+<hr />
+
+<h2>📋 B2B Journey: Product Comparison</h2>
+
+<ol>
+  <li><strong>HCP visits Products hub</strong> — browses DermaFocus product catalog</li>
+  <li><strong>Selects products to compare</strong> — e.g., PLINEST vs NEWEST</li>
+  <li><strong>Views comparison table</strong> — indications, compositions, protocols side-by-side</li>
+  <li><strong>Asks follow-up via AI</strong> — "Which is better for hand rejuvenation?"</li>
+  <li><strong>Gets grounded recommendation</strong> — answer based on clinical papers</li>
+</ol>
+
+<hr />
+
+<h2>📋 B2C Journey: Patient Treatment Discovery (Roadmap)</h2>
+
+<ol>
+  <li><strong>Patient opens consumer portal</strong> — informational AI chat</li>
+  <li><strong>Asks about treatment</strong> — "What can help with fine lines around eyes?"</li>
+  <li><strong>AI provides education</strong> — non-prescriptive, informational only</li>
+  <li><strong>Patient browses clinic directory</strong> — finds nearby DermaFocus providers</li>
+  <li><strong>Books consultation</strong> — integrated scheduling (future)</li>
+  <li><strong>Clinic receives lead</strong> — CRM notification with patient interest</li>
+</ol>
+
+<hr />
+
+<h2>⚠️ Key Guardrails in Journeys</h2>
+
+<ul>
+  <li><strong>No diagnosis:</strong> AI never diagnoses conditions</li>
+  <li><strong>No prescription:</strong> AI never recommends specific treatments for patients</li>
+  <li><strong>Always cite:</strong> Every clinical claim has a source</li>
+  <li><strong>Refuse when unsure:</strong> If evidence is insufficient, AI declines gracefully</li>
+</ul>

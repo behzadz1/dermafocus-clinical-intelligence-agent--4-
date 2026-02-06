@@ -1,0 +1,65 @@
+<h1>System Architecture</h1>
+
+<p><strong>Modular SaaS platform</strong> with clear separation between frontend, backend, AI, and data layers. 🏗️</p>
+
+<hr />
+
+<h2>🗺️ High-Level Architecture</h2>
+
+<excalidraw data-path="data/system-architecture.json"></excalidraw>
+
+<p></p>
+
+<hr />
+
+<h2>🖥️ Frontend Layer</h2>
+
+<ul>
+  <li><strong>Framework:</strong> React 18 + TypeScript</li>
+  <li><strong>Build Tool:</strong> Vite (fast HMR, optimized bundles)</li>
+  <li><strong>Styling:</strong> Tailwind CSS + Lucide icons</li>
+  <li><strong>Key Components:</strong> ChatWindow, ProtocolList, ProductHub, SafetyPanel</li>
+</ul>
+
+<hr />
+
+<h2>⚙️ Backend Layer</h2>
+
+<ul>
+  <li><strong>Framework:</strong> FastAPI (Python 3.11+)</li>
+  <li><strong>Pattern:</strong> Async-first with Pydantic validation</li>
+  <li><strong>Routes:</strong> <code>/api/chat</code>, <code>/api/search</code>, <code>/api/documents</code>, <code>/api/products</code></li>
+  <li><strong>Caching:</strong> Redis for session and query caching</li>
+</ul>
+
+<hr />
+
+<h2>🧠 AI/RAG Services</h2>
+
+<ul>
+  <li><strong>RAG Service:</strong> Orchestrates search and context retrieval</li>
+  <li><strong>Embedding Service:</strong> OpenAI text-embedding-3-small (1536 dims)</li>
+  <li><strong>Claude Service:</strong> Anthropic claude-sonnet-4-20250514 for generation</li>
+  <li><strong>Prompt Customizer:</strong> Audience-aware response formatting</li>
+</ul>
+
+<hr />
+
+<h2>💾 Data Layer</h2>
+
+<ul>
+  <li><strong>Vector DB:</strong> Pinecone (cosine similarity, metadata filtering)</li>
+  <li><strong>Document Store:</strong> Local file system for PDFs + processed JSON</li>
+  <li><strong>Relational DB:</strong> PostgreSQL (planned for user/order data)</li>
+</ul>
+
+<hr />
+
+<h2>🔒 Security Layer</h2>
+
+<ul>
+  <li><strong>Authentication:</strong> API key + JWT tokens</li>
+  <li><strong>Authorization:</strong> Role-based access (physician, staff, patient)</li>
+  <li><strong>Rate Limiting:</strong> 60 req/min, 1000 req/hour</li>
+  <li><strong>Audit:</strong> Full logging of AI interactions</li>
+</ul>

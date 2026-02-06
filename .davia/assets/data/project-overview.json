@@ -1,0 +1,56 @@
+[
+  {
+    "category": "Vision",
+    "item": "AI-Powered Clinical Intelligence",
+    "description": "RAG-based knowledge retrieval for aesthetic medicine",
+    "status": "Active"
+  },
+  {
+    "category": "B2B Domain",
+    "item": "Supplier → Clinic",
+    "description": "Product knowledge, protocols, ordering, analytics",
+    "status": "Core"
+  },
+  {
+    "category": "B2C Domain",
+    "item": "Clinic → Patient",
+    "description": "Treatment discovery, clinic matching, booking",
+    "status": "Roadmap"
+  },
+  {
+    "category": "AI Engine",
+    "item": "Grounded RAG",
+    "description": "Responses strictly from approved DermaFocus documents",
+    "status": "Production"
+  },
+  {
+    "category": "Backend",
+    "item": "FastAPI + Python 3.11",
+    "description": "Async API with hierarchical RAG services",
+    "status": "Production"
+  },
+  {
+    "category": "Frontend",
+    "item": "React + TypeScript + Vite",
+    "description": "Clinical dashboard with chat interface",
+    "status": "Production"
+  },
+  {
+    "category": "Vector DB",
+    "item": "Pinecone (1536 dims)",
+    "description": "Cosine similarity search with metadata filtering",
+    "status": "Production"
+  },
+  {
+    "category": "LLM",
+    "item": "Claude claude-sonnet-4-20250514",
+    "description": "Anthropic Claude with strict grounding prompts",
+    "status": "Production"
+  },
+  {
+    "category": "Embeddings",
+    "item": "OpenAI text-embedding-3-small",
+    "description": "Document and query embeddings",
+    "status": "Production"
+  }
+]

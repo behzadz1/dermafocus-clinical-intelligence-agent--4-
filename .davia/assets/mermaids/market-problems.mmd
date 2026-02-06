@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph CURRENT["❌ Current State - Fragmented"]
+        PDF[("📄 PDFs\nScattered")]
+        WA[("💬 WhatsApp\nUnstructured")]
+        REP[("👤 Sales Reps\nInconsistent")]
+        VID[("🎥 Videos\nHard to Search")]
+    end
+
+    subgraph PROBLEMS["⚠️ Problems"]
+        P1["Knowledge Gaps"]
+        P2["Misinformation Risk"]
+        P3["Training Inefficiency"]
+        P4["Lost Revenue"]
+    end
+
+    subgraph DERMAAI["✅ Derma AI Solution"]
+        RAG["🧠 RAG Engine"]
+        KB["📚 Unified Knowledge Base"]
+        AI["🤖 AI Assistant"]
+        TRUST["🔒 Grounded Responses"]
+    end
+
+    PDF --> P1
+    WA --> P2
+    REP --> P3
+    VID --> P4
+
+    P1 --> RAG
+    P2 --> RAG
+    P3 --> KB
+    P4 --> AI
+
+    RAG --> TRUST
+    KB --> TRUST
+    AI --> TRUST

@@ -1,0 +1,44 @@
+[
+  {
+    "endpoint": "POST /api/chat",
+    "description": "AI chat with RAG-grounded responses",
+    "auth": "API Key",
+    "service": "ClaudeService + RAGService"
+  },
+  {
+    "endpoint": "POST /api/search",
+    "description": "Semantic search across documents",
+    "auth": "API Key",
+    "service": "RAGService"
+  },
+  {
+    "endpoint": "GET /api/documents",
+    "description": "List processed documents",
+    "auth": "API Key",
+    "service": "DocumentProcessor"
+  },
+  {
+    "endpoint": "POST /api/documents/upload",
+    "description": "Upload and process new PDF",
+    "auth": "Admin",
+    "service": "DocumentProcessor + EmbeddingService"
+  },
+  {
+    "endpoint": "GET /api/products",
+    "description": "List DermaFocus products",
+    "auth": "API Key",
+    "service": "Static/DB"
+  },
+  {
+    "endpoint": "GET /api/protocols",
+    "description": "List treatment protocols",
+    "auth": "API Key",
+    "service": "Static/DB"
+  },
+  {
+    "endpoint": "GET /health",
+    "description": "Health check endpoint",
+    "auth": "None",
+    "service": "All services"
+  }
+]
