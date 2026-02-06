@@ -70,6 +70,7 @@ jobs:
         run: |
           python scripts/run_rag_eval.py \
             --dataset tests/fixtures/rag_eval_dataset.json \
+            --dataset-version 2026-02-06 \
             --report data/processed/rag_eval_report_ci.json \
             --min-pass-rate 0.9 \
             --min-refusal-accuracy 1.0 \

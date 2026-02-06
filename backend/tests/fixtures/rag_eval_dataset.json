@@ -1,4 +1,4 @@
-[
+{"version":"2026-02-06","cases":[
   {
     "id": "RAG-001",
     "question": "What is the composition of Plinest?",
@@ -1663,4 +1663,4 @@
     ],
     "notes": "Should refuse without evidence"
   }
-]
+]}

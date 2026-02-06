@@ -16,7 +16,7 @@ from app.evaluation.rag_eval import (  # noqa: E402
     CaseOutput,
     aggregate_results,
     evaluate_case,
-    load_golden_cases,
+    load_golden_dataset,
     save_report,
 )
 
@@ -35,11 +35,23 @@ async def run_eval(
     min_pass_rate: float,
     min_refusal_accuracy: float,
     min_citation_page_valid_rate: float,
+    expected_dataset_version: str,
 ) -> int:
     from app.services.claude_service import get_claude_service
     from app.services.rag_service import get_rag_service
 
-    cases = load_golden_cases(dataset_path)
+    dataset_version, cases = load_golden_dataset(dataset_path)
+    if expected_dataset_version:
+        if not dataset_version:
+            print("Dataset version is missing but is required.")
+            return 2
+        if dataset_version != expected_dataset_version:
+            print(
+                "Dataset version mismatch. "
+                f"Expected {expected_dataset_version}, got {dataset_version}."
+            )
+            return 2
+
     if max_cases > 0:
         cases = cases[:max_cases]
 
@@ -93,9 +105,12 @@ async def run_eval(
     metadata = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "dataset_path": dataset_path,
+        "dataset_version": dataset_version or "unknown",
         "report_mode": "generation" if use_llm else "retrieval_only",
         "cases_evaluated": len(cases),
     }
+    if expected_dataset_version:
+        metadata["expected_dataset_version"] = expected_dataset_version
     save_report(report_path, results, summary, metadata)
 
     print("\nSummary")
@@ -163,6 +178,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         default=1.0,
         help="Quality gate: minimum citation_page_valid_rate required."
     )
+    parser.add_argument(
+        "--dataset-version",
+        default="",
+        help="Expected dataset version; fails if missing or mismatched."
+    )
     return parser.parse_args(argv)
 
 
@@ -180,6 +200,7 @@ def main(argv: List[str]) -> int:
             min_pass_rate=args.min_pass_rate,
             min_refusal_accuracy=args.min_refusal_accuracy,
             min_citation_page_valid_rate=args.min_citation_page_valid_rate,
+            expected_dataset_version=args.dataset_version,
         )
     )
 

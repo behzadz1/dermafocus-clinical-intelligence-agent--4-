@@ -8,6 +8,7 @@ from app.evaluation.rag_eval import (
     aggregate_results,
     evaluate_case,
     load_golden_cases,
+    load_golden_dataset,
 )
 
 
@@ -21,6 +22,12 @@ def test_load_golden_cases():
     assert len(cases) >= 5
     assert any(case.should_refuse for case in cases)
     assert any(not case.should_refuse for case in cases)
+
+
+def test_load_golden_dataset_version():
+    version, cases = load_golden_dataset(str(FIXTURE_PATH))
+    assert version
+    assert len(cases) >= 5
 
 
 def test_non_refusal_case_passes_with_citations_and_recall():
@@ -124,4 +131,3 @@ def test_aggregate_returns_improvement_candidates():
     assert summary["pass_rate"] < 1.0
     assert "Need evidence" in summary["retraining_candidates"]
     assert "Need evidence" in summary["prompt_tuning_candidates"]
-

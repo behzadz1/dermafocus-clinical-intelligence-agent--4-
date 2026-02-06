@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, asdict
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 
 REFUSAL_HINTS = (
@@ -58,11 +58,20 @@ class CaseResult:
     error_buckets: List[str] = field(default_factory=list)
 
 
-def load_golden_cases(path: str) -> List[GoldenQACase]:
-    """Load QA cases from JSON file."""
+def load_golden_dataset(path: str) -> Tuple[Optional[str], List[GoldenQACase]]:
+    """Load QA dataset from JSON file with optional version metadata."""
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    cases = []
-    for item in payload:
+    dataset_version: Optional[str] = None
+    if isinstance(payload, dict):
+        dataset_version = payload.get("version")
+        items = payload.get("cases", [])
+    elif isinstance(payload, list):
+        items = payload
+    else:
+        raise ValueError("Unsupported dataset JSON structure.")
+
+    cases: List[GoldenQACase] = []
+    for item in items:
         cases.append(
             GoldenQACase(
                 id=item["id"],
@@ -75,6 +84,12 @@ def load_golden_cases(path: str) -> List[GoldenQACase]:
                 notes=item.get("notes", "")
             )
         )
+    return dataset_version, cases
+
+
+def load_golden_cases(path: str) -> List[GoldenQACase]:
+    """Load QA cases from JSON file."""
+    _, cases = load_golden_dataset(path)
     return cases
 
 
