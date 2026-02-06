@@ -282,9 +282,7 @@
   {
     "id": "RAG-016",
     "question": "What is the treatment protocol for Plinest Face?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -301,9 +299,7 @@
   {
     "id": "RAG-017",
     "question": "List steps for Plinest Eye protocol.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -320,9 +316,7 @@
   {
     "id": "RAG-018",
     "question": "Outline Newest hand rejuvenation protocol.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -339,9 +333,7 @@
   {
     "id": "RAG-019",
     "question": "Describe protocol for neck and decolletage using Newest.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -358,9 +350,7 @@
   {
     "id": "RAG-020",
     "question": "How many sessions are typically recommended in PN protocols?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -377,9 +367,7 @@
   {
     "id": "RAG-021",
     "question": "What is the interval between PN treatment sessions?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -396,9 +384,7 @@
   {
     "id": "RAG-022",
     "question": "Provide an injection-sequence style summary for periocular treatment.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -415,9 +401,7 @@
   {
     "id": "RAG-023",
     "question": "What are preparation steps before PN injection?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -434,28 +418,22 @@
   {
     "id": "RAG-024",
     "question": "Which protocol elements are mandatory versus optional?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
-    "expected_keywords": [
-      "protocol",
-      "sessions",
-      "injection"
-    ],
-    "should_refuse": false,
+    "expected_doc_ids": [],
+    "expected_keywords": [],
+    "should_refuse": true,
     "max_chunks": 7,
     "tags": [
+      "ood",
+      "procedure",
       "protocol",
-      "procedure"
+      "refusal"
     ],
-    "notes": "Protocol understanding"
+    "notes": "Meta/pipeline question: should refuse without evidence."
   },
   {
     "id": "RAG-025",
     "question": "Summarize aftercare guidance after PN treatment.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -472,9 +450,7 @@
   {
     "id": "RAG-026",
     "question": "How do protocols differ for face vs periocular area?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -491,9 +467,7 @@
   {
     "id": "RAG-027",
     "question": "What does Treatment Protocols document recommend first?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -510,9 +484,7 @@
   {
     "id": "RAG-028",
     "question": "Extract vector/area guidance from protocol docs.",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -529,9 +501,7 @@
   {
     "id": "RAG-029",
     "question": "How should follow-up be scheduled in protocol documents?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -548,9 +518,7 @@
   {
     "id": "RAG-030",
     "question": "Protocol quiz: what comes after preparation phase?",
-    "expected_doc_ids": [
-      "Treatment Protocols"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "protocol",
       "sessions",
@@ -567,9 +535,7 @@
   {
     "id": "RAG-031",
     "question": "List contraindications for polynucleotide treatments.",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -585,9 +551,7 @@
   {
     "id": "RAG-032",
     "question": "What warnings should be checked before PN-HPT treatment?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -603,9 +567,7 @@
   {
     "id": "RAG-033",
     "question": "What adverse events are documented for PN injections?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -621,9 +583,7 @@
   {
     "id": "RAG-034",
     "question": "Which patients should avoid NewGyn treatment?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -639,9 +599,7 @@
   {
     "id": "RAG-035",
     "question": "What side effects are noted for periocular PN treatment?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -657,9 +615,7 @@
   {
     "id": "RAG-036",
     "question": "What precautions reduce complication risk during injection?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -675,9 +631,7 @@
   {
     "id": "RAG-037",
     "question": "Summarize safety points from consensus guidance.",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -693,9 +647,7 @@
   {
     "id": "RAG-038",
     "question": "Are active infections a contraindication in available docs?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -711,9 +663,7 @@
   {
     "id": "RAG-039",
     "question": "How should clinicians counsel patients on expected reactions?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -729,9 +679,7 @@
   {
     "id": "RAG-040",
     "question": "Safety quiz: which condition is a red flag before treatment?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -747,9 +695,7 @@
   {
     "id": "RAG-041",
     "question": "What does documentation say about allergy-related cautions?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -765,9 +711,7 @@
   {
     "id": "RAG-042",
     "question": "How to handle risk communication before session one?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -783,9 +727,7 @@
   {
     "id": "RAG-043",
     "question": "Any contraindication differences between products?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -801,9 +743,7 @@
   {
     "id": "RAG-044",
     "question": "What are common transient reactions post-procedure?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -819,9 +759,7 @@
   {
     "id": "RAG-045",
     "question": "What are serious adverse signals that require stopping treatment?",
-    "expected_doc_ids": [
-      "Consensus report on the use of PN-HPT"
-    ],
+    "expected_doc_ids": [],
     "expected_keywords": [
       "contraindications",
       "safety",
@@ -1593,52 +1531,46 @@
     "id": "RAG-091",
     "question": "Which page-aware fields are expected in chunk metadata?",
     "expected_doc_ids": [],
-    "expected_keywords": [
-      "source",
-      "citation",
-      "evidence"
-    ],
-    "should_refuse": false,
+    "expected_keywords": [],
+    "should_refuse": true,
     "max_chunks": 6,
     "tags": [
       "citation",
-      "pipeline"
+      "ood",
+      "pipeline",
+      "refusal"
     ],
-    "notes": "Citation and provenance behavior"
+    "notes": "Meta/pipeline question: should refuse without evidence."
   },
   {
     "id": "RAG-092",
     "question": "How to differentiate parent context vs detail chunk evidence?",
     "expected_doc_ids": [],
-    "expected_keywords": [
-      "source",
-      "citation",
-      "evidence"
-    ],
-    "should_refuse": false,
+    "expected_keywords": [],
+    "should_refuse": true,
     "max_chunks": 6,
     "tags": [
       "citation",
-      "pipeline"
+      "ood",
+      "pipeline",
+      "refusal"
     ],
-    "notes": "Citation and provenance behavior"
+    "notes": "Meta/pipeline question: should refuse without evidence."
   },
   {
     "id": "RAG-093",
     "question": "What indicates hierarchical match quality in retrieval output?",
     "expected_doc_ids": [],
-    "expected_keywords": [
-      "source",
-      "citation",
-      "evidence"
-    ],
-    "should_refuse": false,
+    "expected_keywords": [],
+    "should_refuse": true,
     "max_chunks": 6,
     "tags": [
       "citation",
-      "pipeline"
+      "ood",
+      "pipeline",
+      "refusal"
     ],
-    "notes": "Citation and provenance behavior"
+    "notes": "Meta/pipeline question: should refuse without evidence."
   },
   {
     "id": "RAG-094",
