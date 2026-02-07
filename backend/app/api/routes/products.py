@@ -10,7 +10,7 @@ from datetime import datetime
 import structlog
 import json
 import re
-import anyio
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 from app.middleware.auth import verify_api_key
@@ -203,7 +203,7 @@ async def extract_products_with_llm(rag_service, claude_service) -> List[Product
             # Search for product information
             query = f"Complete product information for {product_name} including composition, indications, mechanism of action, benefits, and contraindications"
 
-            context_data = await anyio.to_thread.run_sync(
+            context_data = await run_in_threadpool(
                 rag_service.get_context_for_query,
                 query=query,
                 max_chunks=8
@@ -442,7 +442,7 @@ async def get_product(product_name: str):
         # Search for specific product
         query = f"Complete product information for {product_name} including composition, indications, mechanism of action, benefits, and contraindications"
 
-        context_data = await anyio.to_thread.run_sync(
+        context_data = await run_in_threadpool(
             rag_service.get_context_for_query,
             query=query,
             max_chunks=10

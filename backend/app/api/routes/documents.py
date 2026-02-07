@@ -9,7 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from pathlib import Path
 import structlog
-import anyio
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 from app.middleware.auth import verify_api_key
@@ -128,7 +128,7 @@ async def index_chunks_to_pinecone(
     texts = [chunk.get('text', '') for chunk in chunks]
 
     # Generate embeddings in batch
-    embeddings = await anyio.to_thread.run_sync(
+    embeddings = await run_in_threadpool(
         embedding_service.generate_embeddings_batch,
         texts
     )
@@ -175,7 +175,7 @@ async def index_chunks_to_pinecone(
         return 0
 
     # Upsert to Pinecone
-    result = await anyio.to_thread.run_sync(
+    result = await run_in_threadpool(
         pinecone_service.upsert_vectors,
         vectors,
         namespace=namespace

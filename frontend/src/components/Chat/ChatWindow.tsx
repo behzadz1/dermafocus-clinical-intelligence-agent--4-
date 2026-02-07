@@ -142,6 +142,11 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
         (receivedFollowUps) => {
           followUps = receivedFollowUps;
           setDynamicSuggestions(receivedFollowUps);
+        },
+        (receivedConversationId) => {
+          if (receivedConversationId) {
+            setConversationId(receivedConversationId);
+          }
         }
       )) {
         fullText += chunk;
@@ -213,6 +218,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     try {
       const history = buildConversationHistory();
       const response: ChatResponse = await apiService.sendMessage(query, conversationId, history);
+      if (response.conversation_id) {
+        setConversationId(response.conversation_id);
+      }
 
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),

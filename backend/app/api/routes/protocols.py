@@ -10,7 +10,7 @@ from datetime import datetime
 import structlog
 import json
 import re
-import anyio
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 from app.middleware.auth import verify_api_key
@@ -103,7 +103,7 @@ async def extract_protocols_with_llm(rag_service, claude_service) -> List[Protoc
             # Search for protocol information
             query = f"Treatment protocol for {product_name} including injection technique, dosing, treatment schedule, steps, and contraindications"
 
-            context_data = await anyio.to_thread.run_sync(
+            context_data = await run_in_threadpool(
                 rag_service.get_context_for_query,
                 query=query,
                 max_chunks=10

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 import structlog
-import anyio
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 from app.middleware.auth import verify_api_key
@@ -277,7 +277,7 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
         # Step 2: Retrieve relevant context from RAG
         doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
         logger.info("Retrieving context from RAG", doc_type=doc_type_filter)
-        context_data = await anyio.to_thread.run_sync(
+        context_data = await run_in_threadpool(
             rag_service.get_context_for_query,
             query=request.question,
             max_chunks=5,  # Enough for good context without overwhelming
@@ -468,6 +468,10 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
             
             rag_service = get_rag_service()
             claude_service = get_claude_service()
+            conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+
+            data = {"type": "conversation", "conversation_id": conversation_id}
+            yield f"data: {json.dumps(data)}\n\n"
 
             # Apply per-request customization if provided
             if request.customization:
@@ -519,7 +523,7 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
                 return
 
             # Retrieve context
-            context_data = await anyio.to_thread.run_sync(
+            context_data = await run_in_threadpool(
                 rag_service.get_context_for_query,
                 query=request.question,
                 max_chunks=5,  # Balanced for good context
