@@ -218,69 +218,59 @@ const ProductHub: React.FC = () => {
         <table className="w-full border-separate border-spacing-0 rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
           <thead>
             <tr className="bg-slate-900 text-white">
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] w-56 sticky left-0 z-10 bg-slate-900 border-b border-slate-700">Clinical Spec</th>
-              {products.map((p, idx) => (
-                <th key={p.name} className={`p-6 text-left font-bold w-1/5 border-b border-slate-700 ${idx > 0 ? 'border-l border-slate-700' : ''}`}>
-                  <div className="text-xl text-teal-400">{p.name}</div>
-                  <div className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest">{p.technology}</div>
-                </th>
-              ))}
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] w-64 sticky left-0 z-10 bg-slate-900 border-b border-slate-700">Product</th>
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Composition</th>
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Indications</th>
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Primary Goal</th>
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Mechanism</th>
+              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Precautions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-             <tr className="hover:bg-slate-50 transition-colors">
-              <td className="p-5 font-black text-[10px] uppercase tracking-wider text-slate-500 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200">Composition</td>
-              {products.map((p, i) => (
-                <td key={i} className={`p-5 text-sm text-slate-900 font-bold align-top ${i > 0 ? 'border-l border-slate-100' : ''}`}>
+            {products.map((p, idx) => (
+              <tr key={p.name} className="hover:bg-slate-50 transition-colors">
+                <td className={`p-5 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200 ${idx === products.length - 1 ? 'rounded-bl-3xl' : ''}`}>
+                  <div className="text-lg font-bold text-slate-900">{p.name}</div>
+                  <div className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest">{p.technology}</div>
+                </td>
+                <td className="p-5 text-sm text-slate-900 font-bold align-top border-l border-slate-100">
                   {p.composition || '-'}
                 </td>
-              ))}
-            </tr>
-            <tr className="hover:bg-slate-50 transition-colors">
-              <td className="p-5 font-black text-[10px] uppercase tracking-wider text-slate-500 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200">Indications</td>
-              {products.map((p, i) => (
-                <td key={i} className={`p-5 text-sm text-slate-600 align-top ${i > 0 ? 'border-l border-slate-100' : ''}`}>
+                <td className="p-5 text-sm text-slate-600 align-top border-l border-slate-100">
                   <div className="flex flex-wrap gap-2">
-                    {p.indications.map((ind, j) => (
-                      <span key={j} className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-[10px] font-bold rounded uppercase tracking-tighter">
-                        {ind}
-                      </span>
-                    ))}
+                    {p.indications.length > 0 ? (
+                      p.indications.map((ind, i) => (
+                        <span key={i} className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-[10px] font-bold rounded uppercase tracking-tighter">
+                          {ind}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-400 text-sm">-</span>
+                    )}
                   </div>
                 </td>
-              ))}
-            </tr>
-            <tr className="hover:bg-slate-50 transition-colors">
-              <td className="p-5 font-black text-[10px] uppercase tracking-wider text-slate-500 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200">Primary Goal</td>
-              {products.map((p, i) => (
-                <td key={i} className={`p-5 text-sm text-slate-600 align-top leading-relaxed font-medium italic ${i > 0 ? 'border-l border-slate-100' : ''}`}>
+                <td className="p-5 text-sm text-slate-600 align-top leading-relaxed font-medium italic border-l border-slate-100">
                   {p.benefits[0] || '-'}
                 </td>
-              ))}
-            </tr>
-            <tr className="hover:bg-slate-50 transition-colors">
-              <td className="p-5 font-black text-[10px] uppercase tracking-wider text-slate-500 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200">Mechanism</td>
-              {products.map((p, i) => (
-                <td key={i} className={`p-5 text-xs text-slate-600 align-top leading-relaxed ${i > 0 ? 'border-l border-slate-100' : ''}`}>
+                <td className="p-5 text-xs text-slate-600 align-top leading-relaxed border-l border-slate-100">
                   {p.mechanism || '-'}
                 </td>
-              ))}
-            </tr>
-            <tr className="hover:bg-slate-50 transition-colors">
-              <td className="p-5 font-black text-[10px] uppercase tracking-wider text-slate-500 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200 rounded-bl-3xl">Precautions</td>
-              {products.map((p, i) => (
-                <td key={i} className={`p-5 text-sm text-slate-600 align-top ${i > 0 ? 'border-l border-slate-100' : ''}`}>
-                   <ul className="space-y-1.5">
-                    {p.contraindications.slice(0, 3).map((c, j) => (
-                      <li key={j} className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-tighter">
-                         <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-                        <span>{c}</span>
-                      </li>
-                    ))}
+                <td className="p-5 text-sm text-slate-600 align-top border-l border-slate-100">
+                  <ul className="space-y-1.5">
+                    {p.contraindications.length > 0 ? (
+                      p.contraindications.slice(0, 3).map((c, i) => (
+                        <li key={i} className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-tighter">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+                          <span>{c}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-slate-400 text-sm">-</li>
+                    )}
                   </ul>
                 </td>
-              ))}
-            </tr>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

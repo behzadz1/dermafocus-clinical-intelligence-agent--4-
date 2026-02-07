@@ -13,30 +13,10 @@ import anyio
 from app.config import settings
 from app.middleware.auth import verify_api_key
 from app.policies.role_safety import evaluate_role_safety
+from app.utils.logging_utils import redact_phi
 
 router = APIRouter()
 logger = structlog.get_logger()
-
-
-# ==============================================================================
-# PHI REDACTION FOR LOGGING
-# ==============================================================================
-
-import re
-
-PHI_PATTERNS = [
-    (r'\b\d{3}-\d{2}-\d{4}\b', '[SSN]'),  # SSN
-    (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL]'),  # Email
-    (r'\b\d{10,11}\b', '[PHONE]'),  # Phone
-]
-
-def redact_phi(text: str) -> str:
-    """Redact potential PHI from text for safe logging."""
-    if not text:
-        return text
-    for pattern, replacement in PHI_PATTERNS:
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
-    return text
 
 
 # ==============================================================================

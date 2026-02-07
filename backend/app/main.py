@@ -10,31 +10,13 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 import time
 import uuid
-import re
 import structlog
 
 from app.config import settings
+from app.utils.logging_utils import redact_phi
+from app.middleware.rate_limit import rate_limit_middleware
 
 
-# ==============================================================================
-# PHI REDACTION UTILITY
-# ==============================================================================
-
-PHI_PATTERNS = [
-    (r'\b\d{3}-\d{2}-\d{4}\b', '[SSN_REDACTED]'),  # SSN
-    (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL_REDACTED]'),  # Email
-    (r'\b\d{10,11}\b', '[PHONE_REDACTED]'),  # Phone numbers
-    (r'\b\d{1,2}/\d{1,2}/\d{2,4}\b', '[DATE_REDACTED]'),  # Dates MM/DD/YYYY
-    (r'\b\d{4}-\d{2}-\d{2}\b', '[DATE_REDACTED]'),  # Dates YYYY-MM-DD
-]
-
-def redact_phi(text: str) -> str:
-    """Redact potential PHI from text for safe logging."""
-    if not text:
-        return text
-    for pattern, replacement in PHI_PATTERNS:
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
-    return text
 from app.api.routes import health, chat, documents, search, products, protocols
 
 # Configure structured logging with context support
@@ -111,6 +93,13 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 # Request Logging Middleware with Request ID
+@app.middleware("http")
+async def rate_limit(request: Request, call_next):
+    """
+    Enforce per-API-key rate limits (skips when auth disabled).
+    """
+    return await rate_limit_middleware(request, call_next)
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """
