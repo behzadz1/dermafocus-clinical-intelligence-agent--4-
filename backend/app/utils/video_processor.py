@@ -73,7 +73,9 @@ class VideoProcessor:
         self,
         video_path: str,
         doc_id: str = None,
-        doc_type: str = "video"
+        doc_type: str = "video",
+        extract_keyframes: bool = False,
+        keyframe_count: int = 8
     ) -> Dict[str, Any]:
         """
         Process a video file completely
@@ -91,7 +93,8 @@ class VideoProcessor:
                 "metadata": dict,
                 "transcript": str,
                 "segments": list,
-                "chunks": list
+                "chunks": list,
+                "keyframes": list
             }
         """
         if not WHISPER_AVAILABLE or not MOVIEPY_AVAILABLE:
@@ -125,6 +128,33 @@ class VideoProcessor:
                 transcript_data,
                 metadata
             )
+
+            keyframes: List[Dict[str, Any]] = []
+            image_chunks: List[Dict[str, Any]] = []
+            if extract_keyframes:
+                keyframes = self.extract_keyframes(
+                    video_path=video_path,
+                    num_frames=keyframe_count
+                )
+                for idx, frame in enumerate(keyframes):
+                    image_chunks.append({
+                        "text": (
+                            f"Keyframe extracted from video at {frame['timestamp']} "
+                            f"(frame {idx + 1}). Visual content placeholder."
+                        ),
+                        "chunk_id": f"{metadata['doc_id']}_frame_{idx + 1}",
+                        "metadata": {
+                            **metadata,
+                            "chunk_index": len(chunks) + idx,
+                            "frame_index": idx + 1,
+                            "frame_path": frame["path"],
+                            "timestamp": frame["timestamp"],
+                            "start_time": frame["start_time"],
+                            "end_time": frame["end_time"],
+                            "content_modality": "image"
+                        }
+                    })
+                chunks = chunks + image_chunks
             
             # Combine all segments into full transcript
             full_transcript = " ".join(
@@ -138,6 +168,7 @@ class VideoProcessor:
                 "transcript": full_transcript,
                 "segments": transcript_data["segments"],
                 "chunks": chunks,
+                "keyframes": keyframes,
                 "stats": {
                     "duration_seconds": metadata.get("duration", 0),
                     "num_segments": len(transcript_data["segments"]),
@@ -337,7 +368,7 @@ class VideoProcessor:
         self,
         video_path: str,
         num_frames: int = 10
-    ) -> List[str]:
+    ) -> List[Dict[str, Any]]:
         """
         Extract keyframes from video (for future image analysis)
         
@@ -346,14 +377,14 @@ class VideoProcessor:
             num_frames: Number of frames to extract
             
         Returns:
-            List of paths to extracted frame images
+            List of dicts with frame paths and timestamps
         """
         if not MOVIEPY_AVAILABLE:
             raise RuntimeError("MoviePy not installed")
         
         print(f"Extracting {num_frames} keyframes...")
         
-        frame_paths = []
+        frame_paths: List[Dict[str, Any]] = []
         
         try:
             clip = VideoFileClip(video_path)
@@ -374,15 +405,21 @@ class VideoProcessor:
                 from PIL import Image
                 img = Image.fromarray(frame)
                 img.save(frame_path.name)
-                frame_paths.append(frame_path.name)
+                frame_paths.append({
+                    "path": frame_path.name,
+                    "timestamp": self._format_timestamp(timestamp),
+                    "start_time": timestamp,
+                    "end_time": timestamp
+                })
             
             clip.close()
             
         except Exception as e:
             print(f"Error extracting keyframes: {e}")
             # Clean up any created files
-            for path in frame_paths:
-                if os.path.exists(path):
+            for item in frame_paths:
+                path = item.get("path")
+                if path and os.path.exists(path):
                     os.remove(path)
             raise
         

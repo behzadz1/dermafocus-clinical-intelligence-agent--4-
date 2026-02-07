@@ -8,9 +8,11 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 import structlog
+import anyio
 
 from app.config import settings
 from app.middleware.auth import verify_api_key
+from app.policies.role_safety import evaluate_role_safety
 
 router = APIRouter()
 logger = structlog.get_logger()
@@ -262,10 +264,41 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
         detected_intent = intent_data["intent"]
         logger.info("Intent classified", intent=detected_intent, intent_confidence=intent_data["confidence"])
 
+        # Step 1.5: Role-based safety enforcement (patients cannot receive procedural guidance)
+        role_decision = evaluate_role_safety(
+            question=request.question,
+            audience=claude_service.customizer.audience,
+            intent=detected_intent
+        )
+        if not role_decision.allowed:
+            conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+            logger.info("role_safety_blocked", reason=role_decision.reason)
+            return ChatResponse(
+                answer=role_decision.response or STRICT_REFUSAL_MESSAGE,
+                sources=[],
+                intent="role_restricted",
+                confidence=0.0,
+                conversation_id=conversation_id,
+                follow_ups=[
+                    "Can you share general, non-treatment information?",
+                    "Should I speak with a licensed clinician?"
+                ],
+                knowledge_usage=KnowledgeUsage(
+                    primary_source="document",
+                    document_ratio=1.0,
+                    knowledge_blend="document-heavy"
+                ),
+                customization_applied=ResponseCustomization(
+                    audience=claude_service.customizer.audience.value,
+                    style=claude_service.customizer.style.value
+                )
+            )
+
         # Step 2: Retrieve relevant context from RAG
         doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
         logger.info("Retrieving context from RAG", doc_type=doc_type_filter)
-        context_data = rag_service.get_context_for_query(
+        context_data = await anyio.to_thread.run_sync(
+            rag_service.get_context_for_query,
             query=request.question,
             max_chunks=5,  # Enough for good context without overwhelming
             doc_type=doc_type_filter
@@ -455,14 +488,59 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
             
             rag_service = get_rag_service()
             claude_service = get_claude_service()
+
+            # Apply per-request customization if provided
+            if request.customization:
+                if request.customization.preset:
+                    claude_service.set_customization(preset=request.customization.preset)
+                else:
+                    audience = None
+                    style = None
+                    if request.customization.audience:
+                        try:
+                            audience = AudienceType(request.customization.audience)
+                        except ValueError:
+                            pass
+                    if request.customization.style:
+                        try:
+                            style = ResponseStyle(request.customization.style)
+                        except ValueError:
+                            pass
+                    if audience or style:
+                        claude_service.set_customization(audience=audience, style=style)
             
             # Classify intent for retrieval routing
             intent_data = claude_service.classify_intent(request.question)
             detected_intent = intent_data["intent"]
             doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
 
+            # Enforce role-based safety before retrieval
+            role_decision = evaluate_role_safety(
+                question=request.question,
+                audience=claude_service.customizer.audience,
+                intent=detected_intent
+            )
+            if not role_decision.allowed:
+                logger.info("role_safety_blocked", reason=role_decision.reason)
+                data = {"type": "content", "content": role_decision.response or STRICT_REFUSAL_MESSAGE}
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {"type": "sources", "sources": []}
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {
+                    "type": "follow_ups",
+                    "follow_ups": [
+                        "Can you share general, non-treatment information?",
+                        "Should I speak with a licensed clinician?"
+                    ]
+                }
+                yield f"data: {json.dumps(data)}\n\n"
+                data = {"type": "done"}
+                yield f"data: {json.dumps(data)}\n\n"
+                return
+
             # Retrieve context
-            context_data = rag_service.get_context_for_query(
+            context_data = await anyio.to_thread.run_sync(
+                rag_service.get_context_for_query,
                 query=request.question,
                 max_chunks=5,  # Balanced for good context
                 doc_type=doc_type_filter

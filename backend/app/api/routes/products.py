@@ -3,18 +3,20 @@ Products Routes
 Endpoints for dynamically extracting product information from RAG
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import structlog
 import json
 import re
+import anyio
 
 from app.config import settings
+from app.middleware.auth import verify_api_key
 from app.services.cache_service import get_cache, set_cache, clear_cache
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_api_key)])
 logger = structlog.get_logger()
 
 CACHE_KEY_PRODUCTS = "products_response"
@@ -201,7 +203,8 @@ async def extract_products_with_llm(rag_service, claude_service) -> List[Product
             # Search for product information
             query = f"Complete product information for {product_name} including composition, indications, mechanism of action, benefits, and contraindications"
 
-            context_data = rag_service.get_context_for_query(
+            context_data = await anyio.to_thread.run_sync(
+                rag_service.get_context_for_query,
                 query=query,
                 max_chunks=8
             )
@@ -439,7 +442,8 @@ async def get_product(product_name: str):
         # Search for specific product
         query = f"Complete product information for {product_name} including composition, indications, mechanism of action, benefits, and contraindications"
 
-        context_data = rag_service.get_context_for_query(
+        context_data = await anyio.to_thread.run_sync(
+            rag_service.get_context_for_query,
             query=query,
             max_chunks=10
         )

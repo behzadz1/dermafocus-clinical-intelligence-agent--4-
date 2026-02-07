@@ -3,19 +3,21 @@ Document Management Routes
 Endpoints for uploading, processing, and managing knowledge base documents
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, status, Query
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Query, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from pathlib import Path
 import structlog
+import anyio
 
 from app.config import settings
+from app.middleware.auth import verify_api_key
 from app.api.routes.protocols import clear_protocols_cache
 from app.api.routes.products import clear_products_cache
 from app.utils.metadata_enrichment import build_canonical_metadata
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_api_key)])
 logger = structlog.get_logger()
 
 
@@ -126,7 +128,10 @@ async def index_chunks_to_pinecone(
     texts = [chunk.get('text', '') for chunk in chunks]
 
     # Generate embeddings in batch
-    embeddings = embedding_service.generate_embeddings_batch(texts)
+    embeddings = await anyio.to_thread.run_sync(
+        embedding_service.generate_embeddings_batch,
+        texts
+    )
 
     # Prepare vectors for Pinecone
     vectors = []
@@ -170,7 +175,11 @@ async def index_chunks_to_pinecone(
         return 0
 
     # Upsert to Pinecone
-    result = pinecone_service.upsert_vectors(vectors, namespace=namespace)
+    result = await anyio.to_thread.run_sync(
+        pinecone_service.upsert_vectors,
+        vectors,
+        namespace=namespace
+    )
 
     logger.info(
         "chunks_indexed_successfully",
@@ -318,7 +327,13 @@ async def upload_document(
                 )
             
             video_processor = VideoProcessor()
-            result = video_processor.process_video(file_path, doc_id=doc_id, doc_type=doc_type)
+            result = video_processor.process_video(
+                file_path,
+                doc_id=doc_id,
+                doc_type=doc_type,
+                extract_keyframes=settings.enable_keyframe_extraction or settings.enable_image_analysis,
+                keyframe_count=settings.video_keyframe_count
+            )
 
             # Save processed data
             os.makedirs(settings.processed_dir, exist_ok=True)

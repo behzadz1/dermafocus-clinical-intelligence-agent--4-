@@ -3,18 +3,20 @@ Protocols Routes
 Endpoints for dynamically extracting treatment protocol information from RAG
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import structlog
 import json
 import re
+import anyio
 
 from app.config import settings
+from app.middleware.auth import verify_api_key
 from app.services.cache_service import get_cache, set_cache, clear_cache
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_api_key)])
 logger = structlog.get_logger()
 
 CACHE_KEY_PROTOCOLS = "protocols_response"
@@ -101,7 +103,8 @@ async def extract_protocols_with_llm(rag_service, claude_service) -> List[Protoc
             # Search for protocol information
             query = f"Treatment protocol for {product_name} including injection technique, dosing, treatment schedule, steps, and contraindications"
 
-            context_data = rag_service.get_context_for_query(
+            context_data = await anyio.to_thread.run_sync(
+                rag_service.get_context_for_query,
                 query=query,
                 max_chunks=10
             )

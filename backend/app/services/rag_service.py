@@ -11,7 +11,9 @@ from collections import defaultdict
 import structlog
 
 from app.services.embedding_service import get_embedding_service
+from app.services.lexical_index import LexicalIndex
 from app.services.pinecone_service import get_pinecone_service
+from app.services.reranker_service import get_reranker_service
 from app.config import settings
 
 logger = structlog.get_logger()
@@ -34,6 +36,12 @@ class RAGService:
         self.embedding_service = get_embedding_service()
         self.pinecone_service = get_pinecone_service()
         self.processed_dir = Path(settings.processed_dir)
+        self._lexical_index: Optional[LexicalIndex] = None
+
+    def _get_lexical_index(self) -> LexicalIndex:
+        if self._lexical_index is None:
+            self._lexical_index = LexicalIndex.from_processed_dir(self.processed_dir)
+        return self._lexical_index
 
     def infer_doc_type_for_intent(self, intent: str) -> Optional[str]:
         """
@@ -143,80 +151,129 @@ class RAGService:
             # Expand query for recall-sensitive intents, then embed.
             retrieval_query = self._expand_query_for_retrieval(query)
             query_embedding = self.embedding_service.embed_query(retrieval_query)
-            
+
             # Build metadata filter
             metadata_filter = {}
             if doc_type:
                 metadata_filter["doc_type"] = doc_type
-            
-            # Search Pinecone
+
+            # Vector search (dense)
+            vector_k = max(top_k * 2, settings.vector_search_top_k)
             results = self.pinecone_service.query(
                 query_vector=query_embedding,
-                top_k=top_k * 2,  # Get more, filter by score later
+                top_k=vector_k,
                 namespace=namespace,
                 filter=metadata_filter if metadata_filter else None,
                 include_metadata=True
             )
-            
-            # Filter by minimum score and enrich with full text
-            relevant_chunks = []
+
+            vector_chunks: List[Dict[str, Any]] = []
             for match in results["matches"]:
                 if match["score"] >= min_score:
-                    chunk_data = {
+                    vector_chunks.append({
                         "chunk_id": match["id"],
                         "score": match["score"],
+                        "vector_score": match["score"],
+                        "bm25_score": 0.0,
                         "metadata": match["metadata"],
                         "text": match["metadata"].get("text", "")
-                    }
-                    relevant_chunks.append(chunk_data)
+                    })
 
-            # Apply lightweight lexical boost for explicit product mentions
+            # Lexical BM25 search (sparse)
+            bm25_results: List[Dict[str, Any]] = []
+            if settings.hybrid_search_enabled and settings.bm25_enabled:
+                lex_index = self._get_lexical_index()
+                lex_hits = lex_index.search(
+                    query=query,
+                    top_k=settings.bm25_top_k,
+                    doc_type=doc_type
+                )
+                for chunk, score in lex_hits:
+                    bm25_results.append({
+                        "chunk_id": chunk.chunk_id,
+                        "score": 0.0,
+                        "vector_score": 0.0,
+                        "bm25_score": score,
+                        "metadata": chunk.metadata,
+                        "text": chunk.text,
+                        "chunk_type": chunk.chunk_type,
+                        "section": chunk.section,
+                    })
+
+            # Merge candidates
+            candidates: Dict[str, Dict[str, Any]] = {}
+            for chunk in vector_chunks:
+                candidates[chunk["chunk_id"]] = chunk
+            for chunk in bm25_results:
+                existing = candidates.get(chunk["chunk_id"])
+                if existing:
+                    existing["bm25_score"] = max(existing.get("bm25_score", 0.0), chunk["bm25_score"])
+                else:
+                    candidates[chunk["chunk_id"]] = chunk
+
+            # Normalize BM25 scores
+            max_bm25 = max((c.get("bm25_score", 0.0) for c in candidates.values()), default=0.0)
+
             product_terms = self._extract_product_terms(query)
             safety_terms = self._extract_safety_terms(query)
-            if product_terms:
-                for chunk in relevant_chunks:
-                    text_blob = " ".join([
-                        chunk.get("text", ""),
-                        str(chunk.get("metadata", {}).get("section", "")),
-                        str(chunk.get("metadata", {}).get("doc_id", "")),
-                        str(chunk.get("metadata", {}).get("title", ""))
-                    ]).lower()
-                    boost = 0.0
-                    if any(term in text_blob for term in product_terms):
-                        boost += 0.08
-                    if safety_terms and any(term in text_blob for term in safety_terms):
-                        boost += 0.08
-                    if safety_terms and any(
-                        token in text_blob
-                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
-                    ):
-                        boost += 0.04
-                    if chunk.get("metadata", {}).get("doc_type") in {"product", "protocol", "factsheet", "brochure"}:
-                        boost += 0.03
-                    chunk["adjusted_score"] = min(chunk["score"] + boost, 1.0)
-            else:
-                for chunk in relevant_chunks:
-                    text_blob = " ".join([
-                        chunk.get("text", ""),
-                        str(chunk.get("metadata", {}).get("section", "")),
-                        str(chunk.get("metadata", {}).get("doc_id", "")),
-                    ]).lower()
-                    boost = 0.0
-                    if safety_terms and any(term in text_blob for term in safety_terms):
-                        boost += 0.08
-                    if safety_terms and any(
-                        token in text_blob
-                        for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
-                    ):
-                        boost += 0.04
-                    chunk["adjusted_score"] = min(chunk["score"] + boost, 1.0)
 
-            # Limit to top_k after reranking
-            relevant_chunks = sorted(
-                relevant_chunks,
-                key=lambda c: c.get("adjusted_score", c["score"]),
-                reverse=True
-            )[:top_k]
+            # Compute combined score
+            for chunk in candidates.values():
+                vector_score = float(chunk.get("vector_score", 0.0))
+                bm25_score = float(chunk.get("bm25_score", 0.0))
+                bm25_norm = (bm25_score / max_bm25) if max_bm25 > 0 else 0.0
+                if max_bm25 <= 0:
+                    combined_score = vector_score
+                else:
+                    combined_score = (
+                        settings.hybrid_vector_weight * vector_score
+                        + settings.hybrid_bm25_weight * bm25_norm
+                    )
+
+                # Lightweight lexical boost for explicit product/safety mentions
+                text_blob = " ".join([
+                    chunk.get("text", ""),
+                    str(chunk.get("metadata", {}).get("section", "")),
+                    str(chunk.get("metadata", {}).get("doc_id", "")),
+                    str(chunk.get("metadata", {}).get("title", "")),
+                ]).lower()
+                boost = 0.0
+                if product_terms and any(term in text_blob for term in product_terms):
+                    boost += 0.08
+                if safety_terms and any(term in text_blob for term in safety_terms):
+                    boost += 0.08
+                if safety_terms and any(
+                    token in text_blob
+                    for token in ["contraindication", "adverse", "warning", "precaution", "safety"]
+                ):
+                    boost += 0.04
+                if chunk.get("metadata", {}).get("doc_type") in {"product", "protocol", "factsheet", "brochure"}:
+                    boost += 0.03
+
+                final_score = min(combined_score + boost, 1.0)
+                chunk["combined_score"] = combined_score
+                chunk["adjusted_score"] = final_score
+                chunk["score"] = final_score
+
+            candidate_list = list(candidates.values())
+            candidate_list.sort(key=lambda c: c.get("score", 0.0), reverse=True)
+
+            # Optional cross-encoder reranking
+            if settings.reranker_enabled and candidate_list:
+                reranker = get_reranker_service()
+                rerank_pool_size = max(top_k * 3, settings.rerank_top_k)
+                rerank_pool = candidate_list[:rerank_pool_size]
+                rerank_scores = reranker.score(query, [c.get("text", "") for c in rerank_pool])
+                if rerank_scores:
+                    for chunk, score in zip(rerank_pool, rerank_scores):
+                        chunk["rerank_score"] = score
+                        chunk["score"] = score
+                        chunk["adjusted_score"] = score
+                    rerank_pool.sort(key=lambda c: c.get("score", 0.0), reverse=True)
+                    candidate_list = rerank_pool + candidate_list[rerank_pool_size:]
+
+            # Limit to top_k final results
+            relevant_chunks = candidate_list[:top_k]
             
             logger.info(
                 "RAG search completed",

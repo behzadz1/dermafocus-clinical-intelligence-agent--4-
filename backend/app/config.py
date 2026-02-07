@@ -131,6 +131,19 @@ class Settings(BaseSettings):
     embedding_dimensions: int = Field(default=1536, alias="EMBEDDING_DIMENSIONS")
     vector_search_top_k: int = Field(default=10, alias="VECTOR_SEARCH_TOP_K")
     rerank_top_k: int = Field(default=5, alias="RERANK_TOP_K")
+
+    # Hybrid Retrieval Configuration
+    hybrid_search_enabled: bool = Field(default=True, alias="HYBRID_SEARCH_ENABLED")
+    bm25_enabled: bool = Field(default=True, alias="BM25_ENABLED")
+    bm25_top_k: int = Field(default=20, alias="BM25_TOP_K")
+    hybrid_vector_weight: float = Field(default=0.6, alias="HYBRID_VECTOR_WEIGHT")
+    hybrid_bm25_weight: float = Field(default=0.4, alias="HYBRID_BM25_WEIGHT")
+    reranker_enabled: bool = Field(default=False, alias="RERANKER_ENABLED")
+    reranker_provider: str = Field(default="sentence_transformers", alias="RERANKER_PROVIDER")
+    reranker_model: str = Field(
+        default="cross-encoder/ms-marco-MiniLM-L-6-v2",
+        alias="RERANKER_MODEL"
+    )
     
     # Claude Configuration
     claude_model: str = Field(
@@ -167,6 +180,8 @@ class Settings(BaseSettings):
     enable_video_processing: bool = Field(default=False, alias="ENABLE_VIDEO_PROCESSING")
     enable_image_analysis: bool = Field(default=False, alias="ENABLE_IMAGE_ANALYSIS")
     enable_advanced_analytics: bool = Field(default=False, alias="ENABLE_ADVANCED_ANALYTICS")
+    enable_keyframe_extraction: bool = Field(default=False, alias="ENABLE_KEYFRAME_EXTRACTION")
+    video_keyframe_count: int = Field(default=8, alias="VIDEO_KEYFRAME_COUNT")
     
     model_config = SettingsConfigDict(
         env_file=".env",

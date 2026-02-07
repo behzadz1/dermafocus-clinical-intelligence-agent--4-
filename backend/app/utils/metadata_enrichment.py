@@ -173,6 +173,8 @@ def _infer_version(metadata: Dict[str, Any]) -> Optional[str]:
 
 def _infer_content_modality(doc_type: str, metadata: Dict[str, Any]) -> str:
     doc_type_lower = (doc_type or "").lower()
+    if metadata.get("frame_path") or metadata.get("frame_index") is not None:
+        return "image"
     if doc_type_lower == "video":
         return "transcript"
     if metadata.get("start_time") is not None or metadata.get("timestamp"):

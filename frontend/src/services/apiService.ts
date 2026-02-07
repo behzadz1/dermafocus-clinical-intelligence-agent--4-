@@ -3,7 +3,7 @@
  * Replaces the Gemini service with calls to our FastAPI backend
  */
 
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, API_KEY } from '../config';
 
 // Types matching backend response models
 export interface Message {
@@ -98,6 +98,9 @@ export interface ProtocolsResponse {
  * Main API Service
  */
 export const apiService = {
+  _authHeaders(): Record<string, string> {
+    return API_KEY ? { 'X-API-Key': API_KEY } : {};
+  },
   /**
    * Send a chat message and get response
    */
@@ -116,6 +119,7 @@ export const apiService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...this._authHeaders(),
       },
       body: JSON.stringify(request)
     });
@@ -149,6 +153,7 @@ export const apiService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...this._authHeaders(),
       },
       body: JSON.stringify(request)
     });
@@ -242,6 +247,7 @@ export const apiService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...this._authHeaders(),
       },
       body: JSON.stringify({
         conversation_id: conversationId,
@@ -265,6 +271,9 @@ export const apiService = {
 
     const response = await fetch(`${API_BASE_URL}/api/documents/upload`, {
       method: 'POST',
+      headers: {
+        ...this._authHeaders(),
+      },
       body: formData
     });
 
@@ -284,7 +293,7 @@ export const apiService = {
       ? `${API_BASE_URL}/api/products/?refresh=true`
       : `${API_BASE_URL}/api/products/`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { ...this._authHeaders() } });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -298,7 +307,10 @@ export const apiService = {
    * Get a single product by name
    */
   async getProduct(productName: string): Promise<ProductInfo> {
-    const response = await fetch(`${API_BASE_URL}/api/products/${encodeURIComponent(productName)}`);
+    const response = await fetch(
+      `${API_BASE_URL}/api/products/${encodeURIComponent(productName)}`,
+      { headers: { ...this._authHeaders() } }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -313,7 +325,8 @@ export const apiService = {
    */
   async refreshProducts(): Promise<ProductsResponse> {
     const response = await fetch(`${API_BASE_URL}/api/products/refresh`, {
-      method: 'POST'
+      method: 'POST',
+      headers: { ...this._authHeaders() },
     });
 
     if (!response.ok) {
@@ -332,7 +345,7 @@ export const apiService = {
       ? `${API_BASE_URL}/api/protocols/?refresh=true`
       : `${API_BASE_URL}/api/protocols/`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: { ...this._authHeaders() } });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -346,7 +359,10 @@ export const apiService = {
    * Get a single protocol by ID
    */
   async getProtocol(protocolId: string): Promise<ProtocolInfo> {
-    const response = await fetch(`${API_BASE_URL}/api/protocols/${encodeURIComponent(protocolId)}`);
+    const response = await fetch(
+      `${API_BASE_URL}/api/protocols/${encodeURIComponent(protocolId)}`,
+      { headers: { ...this._authHeaders() } }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -361,7 +377,8 @@ export const apiService = {
    */
   async refreshProtocols(): Promise<ProtocolsResponse> {
     const response = await fetch(`${API_BASE_URL}/api/protocols/refresh`, {
-      method: 'POST'
+      method: 'POST',
+      headers: { ...this._authHeaders() },
     });
 
     if (!response.ok) {

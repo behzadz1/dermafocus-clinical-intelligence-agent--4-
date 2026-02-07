@@ -3,14 +3,15 @@ Search Routes
 Endpoints for direct vector search and semantic retrieval
 """
 
-from fastapi import APIRouter, Query, HTTPException, status
+from fastapi import APIRouter, Query, HTTPException, status, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import structlog
 
 from app.config import settings
+from app.middleware.auth import verify_api_key
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(verify_api_key)])
 logger = structlog.get_logger()
 
 

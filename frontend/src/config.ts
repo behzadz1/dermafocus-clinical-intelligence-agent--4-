@@ -3,6 +3,9 @@ export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
   "http://localhost:8000";
 
+export const API_KEY =
+  (import.meta.env.VITE_API_KEY as string | undefined) ?? "";
+
 // Optional safety: warn in production if missing
 if (import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL) {
   // eslint-disable-next-line no-console
