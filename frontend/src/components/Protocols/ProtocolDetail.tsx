@@ -42,8 +42,9 @@ const ProtocolDetail: React.FC<ProtocolDetailProps> = ({ protocol, onBack }) => 
             <h2 className="text-sm font-bold text-teal-400 uppercase tracking-wider mb-1">Procedure Mode</h2>
             <h1 className="text-xl font-bold">{protocol.title}</h1>
           </div>
-          <button 
+          <button
             onClick={toggleProcedureMode}
+            aria-label="Exit procedure mode"
             className="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"
           >
             <X size={24} />
@@ -130,15 +131,18 @@ const ProtocolDetail: React.FC<ProtocolDetailProps> = ({ protocol, onBack }) => 
   return (
     <div className="h-full overflow-y-auto bg-slate-50">
       <div className="max-w-4xl mx-auto p-6 md:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <button 
+        <nav className="flex items-center gap-2 text-sm mb-6" aria-label="Breadcrumb">
+          <button
             onClick={onBack}
-            className="flex items-center text-slate-500 hover:text-teal-600 transition-colors"
+            className="font-medium text-slate-500 hover:text-teal-600 transition-colors"
           >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium">Back to Protocols</span>
+            Protocols
           </button>
-        </div>
+          <ChevronRight size={14} className="text-slate-300" />
+          <span className="font-medium text-slate-800 truncate max-w-xs">
+            {protocol.title}
+          </span>
+        </nav>
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="bg-slate-900 p-6 md:p-8 text-white relative overflow-hidden">

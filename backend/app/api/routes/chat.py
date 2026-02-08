@@ -3,7 +3,7 @@ Chat Routes
 Endpoints for conversational AI with RAG capabilities
 """
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
@@ -14,6 +14,7 @@ from app.config import settings
 from app.middleware.auth import verify_api_key
 from app.policies.role_safety import evaluate_role_safety
 from app.utils.logging_utils import redact_phi
+from app.utils.audit_logger import log_audit_event
 
 router = APIRouter()
 logger = structlog.get_logger()
@@ -192,7 +193,7 @@ class ChatResponse(BaseModel):
 # ==============================================================================
 
 @router.post("/", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
+async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depends(verify_api_key)):
     """
     Main chat endpoint with RAG
     
@@ -253,6 +254,18 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
         if not role_decision.allowed:
             conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
             logger.info("role_safety_blocked", reason=role_decision.reason)
+            log_audit_event(
+                "chat_interaction",
+                request=raw_request,
+                conversation_id=conversation_id,
+                intent=detected_intent,
+                audience=claude_service.customizer.audience.value,
+                evidence_sufficient=False,
+                refusal=True,
+                sources_count=0,
+                mode="sync",
+                reason="role_restricted"
+            )
             return ChatResponse(
                 answer=role_decision.response or STRICT_REFUSAL_MESSAGE,
                 sources=[],
@@ -299,6 +312,18 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
         # Strict refusal when evidence is missing/weak.
         if not evidence.get("sufficient", False):
             conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+            log_audit_event(
+                "chat_interaction",
+                request=raw_request,
+                conversation_id=conversation_id,
+                intent=detected_intent,
+                audience=claude_service.customizer.audience.value,
+                evidence_sufficient=False,
+                refusal=True,
+                sources_count=0,
+                mode="sync",
+                reason="insufficient_evidence"
+            )
             return ChatResponse(
                 answer=STRICT_REFUSAL_MESSAGE,
                 sources=[],
@@ -421,6 +446,18 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
             document_ratio=knowledge_analysis["document_ratio"],
             tokens_used=claude_response["usage"]["input_tokens"] + claude_response["usage"]["output_tokens"]
         )
+
+        log_audit_event(
+            "chat_interaction",
+            request=raw_request,
+            conversation_id=conversation_id,
+            intent=detected_intent,
+            audience=customization_info.get("audience", "physician"),
+            evidence_sufficient=evidence.get("sufficient", False),
+            refusal=False,
+            sources_count=len(sources),
+            mode="sync"
+        )
         
         return response
     
@@ -443,7 +480,7 @@ async def chat(request: ChatRequest, api_key: str = Depends(verify_api_key)):
 
 
 @router.post("/stream", status_code=status.HTTP_200_OK)
-async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_key)):
+async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str = Depends(verify_api_key)):
     """
     Streaming chat endpoint for real-time responses
 
@@ -472,6 +509,13 @@ async def chat_stream(request: ChatRequest, api_key: str = Depends(verify_api_ke
 
             data = {"type": "conversation", "conversation_id": conversation_id}
             yield f"data: {json.dumps(data)}\n\n"
+
+            log_audit_event(
+                "chat_stream_start",
+                request=raw_request,
+                conversation_id=conversation_id,
+                mode="stream"
+            )
 
             # Apply per-request customization if provided
             if request.customization:

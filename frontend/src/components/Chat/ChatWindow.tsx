@@ -14,13 +14,12 @@ import {
   Zap,
   Shield,
   ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle
+  CheckCircle2
 } from 'lucide-react';
 import { Message, Source } from '../../types';
 import { apiService, ChatResponse } from '../../services/apiService';
 import { API_BASE_URL } from '../../config';
+import { ConfidenceBadge } from '../ui/ConfidenceBadge';
 
 interface ChatWindowProps {}
 
@@ -31,44 +30,6 @@ const STATIC_SUGGESTIONS = [
   { text: "Contraindications for polynucleotides", icon: Shield }
 ];
 
-// Confidence configuration
-const getConfidenceConfig = (confidence: number) => {
-  if (confidence >= 0.75) {
-    return {
-      label: 'High Confidence',
-      short: 'High',
-      icon: CheckCircle2,
-      gradient: 'from-emerald-500 to-emerald-600',
-      bg: 'bg-emerald-50',
-      border: 'border-emerald-200',
-      text: 'text-emerald-700',
-      dot: 'bg-emerald-500'
-    };
-  }
-  if (confidence >= 0.55) {
-    return {
-      label: 'Medium Confidence',
-      short: 'Medium',
-      icon: AlertCircle,
-      gradient: 'from-amber-500 to-amber-600',
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
-      text: 'text-amber-700',
-      dot: 'bg-amber-500'
-    };
-  }
-  return {
-    label: 'Low Confidence',
-    short: 'Low',
-    icon: HelpCircle,
-    gradient: 'from-red-500 to-red-600',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    text: 'text-red-600',
-    dot: 'bg-red-500'
-  };
-};
-
 const ChatWindow: React.FC<ChatWindowProps> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -77,7 +38,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[]>([]);
   const [conversationId, setConversationId] = useState<string>(`conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const isWelcomeState = messages.length === 0;
 
@@ -199,6 +160,9 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
     if (!query || isLoading) return;
 
     setInput('');
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
 
     if (useStreaming) {
       await handleSendStreaming(query);
@@ -466,10 +430,7 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
                                 </span>
                               </div>
                               {msg.confidence !== undefined && msg.confidence > 0 && (
-                                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${getConfidenceConfig(msg.confidence).bg} ${getConfidenceConfig(msg.confidence).border} border ${getConfidenceConfig(msg.confidence).text}`}>
-                                  <div className={`w-1.5 h-1.5 rounded-full ${getConfidenceConfig(msg.confidence).dot}`} />
-                                  {getConfidenceConfig(msg.confidence).short} ({Math.round(msg.confidence * 100)}%)
-                                </div>
+                                <ConfidenceBadge confidence={msg.confidence} size="sm" />
                               )}
                             </div>
 
@@ -563,19 +524,29 @@ const ChatWindow: React.FC<ChatWindowProps> = () => {
 
           {/* Input Field */}
           <div className="relative">
-            <input
+            <textarea
               ref={inputRef}
-              type="text"
+              rows={1}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onChange={(e) => {
+                setInput(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder="Ask about products, protocols, or clinical guidelines..."
-              className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl pl-5 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 focus:bg-white transition-all placeholder:text-slate-400 text-sm shadow-sm"
+              className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl pl-5 pr-14 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 focus:bg-white transition-all placeholder:text-slate-400 text-sm shadow-sm resize-none overflow-hidden"
             />
             <button
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-teal-500/25 disabled:shadow-none"
+              aria-label="Send message"
+              className="absolute right-2 bottom-2 w-10 h-10 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-teal-500/25 disabled:shadow-none"
             >
               <Send size={16} />
             </button>

@@ -14,6 +14,7 @@ import structlog
 
 from app.config import settings
 from app.utils.logging_utils import redact_phi
+from app.utils.audit_logger import log_audit_event
 from app.middleware.rate_limit import rate_limit_middleware
 
 
@@ -113,6 +114,7 @@ async def log_requests(request: Request, call_next):
     # Bind request ID to structlog context for all logs in this request
     structlog.contextvars.clear_contextvars()
     structlog.contextvars.bind_contextvars(request_id=request_id)
+    request.state.request_id = request_id
 
     # Log request (PHI-safe)
     logger.info(
@@ -143,6 +145,24 @@ async def log_requests(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     response.headers["X-Request-ID"] = request_id
 
+    return response
+
+
+@app.middleware("http")
+async def audit_requests(request: Request, call_next):
+    """
+    Audit log for non-health requests.
+    """
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/api/health") or path.startswith("/docs") or path.startswith("/redoc") or path.startswith("/openapi"):
+        return response
+
+    log_audit_event(
+        "request",
+        request=request,
+        status_code=response.status_code
+    )
     return response
 
 

@@ -3,7 +3,7 @@ Document Management Routes
 Endpoints for uploading, processing, and managing knowledge base documents
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, status, Query, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Query, Depends, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
@@ -16,6 +16,7 @@ from app.middleware.auth import verify_api_key
 from app.api.routes.protocols import clear_protocols_cache
 from app.api.routes.products import clear_products_cache
 from app.utils.metadata_enrichment import build_canonical_metadata
+from app.utils.audit_logger import log_audit_event
 
 router = APIRouter(dependencies=[Depends(verify_api_key)])
 logger = structlog.get_logger()
@@ -253,10 +254,19 @@ async def upload_document(
     
     # Generate doc_id
     doc_id = f"doc_{doc_type}_{int(datetime.utcnow().timestamp())}"
-    
+
     # Ensure upload directory exists
     import os
     os.makedirs(settings.upload_dir, exist_ok=True)
+
+    log_audit_event(
+        "document_upload_start",
+        request=raw_request,
+        doc_id=doc_id,
+        doc_type=doc_type,
+        file_ext=file_ext,
+        content_type=file.content_type
+    )
     
     # Save uploaded file
     file_path = os.path.join(settings.upload_dir, f"{doc_id}{file_ext}")
@@ -305,6 +315,16 @@ async def upload_document(
                 "document_indexed_to_pinecone",
                 doc_id=doc_id,
                 num_indexed=num_indexed
+            )
+
+            log_audit_event(
+                "document_upload_success",
+                request=raw_request,
+                doc_id=doc_id,
+                doc_type=doc_type,
+                file_ext=file_ext,
+                num_chunks=result['stats']['num_chunks'],
+                vectors_indexed=num_indexed
             )
 
             # Auto-invalidate both protocol and product caches
@@ -362,6 +382,16 @@ async def upload_document(
                 num_indexed=num_indexed
             )
 
+            log_audit_event(
+                "document_upload_success",
+                request=raw_request,
+                doc_id=doc_id,
+                doc_type=doc_type,
+                file_ext=file_ext,
+                num_chunks=result['stats']['num_chunks'],
+                vectors_indexed=num_indexed
+            )
+
             # Auto-invalidate both protocol and product caches
             clear_protocols_cache()
             clear_products_cache()
@@ -385,6 +415,14 @@ async def upload_document(
             "document_processing_failed",
             doc_id=doc_id,
             error=str(e)
+        )
+        log_audit_event(
+            "document_upload_failed",
+            request=raw_request,
+            doc_id=doc_id,
+            doc_type=doc_type,
+            file_ext=file_ext,
+            error=str(e)[:200]
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

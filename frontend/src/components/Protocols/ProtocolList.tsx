@@ -160,6 +160,7 @@ const ProtocolList: React.FC<ProtocolListProps> = ({ onSelect }) => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
               >
                 <X className="h-4 w-4" />
@@ -196,11 +197,11 @@ const ProtocolList: React.FC<ProtocolListProps> = ({ onSelect }) => {
                    ) : (
                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
                        <ImageOff size={40} className="mb-2 opacity-50" />
-                       <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Protocol Guide</span>
+                       <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Protocol Guide</span>
                      </div>
                    )}
                    <div className="absolute top-4 left-4 flex gap-2">
-                      <div className="bg-teal-600 text-white text-[10px] font-black px-2.5 py-1.5 rounded-lg shadow-lg backdrop-blur-md uppercase tracking-widest z-10">
+                      <div className="bg-teal-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg shadow-lg backdrop-blur-md uppercase tracking-widest z-10">
                         RAG Extracted
                       </div>
                    </div>

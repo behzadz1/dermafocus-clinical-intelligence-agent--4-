@@ -100,7 +100,7 @@ const ProductHub: React.FC = () => {
               ) : (
                 <div className="flex flex-col items-center gap-3 text-slate-300">
                   <Package size={48} className="opacity-20" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Clinical Asset</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Clinical Asset</span>
                 </div>
               )}
               <div className="absolute bottom-3 left-3 flex gap-1.5">
@@ -125,7 +125,7 @@ const ProductHub: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-2xl font-bold text-slate-900">{product.name}</h3>
-                <span className="px-3 py-1.5 bg-teal-50 text-teal-700 text-[10px] font-black rounded-lg border border-teal-100 uppercase tracking-tighter">
+                <span className="px-3 py-1.5 bg-teal-50 text-teal-700 text-[10px] font-bold rounded-lg border border-teal-100 uppercase tracking-tighter">
                   {product.technology.includes('Exosome') ? 'Purasomes' : 'Mastelli Portfolio'}
                 </span>
               </div>
@@ -142,7 +142,7 @@ const ProductHub: React.FC = () => {
               </div>
 
               <div>
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Key Indications</h4>
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Key Indications</h4>
                 <div className="flex flex-wrap gap-2.5">
                   {product.indications.length > 0 ? (
                     product.indications.map((ind, i) => (
@@ -160,7 +160,7 @@ const ProductHub: React.FC = () => {
 
           <div className="bg-slate-50/50 p-8 grid md:grid-cols-2 gap-10">
             <div>
-              <h4 className="flex items-center gap-2.5 text-sm font-black text-slate-900 mb-4 uppercase tracking-wider">
+              <h4 className="flex items-center gap-2.5 text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">
                 <Microscope size={18} className="text-teal-600" />
                 Mechanism of Action
               </h4>
@@ -169,7 +169,7 @@ const ProductHub: React.FC = () => {
               </p>
             </div>
             <div>
-              <h4 className="flex items-center gap-2.5 text-sm font-black text-slate-900 mb-4 uppercase tracking-wider">
+              <h4 className="flex items-center gap-2.5 text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">
                 <CircleCheck size={18} className="text-teal-600" />
                 Clinical Benefits
               </h4>
@@ -189,7 +189,7 @@ const ProductHub: React.FC = () => {
               </ul>
 
               <div className="bg-red-50/50 border border-red-100 rounded-xl p-5">
-                <h4 className="flex items-center gap-2.5 text-xs font-black text-red-800 mb-3 uppercase tracking-wider">
+                <h4 className="flex items-center gap-2.5 text-xs font-bold text-red-800 mb-3 uppercase tracking-wider">
                   <ShieldAlert size={16} />
                   Contraindications
                 </h4>
@@ -218,12 +218,12 @@ const ProductHub: React.FC = () => {
         <table className="w-full border-separate border-spacing-0 rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
           <thead>
             <tr className="bg-slate-900 text-white">
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] w-64 sticky left-0 z-10 bg-slate-900 border-b border-slate-700">Product</th>
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Composition</th>
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Indications</th>
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Primary Goal</th>
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Mechanism</th>
-              <th className="p-6 text-left font-black text-xs uppercase tracking-[0.2em] border-b border-slate-700">Precautions</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] w-64 sticky left-0 z-10 bg-slate-900 border-b border-slate-700">Product</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] border-b border-slate-700">Composition</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] border-b border-slate-700">Indications</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] border-b border-slate-700">Primary Goal</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] border-b border-slate-700">Mechanism</th>
+              <th className="p-6 text-left font-bold text-xs uppercase tracking-[0.2em] border-b border-slate-700">Precautions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -231,7 +231,7 @@ const ProductHub: React.FC = () => {
               <tr key={p.name} className="hover:bg-slate-50 transition-colors">
                 <td className={`p-5 bg-slate-50/50 sticky left-0 z-10 border-r border-slate-200 ${idx === products.length - 1 ? 'rounded-bl-3xl' : ''}`}>
                   <div className="text-lg font-bold text-slate-900">{p.name}</div>
-                  <div className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-widest">{p.technology}</div>
+                  <div className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">{p.technology}</div>
                 </td>
                 <td className="p-5 text-sm text-slate-900 font-bold align-top border-l border-slate-100">
                   {p.composition || '-'}
@@ -259,7 +259,7 @@ const ProductHub: React.FC = () => {
                   <ul className="space-y-1.5">
                     {p.contraindications.length > 0 ? (
                       p.contraindications.slice(0, 3).map((c, i) => (
-                        <li key={i} className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-tighter">
+                        <li key={i} className="flex items-center gap-2 text-red-600 text-[10px] font-bold uppercase tracking-tighter">
                           <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
                           <span>{c}</span>
                         </li>
@@ -311,7 +311,7 @@ const ProductHub: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`
-                flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all
+                flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all
                 ${viewMode === 'list'
                   ? 'bg-white text-teal-700 shadow-md scale-100'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/30'}
@@ -323,7 +323,7 @@ const ProductHub: React.FC = () => {
             <button
               onClick={() => setViewMode('compare')}
               className={`
-                flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all
+                flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all
                 ${viewMode === 'compare'
                   ? 'bg-white text-teal-700 shadow-md scale-100'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/30'}

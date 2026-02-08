@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* Smooth color transitions for dark mode */
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* Global focus-visible ring for all interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(20 184 166 / 0.4);
+    border-radius: inherit;
+  }
+
+  .dark button:focus-visible,
+  .dark a:focus-visible,
+  .dark input:focus-visible,
+  .dark textarea:focus-visible,
+  .dark select:focus-visible,
+  .dark [role="button"]:focus-visible,
+  .dark [tabindex]:focus-visible {
+    box-shadow: 0 0 0 2px rgb(15 23 42), 0 0 0 4px rgb(20 184 166 / 0.5);
+  }
+}

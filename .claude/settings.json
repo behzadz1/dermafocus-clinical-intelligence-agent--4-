@@ -16,6 +16,7 @@
   "enabledSkills": [
     "chunking-expert",
     "pdf-preprocessor",
-    "rag-validator"
+    "rag-validator",
+    "ui-design-expert"
   ]
 }

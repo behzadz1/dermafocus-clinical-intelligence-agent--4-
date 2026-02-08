@@ -171,6 +171,12 @@ class Settings(BaseSettings):
     log_file: str = Field(default="./logs/app.log", alias="LOG_FILE")
     log_rotation: str = Field(default="500 MB", alias="LOG_ROTATION")
     log_retention: str = Field(default="30 days", alias="LOG_RETENTION")
+
+    # Audit logging
+    audit_log_enabled: bool = Field(default=True, alias="AUDIT_LOG_ENABLED")
+    audit_log_file: str = Field(default="./logs/audit.log", alias="AUDIT_LOG_FILE")
+    audit_log_max_bytes: int = Field(default=10_000_000, alias="AUDIT_LOG_MAX_BYTES")
+    audit_log_backup_count: int = Field(default=5, alias="AUDIT_LOG_BACKUP_COUNT")
     
     # Monitoring (optional)
     sentry_dsn: str = Field(default="", alias="SENTRY_DSN")
