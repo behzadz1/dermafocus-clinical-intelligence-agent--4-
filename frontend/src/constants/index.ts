@@ -24,7 +24,7 @@ export const PROTOCOLS: Protocol[] = [
         description: 'Perform every 14-21 days for 3 to 4 sessions for optimal remodeling.',
       }
     ],
-    imagePlaceholder: 'https://images.unsplash.com/photo-1616391182219-e080b4d1043a?q=80&w=800&auto=format&fit=crop'
+    imagePlaceholder: '/assets/protocol-placeholder-1.svg'
   },
   {
     id: 'newest-face-neck',
@@ -47,7 +47,7 @@ export const PROTOCOLS: Protocol[] = [
         description: 'Every 14-21 days for 3 to 4 sessions.',
       }
     ],
-    imagePlaceholder: 'https://images.unsplash.com/photo-1512290923902-8a92f6350f16?q=80&w=2070&auto=format&fit=crop'
+    imagePlaceholder: '/assets/protocol-placeholder-2.svg'
   },
   {
     id: 'plinest-hair',
@@ -70,7 +70,7 @@ export const PROTOCOLS: Protocol[] = [
         description: 'Microdroplet or Retrograde linear using 30G ½ needle.',
       }
     ],
-    imagePlaceholder: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=800&auto=format&fit=crop'
+    imagePlaceholder: '/assets/protocol-placeholder-3.svg'
   },
   {
     id: 'newgyn-vulvar',
@@ -93,7 +93,7 @@ export const PROTOCOLS: Protocol[] = [
         description: '2 x 30G ½ needle provided.',
       }
     ],
-    imagePlaceholder: 'https://images.unsplash.com/photo-1583946091391-9e23c7268800?q=80&w=800&auto=format&fit=crop'
+    imagePlaceholder: '/assets/protocol-placeholder-4.svg'
   }
 ];
 
