@@ -145,10 +145,23 @@ def _match_term(terms: list[str], source_blob: str) -> Optional[str]:
 
 
 def _match_term_map(terms_map: Dict[str, list[str]], source_blob: str) -> Optional[str]:
+    """
+    Match terms by frequency count, not first match.
+    Returns the label with the highest term frequency in source_blob.
+    """
+    label_scores = {}
+
     for label, terms in terms_map.items():
-        if any(term in source_blob for term in terms):
-            return label
-    return None
+        # Count total occurrences of all terms for this label
+        count = sum(source_blob.count(term) for term in terms)
+        if count > 0:
+            label_scores[label] = count
+
+    if not label_scores:
+        return None
+
+    # Return label with highest count
+    return max(label_scores, key=label_scores.get)
 
 
 def _infer_audience(doc_type: str, source_blob: str) -> str:
