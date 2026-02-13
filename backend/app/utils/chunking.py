@@ -70,15 +70,15 @@ class TextChunker:
         current_chunk = []
         current_length = 0
         char_position = 0
-        
+        actual_chunk_start = 0  # Track actual position in original text
+
         for sentence in sentences:
             sentence_length = len(sentence)
-            
+
             # If adding this sentence exceeds chunk_size, finalize current chunk
             if current_length + sentence_length > self.chunk_size and current_chunk:
                 chunk_text = ' '.join(current_chunk)
-                chunk_start = char_position - current_length
-                
+
                 chunks.append(Chunk(
                     text=chunk_text,
                     chunk_id=f"chunk_{len(chunks)}",
@@ -87,26 +87,28 @@ class TextChunker:
                         "chunk_index": len(chunks),
                         "chunk_length": len(chunk_text)
                     },
-                    char_start=chunk_start,
-                    char_end=char_position
+                    char_start=actual_chunk_start,  # Use tracked position
+                    char_end=actual_chunk_start + len(chunk_text)
                 ))
-                
+
+                # Update position tracker
+                actual_chunk_start += len(chunk_text) + 1  # +1 for space
+
                 # Keep overlap sentences for context
                 overlap_text = chunk_text[-self.chunk_overlap:]
                 overlap_sentences = self._split_into_sentences(overlap_text)
                 current_chunk = overlap_sentences
                 current_length = sum(len(s) + 1 for s in overlap_sentences)
-            
+
             current_chunk.append(sentence)
             current_length += sentence_length + 1  # +1 for space
             char_position += sentence_length + 1
-        
+
         # Add final chunk
         if current_chunk:
             chunk_text = ' '.join(current_chunk)
             if len(chunk_text) >= self.min_chunk_size:
-                chunk_start = char_position - current_length
-                
+
                 chunks.append(Chunk(
                     text=chunk_text,
                     chunk_id=f"chunk_{len(chunks)}",
@@ -115,8 +117,8 @@ class TextChunker:
                         "chunk_index": len(chunks),
                         "chunk_length": len(chunk_text)
                     },
-                    char_start=chunk_start,
-                    char_end=char_position
+                    char_start=actual_chunk_start,  # Use tracked position
+                    char_end=actual_chunk_start + len(chunk_text)
                 ))
         
         return chunks

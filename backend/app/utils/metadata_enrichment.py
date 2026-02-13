@@ -21,10 +21,12 @@ PRODUCT_TERMS = [
 
 ANATOMY_TERMS = {
     "periocular": ["periocular", "eye contour", "under eye", "under-eye", "orbital"],
+    "perioral": ["perioral", "perioral area", "lip area", "mouth area", "lips"],
     "face": ["face", "facial", "full-face", "full face"],
     "scalp": ["scalp", "hairline", "follicle"],
     "vulvovaginal": ["vulvar", "vaginal", "intimate"],
     "neck": ["neck", "décolleté", "decollete"],
+    "hand": ["hand", "hands", "dorsum of hand", "dorsum"],
 }
 
 TREATMENT_TERMS = {
@@ -32,6 +34,8 @@ TREATMENT_TERMS = {
     "protocol": ["protocol", "step", "session", "injection technique"],
     "hair_restoration": ["hair loss", "alopecia", "hair restoration"],
     "periocular_treatment": ["dark circles", "eye contour", "periocular"],
+    "perioral_treatment": ["lip enhancement", "perioral rejuvenation", "lip restoration", "mouth area treatment"],
+    "hand_treatment": ["hand rejuvenation", "hand restoration", "dorsum rejuvenation"],
 }
 
 AUDIENCE_TERMS = {

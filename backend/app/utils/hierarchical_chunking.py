@@ -83,6 +83,15 @@ class BaseChunker(ABC):
         text = re.sub(r'(\d+)\.\s*(\d+)', r'\1<DECIMAL>\2', text)
         text = re.sub(r'(Dr|Mr|Mrs|Ms|Prof|etc|vs|i\.e|e\.g)\.\s', r'\1<ABBR> ', text, flags=re.IGNORECASE)
 
+        # Handle medical dosage notations
+        text = re.sub(r'(\d+)\s*(mg|ml|cc|g|mcg|µg)\.\s', r'\1 \2<ABBR> ', text, flags=re.IGNORECASE)
+
+        # Handle medical abbreviations
+        text = re.sub(r'\b(ca|approx|vs|cf|incl|Inc)\.\s', r'\1<ABBR> ', text, flags=re.IGNORECASE)
+
+        # Handle product names with special characters (e.g., "Newest®")
+        text = re.sub(r'([A-Z][a-z]+)\s+(Plus|Eye|Hair)®?\.\s', r'\1 \2®<ABBR> ', text)
+
         # Split on sentence boundaries
         sentences = re.split(r'(?<=[.!?])\s+', text)
 
@@ -573,15 +582,40 @@ class SectionBasedChunker(BaseChunker):
         "Expected Results", "Aftercare", "Treatment Protocol"
     ]
 
+    # Section header variations for robust matching
+    SECTION_VARIATIONS = {
+        "indications": ["indication", "indications", "treatment areas", "approved uses", "uses", "indicated for"],
+        "contraindications": ["contraindication", "contraindications", "warnings", "precautions", "do not use"],
+        "dosage": ["dosage", "dosing", "recommended dose", "administration", "dose"],
+        "composition": ["composition", "ingredients", "contains", "active ingredients"],
+        "mechanism": ["mechanism of action", "how it works", "mode of action"],
+    }
+
     def __init__(
         self,
-        chunk_size: int = 400,
-        min_chunk_size: int = 100,
+        chunk_size: int = 600,
+        min_chunk_size: int = 150,
         section_headers: List[str] = None
     ):
         self.chunk_size = chunk_size
         self.min_chunk_size = min_chunk_size
         self.section_headers = section_headers or self.DEFAULT_SECTIONS
+
+    def _match_section_header(self, text: str) -> Optional[str]:
+        """Match text against section headers with variations"""
+        text_lower = text.lower().strip()
+
+        # First try exact match with default headers
+        for header in self.section_headers:
+            if header.lower() in text_lower:
+                return header
+
+        # Then try variations
+        for canonical, variations in self.SECTION_VARIATIONS.items():
+            if any(var in text_lower for var in variations):
+                return canonical.title()
+
+        return None
 
     def chunk(self, text: str, doc_id: str, doc_type: str,
               metadata: Dict[str, Any] = None) -> List[HierarchicalChunk]:
@@ -606,8 +640,9 @@ class SectionBasedChunker(BaseChunker):
                 continue
 
             # Check if this is a section header
-            if any(header.lower() in part.lower() for header in self.section_headers):
-                current_section = part.title()
+            matched_section = self._match_section_header(part)
+            if matched_section:
+                current_section = matched_section
                 continue
 
             # Create chunk for section content
