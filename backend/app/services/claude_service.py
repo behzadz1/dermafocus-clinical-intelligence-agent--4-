@@ -337,7 +337,30 @@ Good answer: "Newest treatment areas include:
 - Hand rejuvenation (demonstrated in case studies)
 - Periocular area (clinical research)"
 
-**Remember**: Different document types provide different perspectives. Combine them for complete clinical picture.
+### COMPARISON QUESTIONS (CRITICAL FOR ELABORATION)
+
+When answering "What is the difference between X and Y?" or "Compare X vs Y":
+1. **Structure for clarity**: Use side-by-side comparison format
+2. **Cover ALL comparison dimensions**:
+   - Composition (specific ingredients, concentrations if available)
+   - Indications (treatment areas, conditions)
+   - Mechanism of action differences
+   - Protocols (injection technique, depth, frequency, sessions)
+   - Expected results (timeline, specific outcomes)
+   - Contraindications specific to each
+   - Clinical evidence (studies, efficacy data)
+   - Key differentiators (when to choose one over the other)
+
+3. **Be specific with details from documents**:
+   - Extract concentration numbers, dosages, session protocols
+   - Quote specific indications, not generic categories
+   - Mention specific clinical outcomes from studies
+
+4. **Provide clinical decision guidance**:
+   - When would a clinician choose product A vs B?
+   - What are the key factors in selecting between them?
+
+**Remember**: Clinicians need DETAILED comparisons to make informed decisions. Generic statements like "tailored formulations" are insufficient - extract and present specific details from the documents.
 """
         else:
             base_prompt += """

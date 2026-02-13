@@ -14,6 +14,7 @@ from app.services.embedding_service import get_embedding_service
 from app.services.lexical_index import LexicalIndex
 from app.services.pinecone_service import get_pinecone_service
 from app.services.reranker_service import get_reranker_service
+from app.services.query_expansion import QueryExpansionService
 from app.config import settings
 
 logger = structlog.get_logger()
@@ -37,6 +38,7 @@ class RAGService:
         self.pinecone_service = get_pinecone_service()
         self.processed_dir = Path(settings.processed_dir)
         self._lexical_index: Optional[LexicalIndex] = None
+        self.query_expansion = QueryExpansionService()
 
     def _get_lexical_index(self) -> LexicalIndex:
         if self._lexical_index is None:
@@ -105,10 +107,27 @@ class RAGService:
 
     def _expand_query_for_retrieval(self, query: str) -> str:
         """
-        Expand queries in high-risk categories to improve retrieval recall.
+        Expand queries for better retrieval:
+        - Safety queries: Add safety-related terms
+        - Comparison queries: Expand to ensure both products retrieved
+        - Product queries: Add factsheet/indications terms
         """
         expanded = query
         query_lower = query.lower()
+
+        # Check for comparison queries first
+        expansion_result = self.query_expansion.expand_query(query)
+        if expansion_result.is_comparison and len(expansion_result.products) >= 2:
+            # For comparison queries, expand to include both products explicitly
+            product1, product2 = expansion_result.products[0], expansion_result.products[1]
+            expanded += f" {product1} factsheet {product2} factsheet composition indications comparison"
+            logger.info(
+                "Comparison query detected",
+                products=expansion_result.products,
+                query_type=expansion_result.query_type
+            )
+
+        # Safety query expansion
         safety_terms = self._extract_safety_terms(query)
         if safety_terms:
             expanded += (
@@ -117,6 +136,7 @@ class RAGService:
             )
             if "contraindication" in query_lower:
                 expanded += " consensus report factsheet contraindications section"
+
         return expanded
     
     def search(
