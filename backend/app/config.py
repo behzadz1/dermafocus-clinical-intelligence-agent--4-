@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     # Rate Limiting
     rate_limit_per_minute: int = Field(default=60, alias="RATE_LIMIT_PER_MINUTE")
     rate_limit_per_hour: int = Field(default=1000, alias="RATE_LIMIT_PER_HOUR")
+    daily_cost_threshold_usd: float = Field(default=50.0, alias="DAILY_COST_THRESHOLD_USD")  # PHASE 4.0: Daily cost limit
     
     # Document Processing
     max_upload_size: int = Field(default=52428800, alias="MAX_UPLOAD_SIZE")  # 50MB

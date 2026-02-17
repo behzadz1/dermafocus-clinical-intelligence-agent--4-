@@ -55,7 +55,7 @@ def calculate_weighted_confidence(chunks: list) -> float:
         confidence = top_score * 1.67  # Below 0.3 is low confidence
 
     # Boost if multiple good sources found
-    good_sources = sum(1 for s in scores if s > 0.35)
+    good_sources = sum(1 for s in scores if s > 0.50)  # PHASE 4.0: Raised from 0.35 to 0.50
     if good_sources >= 3:
         confidence = min(confidence + 0.05, 0.95)
 
@@ -161,6 +161,15 @@ class RelatedDocument(BaseModel):
     shared_products: List[str] = Field(default=[], description="Products shared with retrieved documents")
 
 
+class VerificationMetadata(BaseModel):
+    """Hallucination detection metadata (Phase 4.0)"""
+    is_grounded: bool = Field(..., description="Whether response is well-grounded in context")
+    grounding_ratio: float = Field(..., description="Ratio of grounded claims (0-1)")
+    total_claims: int = Field(..., description="Total factual claims in response")
+    grounded_claims: int = Field(..., description="Number of grounded claims")
+    verification_method: str = Field(default="llm_based", description="Verification method used")
+
+
 class ChatResponse(BaseModel):
     """Chat response payload"""
     answer: str = Field(..., description="AI-generated answer")
@@ -172,6 +181,7 @@ class ChatResponse(BaseModel):
     knowledge_usage: Optional[KnowledgeUsage] = Field(None, description="How document vs general knowledge was used")
     customization_applied: Optional[ResponseCustomization] = Field(None, description="Customization settings used for this response")
     related_documents: List[RelatedDocument] = Field(default=[], description="Related documents (See also)")
+    verification: Optional[VerificationMetadata] = Field(None, description="Response verification/hallucination detection results (Phase 4.0)")
     
     class Config:
         json_schema_extra = {
@@ -345,7 +355,7 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
         )
 
         # Record retrieval metrics
-        strong_matches_count = sum(1 for chunk in retrieved_chunks if chunk.get("score", 0) > 0.35)
+        strong_matches_count = sum(1 for chunk in retrieved_chunks if chunk.get("score", 0) > 0.50)  # PHASE 4.0: Raised from 0.35 to 0.50
         hierarchy_type = "mixed" if any(chunk.get("metadata", {}).get("parent_id") for chunk in retrieved_chunks) else "flat"
         expansion_type = context_data.get("expansion_type", "none")
 
@@ -465,6 +475,39 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
 
         answer = claude_response["answer"]
 
+        # PHASE 4.0: Verify response for hallucinations
+        from app.services.verification_service import get_verification_service
+
+        verification_service = get_verification_service()
+        verification_result = verification_service.verify_response(
+            response=answer,
+            context=context_text,
+            sources=retrieved_chunks
+        )
+
+        logger.info(
+            "response_verified",
+            is_grounded=verification_result.is_grounded,
+            grounding_ratio=round(verification_result.grounding_ratio, 2),
+            total_claims=verification_result.total_claims,
+            grounded_claims=verification_result.grounded_claims,
+            unsupported_claims_count=len(verification_result.unsupported_claims)
+        )
+
+        # If grounding is insufficient, append warning to answer
+        if not verification_result.is_grounded and verification_result.total_claims > 0:
+            logger.warning(
+                "insufficient_grounding_detected",
+                grounding_ratio=verification_result.grounding_ratio,
+                unsupported_claims=verification_result.unsupported_claims[:3]  # Log first 3
+            )
+            # Append verification warning to answer
+            answer += (
+                f"\n\n⚠️ **Note:** This response contains claims that may need additional verification "
+                f"({verification_result.grounded_claims}/{verification_result.total_claims} claims fully grounded in documents). "
+                f"Please consult primary sources for critical clinical decisions."
+            )
+
         # Step 5: Extract and format sources - DEDUPLICATED, TOP 3 UNIQUE DOCS
         from app.services.citation_service import get_citation_service
         from urllib.parse import quote
@@ -542,7 +585,14 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
                 audience=customization_info.get("audience", "physician"),
                 style=customization_info.get("style", "clinical")
             ),
-            related_documents=related_documents
+            related_documents=related_documents,
+            verification=VerificationMetadata(
+                is_grounded=verification_result.is_grounded,
+                grounding_ratio=verification_result.grounding_ratio,
+                total_claims=verification_result.total_claims,
+                grounded_claims=verification_result.grounded_claims,
+                verification_method=verification_result.verification_method
+            )
         )
         
         logger.info(

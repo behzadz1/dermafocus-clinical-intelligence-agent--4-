@@ -67,12 +67,21 @@ class QueryExpansionService:
         self.protocol_terms = self.thesaurus.get('protocol_terms', {})
         self.product_families = self.thesaurus.get('product_families', {})
         self.clinical_terms = self.thesaurus.get('clinical_terms', {})
+        # PHASE 4.0: Added new thesaurus sections
+        self.treatment_areas = self.thesaurus.get('treatment_areas', {})
+        self.product_indications = self.thesaurus.get('product_indications', {})
+        self.medical_procedures = self.thesaurus.get('medical_procedures', {})
+        self.safety_terms = self.thesaurus.get('safety_terms', {})
 
         logger.info(
             "query_expansion_initialized",
             abbreviations_count=len(self.abbreviations),
             synonyms_count=len(self.synonyms),
-            protocol_terms_count=len(self.protocol_terms)
+            protocol_terms_count=len(self.protocol_terms),
+            treatment_areas_count=len(self.treatment_areas),
+            product_indications_count=len(self.product_indications),
+            medical_procedures_count=len(self.medical_procedures),
+            safety_terms_count=len(self.safety_terms)
         )
 
     def _load_thesaurus(self, thesaurus_path: Optional[str] = None) -> Dict:
@@ -94,7 +103,11 @@ class QueryExpansionService:
                 'synonyms': {},
                 'protocol_terms': {},
                 'product_families': {},
-                'clinical_terms': {}
+                'clinical_terms': {},
+                'treatment_areas': {},
+                'product_indications': {},
+                'medical_procedures': {},
+                'safety_terms': {}
             }
         except Exception as e:
             logger.error("failed_to_load_thesaurus", error=str(e), path=thesaurus_path)
@@ -103,7 +116,11 @@ class QueryExpansionService:
                 'synonyms': {},
                 'protocol_terms': {},
                 'product_families': {},
-                'clinical_terms': {}
+                'clinical_terms': {},
+                'treatment_areas': {},
+                'product_indications': {},
+                'medical_procedures': {},
+                'safety_terms': {}
             }
 
     def expand_query(self, query: str, max_expansions: int = 5) -> ExpandedQuery:
@@ -209,6 +226,26 @@ class QueryExpansionService:
 
         # Add clinical terms
         for term, synonyms_list in self.clinical_terms.items():
+            if re.search(r'\b' + re.escape(term) + r'\b', query_lower):
+                found_terms.append((term, synonyms_list))
+
+        # PHASE 4.0: Add treatment areas
+        for term, synonyms_list in self.treatment_areas.items():
+            if re.search(r'\b' + re.escape(term) + r'\b', query_lower):
+                found_terms.append((term, synonyms_list))
+
+        # PHASE 4.0: Add product indications
+        for term, synonyms_list in self.product_indications.items():
+            if re.search(r'\b' + re.escape(term) + r'\b', query_lower):
+                found_terms.append((term, synonyms_list))
+
+        # PHASE 4.0: Add medical procedures
+        for term, synonyms_list in self.medical_procedures.items():
+            if re.search(r'\b' + re.escape(term) + r'\b', query_lower):
+                found_terms.append((term, synonyms_list))
+
+        # PHASE 4.0: Add safety terms
+        for term, synonyms_list in self.safety_terms.items():
             if re.search(r'\b' + re.escape(term) + r'\b', query_lower):
                 found_terms.append((term, synonyms_list))
 

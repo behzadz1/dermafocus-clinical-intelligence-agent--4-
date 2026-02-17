@@ -847,9 +847,9 @@ class RAGService:
 
         scores = [float(chunk.get("adjusted_score", chunk.get("score", 0.0))) for chunk in chunks]
         top_score = max(scores) if scores else 0.0
-        strong_matches = sum(1 for score in scores if score >= 0.35)
+        strong_matches = sum(1 for score in scores if score >= 0.50)  # PHASE 4.0: Raised from 0.35 to 0.50
 
-        sufficient = top_score >= 0.35 and strong_matches >= 1
+        sufficient = top_score >= 0.50 and strong_matches >= 1  # PHASE 4.0: Raised from 0.35 to 0.50
         reason = "ok" if sufficient else "low_retrieval_confidence"
 
         return {
