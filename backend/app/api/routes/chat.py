@@ -15,6 +15,10 @@ from app.middleware.auth import verify_api_key
 from app.policies.role_safety import evaluate_role_safety
 from app.utils.logging_utils import redact_phi
 from app.utils.audit_logger import log_audit_event
+from app.utils import metrics
+from app.evaluation.quality_metrics import get_quality_metrics_collector
+from app.services.conversation_service import get_conversation_service
+from app.models.conversation import MessageRole
 
 router = APIRouter()
 logger = structlog.get_logger()
@@ -150,6 +154,13 @@ class ResponseCustomization(BaseModel):
     style: str = Field(..., description="Response style used")
 
 
+class RelatedDocument(BaseModel):
+    """Related document information"""
+    doc_id: str = Field(..., description="Document ID")
+    doc_type: Optional[str] = Field(None, description="Document type")
+    shared_products: List[str] = Field(default=[], description="Products shared with retrieved documents")
+
+
 class ChatResponse(BaseModel):
     """Chat response payload"""
     answer: str = Field(..., description="AI-generated answer")
@@ -160,6 +171,7 @@ class ChatResponse(BaseModel):
     follow_ups: List[str] = Field(default=[], description="Suggested follow-up questions")
     knowledge_usage: Optional[KnowledgeUsage] = Field(None, description="How document vs general knowledge was used")
     customization_applied: Optional[ResponseCustomization] = Field(None, description="Customization settings used for this response")
+    related_documents: List[RelatedDocument] = Field(default=[], description="Related documents (See also)")
     
     class Config:
         json_schema_extra = {
@@ -219,6 +231,7 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
 
         rag_service = get_rag_service()
         claude_service = get_claude_service()
+        conversation_service = get_conversation_service()
 
         # Apply per-request customization if provided
         if request.customization:
@@ -266,6 +279,26 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
                 mode="sync",
                 reason="role_restricted"
             )
+
+            # Record quality metrics for role-based refusal
+            quality_collector = get_quality_metrics_collector()
+            quality_collector.record_query_quality(
+                query=request.question,
+                confidence=0.0,
+                intent=detected_intent,
+                top_retrieval_score=0.0,
+                num_chunks_retrieved=0,
+                num_strong_matches=0,
+                evidence_sufficient=False,
+                evidence_reason="role_restricted",
+                query_expansion_applied="none",
+                hierarchy_match_type="none",
+                reranking_enabled=False,
+                refusal=True,
+                conversation_id=conversation_id,
+                request_id=getattr(raw_request.state, 'request_id', None)
+            )
+
             return ChatResponse(
                 answer=role_decision.response or STRICT_REFUSAL_MESSAGE,
                 sources=[],
@@ -284,7 +317,8 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
                 customization_applied=ResponseCustomization(
                     audience=claude_service.customizer.audience.value,
                     style=claude_service.customizer.style.value
-                )
+                ),
+                related_documents=[]
             )
 
         # Step 2: Retrieve relevant context from RAG
@@ -300,6 +334,7 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
         context_text = context_data["context_text"]
         retrieved_chunks = context_data["chunks"]
         evidence = context_data.get("evidence", {})
+        related_docs_raw = context_data.get("related_documents", [])
 
         logger.info(
             "Context retrieved",
@@ -309,8 +344,25 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
             evidence_reason=evidence.get("reason")
         )
 
+        # Record retrieval metrics
+        strong_matches_count = sum(1 for chunk in retrieved_chunks if chunk.get("score", 0) > 0.35)
+        hierarchy_type = "mixed" if any(chunk.get("metadata", {}).get("parent_id") for chunk in retrieved_chunks) else "flat"
+        expansion_type = context_data.get("expansion_type", "none")
+
+        metrics.record_retrieval_metrics(
+            confidence=max((chunk.get("score", 0) for chunk in retrieved_chunks), default=0.0),
+            chunks_count=len(retrieved_chunks),
+            strong_matches_count=strong_matches_count,
+            hierarchy_match_type=hierarchy_type,
+            evidence_sufficient_flag=evidence.get("sufficient", False),
+            expansion_type=expansion_type
+        )
+
         # Strict refusal when evidence is missing/weak.
         if not evidence.get("sufficient", False):
+            # Record insufficient evidence
+            metrics.record_insufficient_evidence()
+
             conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
             log_audit_event(
                 "chat_interaction",
@@ -324,6 +376,26 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
                 mode="sync",
                 reason="insufficient_evidence"
             )
+
+            # Record quality metrics for refusal
+            quality_collector = get_quality_metrics_collector()
+            quality_collector.record_query_quality(
+                query=request.question,
+                confidence=0.0,
+                intent=detected_intent,
+                top_retrieval_score=max((chunk.get("score", 0) for chunk in retrieved_chunks), default=0.0),
+                num_chunks_retrieved=len(retrieved_chunks),
+                num_strong_matches=strong_matches_count,
+                evidence_sufficient=False,
+                evidence_reason=evidence.get("reason"),
+                query_expansion_applied=expansion_type,
+                hierarchy_match_type=hierarchy_type,
+                reranking_enabled=settings.reranker_enabled,
+                refusal=True,
+                conversation_id=conversation_id,
+                request_id=getattr(raw_request.state, 'request_id', None)
+            )
+
             return ChatResponse(
                 answer=STRICT_REFUSAL_MESSAGE,
                 sources=[],
@@ -342,13 +414,34 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
                 customization_applied=ResponseCustomization(
                     audience=claude_service.customizer.audience.value,
                     style=claude_service.customizer.style.value
-                )
+                ),
+                related_documents=[]
             )
 
-        # Step 3: Build conversation history for Claude
+        # Step 3: Fetch conversation history from Redis and build context for Claude
         conversation_history = []
-        if request.history:
-            for msg in request.history[-5:]:  # Last 5 messages for context
+
+        # Fetch stored conversation from Redis (if exists)
+        conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
+        stored_conversation = conversation_service.get_conversation(conversation_id)
+
+        if stored_conversation:
+            # Use stored conversation history (last 3 message pairs = 6 messages)
+            recent_messages = stored_conversation.get_recent_messages(count=3)
+            for msg in recent_messages:
+                conversation_history.append({
+                    "role": msg.role.value,
+                    "content": msg.content
+                })
+            logger.info(
+                "conversation_loaded",
+                conversation_id=conversation_id,
+                turn_count=stored_conversation.turn_count,
+                messages_loaded=len(recent_messages)
+            )
+        elif request.history:
+            # Fallback to client-provided history (for backward compatibility)
+            for msg in request.history[-5:]:
                 conversation_history.append({
                     "role": msg.role,
                     "content": msg.content
@@ -361,6 +454,14 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
             context=context_text,
             conversation_history=conversation_history
         )
+
+        # Record token usage
+        if "usage" in claude_response:
+            metrics.record_token_usage(
+                service="claude",
+                input_tokens=claude_response["usage"]["input_tokens"],
+                output_tokens=claude_response["usage"]["output_tokens"]
+            )
 
         answer = claude_response["answer"]
 
@@ -412,11 +513,18 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
         # Step 7: Analyze knowledge usage (document vs general knowledge)
         knowledge_analysis = claude_service.analyze_knowledge_usage(answer, context_text)
 
-        # Generate conversation ID if not provided
-        conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
-
         # Get customization info from response
         customization_info = claude_response.get("customization", {})
+
+        # Convert related documents to response format
+        related_documents = [
+            RelatedDocument(
+                doc_id=doc.get("doc_id", ""),
+                doc_type=doc.get("doc_type"),
+                shared_products=doc.get("shared_products", [])
+            )
+            for doc in related_docs_raw
+        ]
 
         response = ChatResponse(
             answer=answer,
@@ -433,7 +541,8 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
             customization_applied=ResponseCustomization(
                 audience=customization_info.get("audience", "physician"),
                 style=customization_info.get("style", "clinical")
-            )
+            ),
+            related_documents=related_documents
         )
         
         logger.info(
@@ -458,7 +567,48 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
             sources_count=len(sources),
             mode="sync"
         )
-        
+
+        # Record quality metrics
+        quality_collector = get_quality_metrics_collector()
+        quality_collector.record_query_quality(
+            query=request.question,
+            confidence=confidence,
+            intent=detected_intent,
+            top_retrieval_score=max((chunk.get("score", 0) for chunk in retrieved_chunks), default=0.0),
+            num_chunks_retrieved=len(retrieved_chunks),
+            num_strong_matches=strong_matches_count,
+            evidence_sufficient=evidence.get("sufficient", False),
+            evidence_reason=evidence.get("reason"),
+            query_expansion_applied=expansion_type,
+            hierarchy_match_type=hierarchy_type,
+            reranking_enabled=settings.reranker_enabled,
+            refusal=False,
+            conversation_id=conversation_id,
+            request_id=getattr(raw_request.state, 'request_id', None)
+        )
+
+        # Save user question and assistant response to conversation (1 hour TTL)
+        try:
+            conversation_service.add_message(
+                conversation_id=conversation_id,
+                role=MessageRole.USER,
+                content=request.question,
+                metadata={"intent": detected_intent, "confidence": confidence}
+            )
+            conversation_service.add_message(
+                conversation_id=conversation_id,
+                role=MessageRole.ASSISTANT,
+                content=answer,
+                metadata={
+                    "sources_count": len(sources),
+                    "confidence": confidence,
+                    "knowledge_source": knowledge_analysis["primary_source"]
+                }
+            )
+            logger.debug("conversation_updated", conversation_id=conversation_id)
+        except Exception as conv_error:
+            logger.error("failed_to_save_conversation", error=str(conv_error), conversation_id=conversation_id)
+
         return response
     
     except Exception as e:
@@ -475,7 +625,8 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
             intent="error",
             confidence=0.0,
             conversation_id=request.conversation_id or f"error_{int(datetime.utcnow().timestamp())}",
-            follow_ups=[]
+            follow_ups=[],
+            related_documents=[]
         )
 
 
@@ -502,9 +653,10 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
         try:
             from app.services.rag_service import get_rag_service
             from app.services.claude_service import get_claude_service
-            
+
             rag_service = get_rag_service()
             claude_service = get_claude_service()
+            conversation_service = get_conversation_service()
             conversation_id = request.conversation_id or f"conv_{int(datetime.utcnow().timestamp())}"
 
             data = {"type": "conversation", "conversation_id": conversation_id}
@@ -595,9 +747,20 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
                 yield f"data: {json.dumps(data)}\n\n"
                 return
             
-            # Build conversation history
+            # Fetch stored conversation history from Redis
             conversation_history = []
-            if request.history:
+            stored_conversation = conversation_service.get_conversation(conversation_id)
+
+            if stored_conversation:
+                # Use stored conversation history (last 3 message pairs)
+                recent_messages = stored_conversation.get_recent_messages(count=3)
+                for msg in recent_messages:
+                    conversation_history.append({
+                        "role": msg.role.value,
+                        "content": msg.content
+                    })
+            elif request.history:
+                # Fallback to client-provided history
                 for msg in request.history[-5:]:
                     conversation_history.append({
                         "role": msg.role,
@@ -655,6 +818,23 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
             data = {"type": "follow_ups", "follow_ups": follow_ups}
             yield f"data: {json.dumps(data)}\n\n"
 
+            # Save conversation messages to Redis
+            try:
+                conversation_service.add_message(
+                    conversation_id=conversation_id,
+                    role=MessageRole.USER,
+                    content=request.question,
+                    metadata={"intent": detected_intent}
+                )
+                conversation_service.add_message(
+                    conversation_id=conversation_id,
+                    role=MessageRole.ASSISTANT,
+                    content=full_answer,
+                    metadata={"sources_count": len(sources)}
+                )
+            except Exception as conv_error:
+                logger.error("stream_conversation_save_failed", error=str(conv_error))
+
             # Send completion
             data = {"type": "done"}
             yield f"data: {json.dumps(data)}\n\n"
@@ -671,45 +851,90 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
 async def get_conversation_history(conversation_id: str):
     """
     Retrieve conversation history
-    
+
     Args:
         conversation_id: Unique conversation identifier
-    
-    Returns: List of messages in conversation
-    
-    NOTE: This is a placeholder. Implementation in Phase 7.
+
+    Returns: List of messages in conversation with metadata
     """
-    # TODO: Implement conversation storage and retrieval
-    # from app.services.conversation_service import ConversationService
-    # conv_service = ConversationService()
-    # history = await conv_service.get_conversation(conversation_id)
-    # return {"conversation_id": conversation_id, "messages": history}
-    
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Conversation history is not yet implemented."
-    )
+    try:
+        conversation_service = get_conversation_service()
+        conversation = conversation_service.get_conversation(conversation_id)
+
+        if not conversation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Conversation {conversation_id} not found or expired"
+            )
+
+        # Convert to response format
+        messages = [
+            {
+                "role": msg.role.value,
+                "content": msg.content,
+                "timestamp": msg.timestamp.isoformat(),
+                "metadata": msg.metadata
+            }
+            for msg in conversation.messages
+        ]
+
+        logger.info(
+            "conversation_history_retrieved",
+            conversation_id=conversation_id,
+            message_count=len(messages),
+            turn_count=conversation.turn_count
+        )
+
+        return {
+            "conversation_id": conversation_id,
+            "messages": messages,
+            "turn_count": conversation.turn_count,
+            "created_at": conversation.created_at.isoformat(),
+            "updated_at": conversation.updated_at.isoformat(),
+            "summary": conversation.summary
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("get_conversation_history_failed", error=str(e), conversation_id=conversation_id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve conversation history: {str(e)}"
+        )
 
 
 @router.delete("/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_conversation(conversation_id: str):
     """
     Delete a conversation and its history
-    
+
     Args:
         conversation_id: Unique conversation identifier
-    
-    NOTE: This is a placeholder. Implementation in Phase 7.
+
+    Returns: 204 No Content on success
     """
-    # TODO: Implement conversation deletion
-    # from app.services.conversation_service import ConversationService
-    # conv_service = ConversationService()
-    # await conv_service.delete_conversation(conversation_id)
-    
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Conversation deletion is not yet implemented."
-    )
+    try:
+        conversation_service = get_conversation_service()
+        deleted = conversation_service.delete_conversation(conversation_id)
+
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Conversation {conversation_id} not found"
+            )
+
+        logger.info("conversation_deleted", conversation_id=conversation_id)
+        return None  # 204 No Content
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("delete_conversation_failed", error=str(e), conversation_id=conversation_id)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete conversation: {str(e)}"
+        )
 
 
 @router.post("/feedback", status_code=status.HTTP_200_OK)

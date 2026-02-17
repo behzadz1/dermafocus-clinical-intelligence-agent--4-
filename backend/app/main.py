@@ -16,9 +16,10 @@ from app.config import settings
 from app.utils.logging_utils import redact_phi
 from app.utils.audit_logger import log_audit_event
 from app.middleware.rate_limit import rate_limit_middleware
+from app.utils import metrics
 
 
-from app.api.routes import health, chat, documents, search, products, protocols
+from app.api.routes import health, chat, documents, search, products, protocols, feedback
 
 # Configure structured logging with context support
 structlog.configure(
@@ -155,7 +156,8 @@ async def audit_requests(request: Request, call_next):
     """
     response = await call_next(request)
     path = request.url.path
-    if path.startswith("/api/health") or path.startswith("/docs") or path.startswith("/redoc") or path.startswith("/openapi"):
+    # Skip audit logging for health, docs, and metrics endpoints
+    if path.startswith("/api/health") or path.startswith("/docs") or path.startswith("/redoc") or path.startswith("/openapi") or path == "/metrics":
         return response
 
     log_audit_event(
@@ -235,6 +237,29 @@ app.include_router(products.router, prefix="/api/products", tags=["Products"])
 # Protocols routes (dynamic protocol extraction from RAG)
 app.include_router(protocols.router, prefix="/api/protocols", tags=["Protocols"])
 
+# Feedback routes (user feedback collection)
+app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
+
+
+# ==============================================================================
+# METRICS ENDPOINT
+# ==============================================================================
+
+@app.get("/metrics", tags=["Monitoring"])
+async def prometheus_metrics():
+    """
+    Prometheus metrics endpoint.
+
+    Returns metrics in Prometheus text format for scraping by Prometheus server.
+    This endpoint is not rate-limited to allow continuous monitoring.
+    """
+    from fastapi.responses import Response
+
+    return Response(
+        content=metrics.get_metrics_text(),
+        media_type=metrics.get_metrics_content_type()
+    )
+
 
 # ==============================================================================
 # ROOT ENDPOINT
@@ -255,7 +280,8 @@ async def root():
             "health": "/api/health",
             "chat": "/api/chat",
             "documents": "/api/documents",
-            "search": "/api/search"
+            "search": "/api/search",
+            "metrics": "/metrics"
         }
     }
 

@@ -9,6 +9,10 @@ import structlog
 import re
 
 from app.config import settings
+from app.utils import metrics
+from app.services.cost_tracker import get_cost_tracker
+from app.services.cache_service import get_cache, set_cache
+import hashlib
 
 logger = structlog.get_logger()
 
@@ -43,27 +47,41 @@ class EmbeddingService:
     
     def generate_embedding(self, text: str) -> List[float]:
         """
-        Generate embedding for a single text
-        
+        Generate embedding for a single text with caching
+
         Args:
             text: Input text
-            
+
         Returns:
             Embedding vector
         """
         try:
             # Clean text
             text = self._normalize_text(text)
-            
+
             if not text:
                 raise ValueError("Empty text provided")
 
+            # Check cache first (24hr TTL for embeddings)
+            cache_key = f"embedding:{hashlib.sha256(text.encode()).hexdigest()}"
+            cached_embedding = get_cache(cache_key)
+
+            if cached_embedding is not None:
+                logger.debug("embedding_cache_hit", text_length=len(text))
+                return cached_embedding
+
+            # Generate embedding
             segments = self._split_text_for_embedding(text)
             if len(segments) == 1:
-                return self._embed_single_with_retry(segments[0])
+                embedding = self._embed_single_with_retry(segments[0])
+            else:
+                segment_embeddings = self._embed_inputs_with_retry(segments)
+                embedding = self._mean_pool_embeddings(segment_embeddings)
 
-            segment_embeddings = self._embed_inputs_with_retry(segments)
-            return self._mean_pool_embeddings(segment_embeddings)
+            # Cache the result (24 hours)
+            set_cache(cache_key, embedding, ttl_seconds=86400)
+
+            return embedding
             
         except Exception as e:
             logger.error(
@@ -254,6 +272,15 @@ class EmbeddingService:
                 model=self.model,
                 input=text
             )
+
+            # Record token usage
+            if hasattr(response, 'usage') and response.usage:
+                metrics.record_token_usage("openai", input_tokens=response.usage.total_tokens)
+
+                # Track cost
+                cost_tracker = get_cost_tracker()
+                cost_tracker.record_openai_cost(tokens=response.usage.total_tokens)
+
             return response.data[0].embedding
         except Exception as e:
             if not self._is_context_length_error(e) or depth >= 4 or len(text) < 800:

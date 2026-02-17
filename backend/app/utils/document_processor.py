@@ -17,7 +17,7 @@ try:
 except ImportError:
     print("Warning: PDF libraries not installed. Run: pip install PyPDF2 pdfplumber pymupdf")
 
-from .chunking import TextChunker, Chunk
+from .chunking import TextChunker, TableChunker, Chunk
 from .hierarchical_chunking import (
     ChunkingStrategyFactory,
     HierarchicalChunk,
@@ -37,17 +37,20 @@ class DocumentProcessor:
         self,
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
-        use_hierarchical: bool = True
+        use_hierarchical: bool = True,
+        enable_image_analysis: bool = False
     ):
         """
         Args:
             chunk_size: Target size for text chunks (used for legacy chunking)
             chunk_overlap: Overlap between chunks for context
             use_hierarchical: Use hybrid hierarchical chunking (recommended)
+            enable_image_analysis: Enable Claude Vision API for image descriptions (adds cost)
         """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.use_hierarchical = use_hierarchical
+        self.enable_image_analysis = enable_image_analysis
         self.chunker = TextChunker(chunk_size, chunk_overlap)
     
     def process_pdf(
@@ -110,6 +113,16 @@ class DocumentProcessor:
         # Extract tables (optional, using pdfplumber)
         tables = self._extract_tables(file_path)
 
+        # Create table chunks from extracted tables
+        table_chunks = self._create_table_chunks(tables, metadata)
+
+        # Extract images (optional, using PyMuPDF)
+        images = self._extract_images(file_path)
+
+        # Create image chunks with descriptions (if enabled)
+        page_texts = {page["page_number"]: page["text"] for page in pages}
+        image_chunks = self._create_image_chunks(images, metadata, page_texts)
+
         # Detect document type if not provided
         if not doc_type or doc_type == "document":
             detected_type = ChunkingStrategyFactory.detect_document_type(
@@ -141,19 +154,42 @@ class DocumentProcessor:
             # Attach page provenance for reliable citations downstream.
             self._attach_page_provenance_to_chunks(chunks, full_text, page_spans)
 
+            # Integrate table chunks into main chunk list
+            if table_chunks:
+                chunks.extend(table_chunks)
+                print(f"  Added {len(table_chunks)} table chunks")
+
+            # Integrate image chunks into main chunk list
+            if image_chunks:
+                chunks.extend(image_chunks)
+                print(f"  Added {len(image_chunks)} image chunks")
+
             # Track parent-child relationships
             parent_chunks = [c for c in chunks if c.get("chunk_type") == "section"]
             child_chunks = [c for c in chunks if c.get("chunk_type") == "detail"]
             flat_chunks = [c for c in chunks if c.get("chunk_type") == "flat"]
+            table_chunk_list = [c for c in chunks if c.get("chunk_type") == "table"]
+            image_chunk_list = [c for c in chunks if c.get("chunk_type") == "image"]
 
             chunking_strategy = ChunkingStrategyFactory.get_chunker(detected_type).__class__.__name__
         else:
             # Legacy chunking
             chunks = self._create_chunks(pages, metadata)
+
+            # Add table chunks to legacy chunks as well
+            if table_chunks:
+                chunks.extend(table_chunks)
+
+            # Add image chunks to legacy chunks as well
+            if image_chunks:
+                chunks.extend(image_chunks)
+
             hierarchical_chunks = []
             parent_chunks = []
             child_chunks = []
-            flat_chunks = chunks
+            flat_chunks = [c for c in chunks if c.get("chunk_type") not in ["table", "image"]]
+            table_chunk_list = [c for c in chunks if c.get("chunk_type") == "table"]
+            image_chunk_list = [c for c in chunks if c.get("chunk_type") == "image"]
             chunking_strategy = "TextChunker (legacy)"
 
         return {
@@ -165,6 +201,7 @@ class DocumentProcessor:
             "pages": pages,
             "chunks": chunks,
             "tables": tables,
+            "images": images,
             "chunking_strategy": chunking_strategy,
             "stats": {
                 "num_pages": len(pages),
@@ -172,7 +209,10 @@ class DocumentProcessor:
                 "num_parent_chunks": len(parent_chunks),
                 "num_child_chunks": len(child_chunks),
                 "num_flat_chunks": len(flat_chunks),
+                "num_table_chunks": len(table_chunk_list),
                 "num_tables": len(tables),
+                "num_image_chunks": len(image_chunk_list),
+                "num_images": len(images),
                 "total_chars": len(full_text)
             }
         }
@@ -268,35 +308,254 @@ class DocumentProcessor:
     def _extract_tables(self, file_path: str) -> List[Dict[str, Any]]:
         """
         Extract tables from PDF using pdfplumber
-        
+
         Args:
             file_path: Path to PDF
-            
+
         Returns:
             List of table dictionaries
         """
         tables = []
-        
+
         try:
             with pdfplumber.open(file_path) as pdf:
                 for page_num, page in enumerate(pdf.pages):
                     page_tables = page.extract_tables()
-                    
+
                     for table_idx, table in enumerate(page_tables):
-                        if table and len(table) > 1:  # Must have headers + at least 1 row
-                            tables.append({
-                                "page_number": page_num + 1,
-                                "table_index": table_idx,
-                                "headers": table[0],
-                                "rows": table[1:],
-                                "num_rows": len(table) - 1,
-                                "num_cols": len(table[0]) if table else 0
-                            })
+                        # Accept tables with at least 1 row (may be single-row tables)
+                        if table and len(table) >= 1:
+                            # Check if this looks like a real table (not just text blocks)
+                            if len(table[0]) > 1:  # Must have at least 2 columns
+                                # If only one row, treat it as data (no separate header)
+                                if len(table) == 1:
+                                    headers = [f"Column {i+1}" for i in range(len(table[0]))]
+                                    rows = table
+                                else:
+                                    headers = table[0]
+                                    rows = table[1:]
+
+                                tables.append({
+                                    "page_number": page_num + 1,
+                                    "table_index": table_idx,
+                                    "headers": headers,
+                                    "rows": rows,
+                                    "num_rows": len(rows),
+                                    "num_cols": len(table[0]) if table else 0
+                                })
         except Exception as e:
             print(f"Warning: Could not extract tables: {e}")
-        
+
         return tables
-    
+
+    def _create_table_chunks(
+        self,
+        tables: List[Dict[str, Any]],
+        base_metadata: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Convert extracted tables to markdown chunks
+
+        Args:
+            tables: List of table dictionaries from _extract_tables
+            base_metadata: Base metadata for chunks
+
+        Returns:
+            List of chunk dictionaries with markdown tables
+        """
+        table_chunks = []
+
+        for table_info in tables:
+            headers = table_info.get("headers", [])
+            rows = table_info.get("rows", [])
+            page_number = table_info.get("page_number")
+
+            if not headers or not rows:
+                continue
+
+            # Create table context
+            table_context = f"Table from page {page_number}:"
+
+            # Create metadata for this table
+            chunk_metadata = {
+                **base_metadata,
+                "page_number": page_number,
+                "table_index": table_info.get("table_index", 0)
+            }
+
+            # Use TableChunker to create markdown table chunk
+            chunks = TableChunker.chunk_table(
+                table_data=rows,
+                headers=headers,
+                base_metadata=chunk_metadata,
+                as_markdown=True,
+                table_context=table_context
+            )
+
+            # Convert Chunk objects to dicts
+            for chunk in chunks:
+                doc_id = base_metadata.get("doc_id", "unknown")
+                table_chunks.append({
+                    "text": chunk.text,
+                    "chunk_id": f"{doc_id}_table_p{page_number}_t{table_info.get('table_index', 0)}",
+                    "metadata": chunk.metadata,
+                    "char_start": chunk.char_start,
+                    "char_end": chunk.char_end,
+                    "chunk_type": "table"
+                })
+
+        return table_chunks
+
+    def _extract_images(self, file_path: str) -> List[Dict[str, Any]]:
+        """
+        Extract images from PDF using PyMuPDF (fitz)
+
+        Args:
+            file_path: Path to PDF
+
+        Returns:
+            List of image dictionaries with image data and metadata
+        """
+        images = []
+
+        try:
+            doc = fitz.open(file_path)
+
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                image_list = page.get_images(full=True)
+
+                for img_idx, img_info in enumerate(image_list):
+                    xref = img_info[0]  # Image XREF
+
+                    # Extract image bytes
+                    try:
+                        base_image = doc.extract_image(xref)
+                        image_bytes = base_image["image"]
+                        image_ext = base_image["ext"]
+                        width = base_image.get("width", 0)
+                        height = base_image.get("height", 0)
+
+                        # Filter out very small images (likely icons/logos)
+                        if width < 100 or height < 100:
+                            continue
+
+                        # Get image position on page
+                        img_rect = page.get_image_rects(xref)
+                        position = img_rect[0] if img_rect else None
+
+                        images.append({
+                            "page_number": page_num + 1,
+                            "image_index": img_idx,
+                            "xref": xref,
+                            "image_bytes": image_bytes,
+                            "image_ext": image_ext,
+                            "width": width,
+                            "height": height,
+                            "position": position,
+                            "size_bytes": len(image_bytes)
+                        })
+
+                    except Exception as e:
+                        print(f"Warning: Could not extract image {xref} from page {page_num + 1}: {e}")
+                        continue
+
+            doc.close()
+            print(f"  Extracted {len(images)} images from PDF")
+
+        except Exception as e:
+            print(f"Warning: Could not extract images: {e}")
+
+        return images
+
+    def _create_image_chunks(
+        self,
+        images: List[Dict[str, Any]],
+        base_metadata: Dict[str, Any],
+        page_texts: Dict[int, str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Create image chunks with Claude Vision descriptions
+
+        Args:
+            images: List of image dictionaries from _extract_images
+            base_metadata: Base metadata for chunks
+            page_texts: Dict mapping page numbers to page text for context
+
+        Returns:
+            List of chunk dictionaries with image descriptions
+        """
+        if not self.enable_image_analysis or not images:
+            return []
+
+        image_chunks = []
+
+        try:
+            # Import vision service
+            from app.services.vision_service import get_vision_service
+            vision_service = get_vision_service()
+
+            print(f"  Analyzing {len(images)} images with Claude Vision API...")
+
+            for image_info in images:
+                page_number = image_info.get("page_number")
+                image_bytes = image_info.get("image_bytes")
+                image_ext = image_info.get("image_ext", "png")
+
+                if not image_bytes:
+                    continue
+
+                # Get page context if available
+                page_context = ""
+                if page_texts and page_number in page_texts:
+                    page_context = page_texts[page_number][:500]  # First 500 chars
+
+                # Generate description using Claude Vision
+                result = vision_service.describe_image(
+                    image_bytes=image_bytes,
+                    image_type=image_ext,
+                    context=page_context,
+                    max_tokens=500
+                )
+
+                description = result.get("description")
+                if not description:
+                    print(f"    ⚠ Failed to describe image on page {page_number}: {result.get('error', 'unknown error')}")
+                    continue
+
+                # Create image chunk metadata
+                chunk_metadata = {
+                    **base_metadata,
+                    "page_number": page_number,
+                    "image_index": image_info.get("image_index", 0),
+                    "is_image": True,
+                    "image_width": image_info.get("width"),
+                    "image_height": image_info.get("height"),
+                    "image_size_bytes": image_info.get("size_bytes"),
+                    "vision_model": result.get("model", "unknown"),
+                    "vision_confidence": result.get("confidence", 0.9)
+                }
+
+                doc_id = base_metadata.get("doc_id", "unknown")
+                image_chunk = {
+                    "text": f"Image from page {page_number}:\n\n{description}",
+                    "chunk_id": f"{doc_id}_image_p{page_number}_i{image_info.get('image_index', 0)}",
+                    "metadata": chunk_metadata,
+                    "char_start": 0,
+                    "char_end": len(description),
+                    "chunk_type": "image"
+                }
+
+                image_chunks.append(image_chunk)
+                print(f"    ✓ Page {page_number}: Image described ({len(description)} chars)")
+
+        except ImportError:
+            print("  ⚠ Vision service not available - skipping image analysis")
+        except Exception as e:
+            print(f"  ⚠ Error creating image chunks: {e}")
+
+        return image_chunks
+
     def _create_chunks(
         self,
         pages: List[Dict[str, Any]],

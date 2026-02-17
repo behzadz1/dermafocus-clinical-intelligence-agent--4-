@@ -7,6 +7,7 @@ Includes customization for Dermafocus brand voice and clinical communication
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from anthropic import AsyncAnthropic, AnthropicError
 import structlog
+import asyncio
 
 from app.config import settings
 from app.services.prompt_customization import (
@@ -15,6 +16,8 @@ from app.services.prompt_customization import (
     AudienceType,
     ResponseStyle
 )
+from app.utils import metrics
+from app.services.cost_tracker import get_cost_tracker
 
 logger = structlog.get_logger()
 
@@ -119,50 +122,76 @@ class ClaudeService:
                 "content": user_message
             })
 
-            # Call Claude API (async)
-            response = await self.client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=self.temperature,
-                system=system_prompt,
-                messages=messages
-            )
+            # Call Claude API (async) with error tracking
+            try:
+                response = await self.client.messages.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    system=system_prompt,
+                    messages=messages
+                )
 
-            # Extract answer
-            answer = ""
-            for block in response.content:
-                if block.type == "text":
-                    answer += block.text
+                # Extract answer
+                answer = ""
+                for block in response.content:
+                    if block.type == "text":
+                        answer += block.text
 
-            # Apply terminology corrections (ensure brand names are correct)
-            answer = self.customizer.apply_terminology(answer)
+                # Apply terminology corrections (ensure brand names are correct)
+                answer = self.customizer.apply_terminology(answer)
 
-            logger.info(
-                "Claude response generated",
-                answer_length=len(answer),
-                input_tokens=response.usage.input_tokens,
-                output_tokens=response.usage.output_tokens,
-                audience=self.customizer.audience.value,
-                style=self.customizer.style.value
-            )
+                logger.info(
+                    "Claude response generated",
+                    answer_length=len(answer),
+                    input_tokens=response.usage.input_tokens,
+                    output_tokens=response.usage.output_tokens,
+                    audience=self.customizer.audience.value,
+                    style=self.customizer.style.value
+                )
 
-            return {
-                "answer": answer,
-                "model": self.model,
-                "usage": {
-                    "input_tokens": response.usage.input_tokens,
-                    "output_tokens": response.usage.output_tokens
-                },
-                "stop_reason": response.stop_reason,
-                "customization": {
-                    "audience": self.customizer.audience.value,
-                    "style": self.customizer.style.value
+                # Track cost
+                cost_tracker = get_cost_tracker()
+                cost_tracker.record_claude_cost(
+                    input_tokens=response.usage.input_tokens,
+                    output_tokens=response.usage.output_tokens
+                )
+
+                return {
+                    "answer": answer,
+                    "model": self.model,
+                    "usage": {
+                        "input_tokens": response.usage.input_tokens,
+                        "output_tokens": response.usage.output_tokens
+                    },
+                    "stop_reason": response.stop_reason,
+                    "customization": {
+                        "audience": self.customizer.audience.value,
+                        "style": self.customizer.style.value
+                    }
                 }
-            }
+
+            except asyncio.TimeoutError:
+                logger.error("Claude API timeout")
+                metrics.record_timeout("claude")
+                raise
+
+            except AnthropicError as e:
+                error_str = str(e).lower()
+                if "rate" in error_str and "limit" in error_str:
+                    logger.error("Claude API rate limit exceeded")
+                    metrics.record_rate_limit("claude")
+                else:
+                    logger.error(
+                        "Claude API error",
+                        error=str(e),
+                        error_type=type(e).__name__
+                    )
+                raise
 
         except AnthropicError as e:
             logger.error(
-                "Claude API error",
+                "Claude API error (outer)",
                 error=str(e),
                 error_type=type(e).__name__
             )
@@ -336,6 +365,33 @@ Good answer: "Newest treatment areas include:
 - Perioral rejuvenation (per clinical protocols)
 - Hand rejuvenation (demonstrated in case studies)
 - Periocular area (clinical research)"
+
+### TABLE HANDLING (CRITICAL FOR ACCURACY)
+
+Tables in the context contain structured clinical data (dosing, protocols, comparisons, composition):
+
+1. **Recognize table structure**: Tables are formatted in markdown with headers and rows
+2. **Preserve accuracy**: When referencing table data, maintain exact values and relationships
+3. **Complete coverage**: For dosing/protocol tables, include ALL rows and critical details, don't summarize
+4. **Table types**:
+   - **Dosing tables**: Include dose amounts, volumes, frequencies, number of sessions
+   - **Protocol tables**: Include step-by-step procedures, timing, techniques
+   - **Comparison tables**: Present side-by-side differences accurately
+   - **Composition tables**: List ingredients, concentrations, components
+
+5. **When answering from tables**:
+   - Reference the table explicitly ("According to the dosing table...")
+   - Preserve numerical precision (don't round or approximate)
+   - Maintain relationships between columns (e.g., product → dosage → frequency)
+   - If asked for specific values, extract them exactly as shown
+
+**Example**:
+Question: "What is the Newest dosing protocol?"
+Good answer: "According to the protocol table, Newest dosing is:
+- Volume: 2ml per session
+- Frequency: Every 3 weeks
+- Number of sessions: 4 sessions for optimal results
+- Injection depth: Mid-dermal"
 
 ### COMPARISON QUESTIONS (CRITICAL FOR ELABORATION)
 

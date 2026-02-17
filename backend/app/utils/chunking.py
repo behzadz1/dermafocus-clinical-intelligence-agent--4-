@@ -197,49 +197,172 @@ class TextChunker:
 
 class TableChunker:
     """
-    Special chunking for tabular data
+    Special chunking for tabular data with markdown formatting
     """
-    
+
+    @staticmethod
+    def table_to_markdown(
+        headers: List[str],
+        rows: List[List[str]],
+        table_context: str = None
+    ) -> str:
+        """
+        Convert table to markdown format
+
+        Args:
+            headers: Column headers
+            rows: Table rows (list of lists)
+            table_context: Optional context describing the table
+
+        Returns:
+            Markdown-formatted table string
+        """
+        if not headers or not rows:
+            return ""
+
+        # Clean and normalize cells
+        def clean_cell(cell):
+            if cell is None:
+                return ""
+            return str(cell).strip().replace("\n", " ")
+
+        headers = [clean_cell(h) for h in headers]
+
+        # Build markdown table
+        markdown_parts = []
+
+        # Add context if provided
+        if table_context:
+            markdown_parts.append(f"{table_context}\n")
+
+        # Header row
+        header_row = "| " + " | ".join(headers) + " |"
+        markdown_parts.append(header_row)
+
+        # Separator row
+        separator = "|" + "|".join(["-" * (len(h) + 2) for h in headers]) + "|"
+        markdown_parts.append(separator)
+
+        # Data rows
+        for row in rows:
+            cleaned_row = [clean_cell(cell) for cell in row]
+            # Pad row if it has fewer columns than headers
+            while len(cleaned_row) < len(headers):
+                cleaned_row.append("")
+            row_text = "| " + " | ".join(cleaned_row[:len(headers)]) + " |"
+            markdown_parts.append(row_text)
+
+        return "\n".join(markdown_parts)
+
+    @staticmethod
+    def infer_table_type(headers: List[str], context: str = "") -> str:
+        """
+        Infer the semantic type of table from headers and context
+
+        Args:
+            headers: Column headers
+            context: Surrounding text context
+
+        Returns:
+            Table type string (dosing, protocol, comparison, composition, etc.)
+        """
+        headers_lower = " ".join(h.lower() for h in headers if h)
+        context_lower = context.lower()
+
+        # Dosing/protocol table patterns
+        if any(term in headers_lower for term in ["dose", "dosage", "volume", "frequency", "session"]):
+            return "dosing"
+
+        # Composition table patterns
+        if any(term in headers_lower for term in ["composition", "ingredient", "component", "concentration"]):
+            return "composition"
+
+        # Comparison table patterns
+        if any(term in headers_lower for term in ["product", "vs", "comparison", "versus"]):
+            return "comparison"
+
+        # Protocol/treatment table patterns
+        if any(term in headers_lower for term in ["step", "phase", "treatment", "procedure"]):
+            return "protocol"
+
+        # Indication/contraindication patterns
+        if any(term in headers_lower for term in ["indication", "contraindication", "condition"]):
+            return "indication"
+
+        # Results/outcomes table
+        if any(term in headers_lower for term in ["result", "outcome", "improvement", "efficacy"]):
+            return "results"
+
+        return "general"
+
     @staticmethod
     def chunk_table(
         table_data: List[List[str]],
         headers: List[str],
-        base_metadata: Dict[str, Any] = None
+        base_metadata: Dict[str, Any] = None,
+        as_markdown: bool = True,
+        table_context: str = None
     ) -> List[Chunk]:
         """
-        Convert table rows into chunks
-        
+        Convert table into chunks (full table as markdown by default)
+
         Args:
             table_data: List of rows (each row is a list of cells)
             headers: Column headers
             base_metadata: Base metadata
-            
+            as_markdown: If True, create single markdown table chunk; if False, one chunk per row
+            table_context: Optional context describing the table
+
         Returns:
-            List of chunks (one per row)
+            List of chunks
         """
         base_metadata = base_metadata or {}
         chunks = []
-        
-        for row_idx, row in enumerate(table_data):
-            # Create text representation of row
-            row_text = " | ".join(
-                f"{header}: {cell}"
-                for header, cell in zip(headers, row)
-            )
-            
+
+        # Infer table type
+        table_type = TableChunker.infer_table_type(headers, table_context or "")
+
+        if as_markdown:
+            # Create single chunk with full markdown table
+            markdown_table = TableChunker.table_to_markdown(headers, table_data, table_context)
+
             chunks.append(Chunk(
-                text=row_text,
-                chunk_id=f"table_row_{row_idx}",
+                text=markdown_table,
+                chunk_id="table_markdown",
                 metadata={
                     **base_metadata,
-                    "type": "table_row",
-                    "row_index": row_idx,
+                    "is_table": True,
+                    "table_type": table_type,
+                    "num_rows": len(table_data),
+                    "num_cols": len(headers),
                     "headers": headers
                 },
                 char_start=0,
-                char_end=len(row_text)
+                char_end=len(markdown_table)
             ))
-        
+        else:
+            # Create one chunk per row (legacy format)
+            for row_idx, row in enumerate(table_data):
+                # Create text representation of row
+                row_text = " | ".join(
+                    f"{header}: {cell}"
+                    for header, cell in zip(headers, row)
+                )
+
+                chunks.append(Chunk(
+                    text=row_text,
+                    chunk_id=f"table_row_{row_idx}",
+                    metadata={
+                        **base_metadata,
+                        "is_table": True,
+                        "table_type": table_type,
+                        "row_index": row_idx,
+                        "headers": headers
+                    },
+                    char_start=0,
+                    char_end=len(row_text)
+                ))
+
         return chunks
 
 

@@ -7,8 +7,14 @@ import os
 from typing import List, Dict, Any, Optional
 from pinecone import Pinecone, ServerlessSpec
 import structlog
+import time
 
 from app.config import settings
+from app.utils import metrics
+from app.services.cost_tracker import get_cost_tracker
+from app.services.cache_service import get_cache, set_cache
+import hashlib
+import json
 
 logger = structlog.get_logger()
 
@@ -158,26 +164,41 @@ class PineconeService:
         include_metadata: bool = True
     ) -> Dict[str, Any]:
         """
-        Query Pinecone for similar vectors
-        
+        Query Pinecone for similar vectors with caching
+
         Args:
             query_vector: Query embedding vector
             top_k: Number of results to return
             namespace: Namespace to query
             filter: Metadata filter dictionary
             include_metadata: Whether to include metadata in results
-            
+
         Returns:
             Query results with matches
         """
         try:
+            # Create cache key from vector and parameters
+            vector_str = json.dumps(query_vector[:10])  # Use first 10 dims for key
+            filter_str = json.dumps(filter, sort_keys=True) if filter else "none"
+            cache_params = f"{vector_str}:{top_k}:{namespace}:{filter_str}:{include_metadata}"
+            cache_key = f"pinecone:{hashlib.sha256(cache_params.encode()).hexdigest()}"
+
+            # Check cache first (30min TTL for Pinecone results)
+            cached_results = get_cache(cache_key)
+            if cached_results is not None:
+                logger.debug("pinecone_cache_hit", top_k=top_k)
+                return cached_results
+
             logger.info(
                 "Querying Pinecone",
                 top_k=top_k,
                 namespace=namespace,
                 has_filter=filter is not None
             )
-            
+
+            # Track query latency
+            start_time = time.time()
+
             results = self.index.query(
                 vector=query_vector,
                 top_k=top_k,
@@ -185,13 +206,23 @@ class PineconeService:
                 filter=filter,
                 include_metadata=include_metadata
             )
-            
+
+            query_latency = time.time() - start_time
+
+            # Record Pinecone metrics
+            metrics.record_pinecone_query(query_latency)
+
+            # Track cost
+            cost_tracker = get_cost_tracker()
+            cost_tracker.record_pinecone_cost(queries=1)
+
             logger.info(
                 "Query completed",
-                matches=len(results.matches)
+                matches=len(results.matches),
+                latency_ms=round(query_latency * 1000, 2)
             )
-            
-            return {
+
+            result = {
                 "matches": [
                     {
                         "id": match.id,
@@ -201,6 +232,11 @@ class PineconeService:
                     for match in results.matches
                 ]
             }
+
+            # Cache the result (30 min TTL)
+            set_cache(cache_key, result, ttl_seconds=1800)
+
+            return result
             
         except Exception as e:
             logger.error(

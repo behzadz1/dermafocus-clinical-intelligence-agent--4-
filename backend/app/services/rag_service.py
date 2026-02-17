@@ -15,7 +15,12 @@ from app.services.lexical_index import LexicalIndex
 from app.services.pinecone_service import get_pinecone_service
 from app.services.reranker_service import get_reranker_service
 from app.services.query_expansion import QueryExpansionService
+from app.services.cache_service import get_cache, set_cache
+from app.services.document_graph import get_document_graph
 from app.config import settings
+from app.utils import metrics
+import time
+import hashlib
 
 logger = structlog.get_logger()
 
@@ -355,10 +360,15 @@ class RAGService:
             if doc_type:
                 metadata_filter["doc_type"] = doc_type
 
+            # Check if comparison query to adjust retrieval
+            expansion_result = self.query_expansion.expand_query(query)
+            retrieval_multiplier = 5 if expansion_result.is_comparison else 3
+
             # Search Pinecone - get more results to account for hierarchy
+            # For comparison queries, retrieve more candidates to ensure factsheets are included
             results = self.pinecone_service.query(
                 query_vector=query_embedding,
-                top_k=top_k * 3,  # Get more for hierarchical processing
+                top_k=top_k * retrieval_multiplier,
                 namespace=namespace,
                 filter=metadata_filter if metadata_filter else None,
                 include_metadata=True
@@ -487,6 +497,75 @@ class RAGService:
                     ):
                         chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.04, 1.0)
 
+            # CRITICAL: Boost factsheets for comparison queries
+            # This ensures both factsheets are in the reranking pool
+            expansion_result = self.query_expansion.expand_query(query)
+            if expansion_result.is_comparison:
+                logger.info(
+                    "Applying comparison query boost",
+                    products=expansion_result.products
+                )
+
+                # Boost factsheet and brochure documents significantly
+                for chunk in enriched_chunks:
+                    doc_type = chunk.get("metadata", {}).get("doc_type", "")
+                    doc_id = chunk.get("metadata", {}).get("doc_id", "").lower()
+
+                    # Major boost for factsheets
+                    if doc_type in ["factsheet", "brochure"]:
+                        chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.25, 1.0)
+
+                    # Extra boost if document matches one of the comparison products
+                    for product in expansion_result.products:
+                        if product.lower() in doc_id:
+                            chunk["adjusted_score"] = min(chunk["adjusted_score"] + 0.15, 1.0)
+                            break
+
+            # Optional cross-encoder reranking
+            if settings.reranker_enabled and enriched_chunks:
+                # Track reranking latency
+                rerank_start = time.time()
+
+                reranker = get_reranker_service()
+                rerank_pool_size = max(top_k * 3, settings.rerank_top_k)
+                rerank_pool = enriched_chunks[:rerank_pool_size]
+
+                # Extract texts for reranking
+                rerank_texts = []
+                for chunk in rerank_pool:
+                    # Include parent context if available for better reranking
+                    text = chunk.get("text", "")
+                    parent_context = chunk.get("parent_context", "")
+                    if parent_context:
+                        text = f"{parent_context}\n\n{text}"
+                    rerank_texts.append(text)
+
+                rerank_scores = reranker.score(query, rerank_texts)
+                if rerank_scores:
+                    for chunk, score in zip(rerank_pool, rerank_scores):
+                        chunk["rerank_score"] = score
+                        chunk["original_score"] = chunk.get("adjusted_score", chunk["score"])
+                        chunk["adjusted_score"] = score
+                        chunk["score"] = score
+
+                    rerank_latency = time.time() - rerank_start
+
+                    logger.info(
+                        "Reranking completed for hierarchical search",
+                        reranked_count=len(rerank_pool),
+                        top_rerank_score=rerank_scores[0] if rerank_scores else 0
+                    )
+
+                    # Record reranking metrics
+                    metrics.record_reranking(
+                        enabled=True,
+                        latency=rerank_latency,
+                        chunks_count=len(rerank_pool)
+                    )
+            else:
+                # Record that reranking was not used
+                metrics.record_reranking(enabled=False)
+
             # Sort by adjusted score and return top_k
             enriched_chunks = sorted(
                 enriched_chunks,
@@ -567,8 +646,9 @@ class RAGService:
         max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS
     ) -> Dict[str, Any]:
         """
-        Get context for a query to pass to LLM.
+        Get context for a query to pass to LLM with caching.
         Uses hierarchical search when available for better context.
+        Routes queries to specialized retrievers based on query type.
 
         Args:
             query: User question
@@ -580,18 +660,39 @@ class RAGService:
             Context dictionary with chunks, context text, and metadata
         """
         try:
-            # Search for relevant chunks
+            # Route query to specialized retriever
+            from app.services.query_router import get_query_router
+            router = get_query_router()
+            routing_info = router.route_query(query)
+
+            query_type = routing_info["query_type"]
+            routing_config = routing_info["config"]
+
+            # Adjust retrieval parameters based on query type
+            adjusted_max_chunks = int(max_chunks * routing_config.get("top_k_multiplier", 1.0))
+
+            # Create cache key based on query parameters
+            cache_params = f"{query}:{adjusted_max_chunks}:{doc_type}:{use_hierarchical}:{max_context_chars}:{query_type.value}"
+            cache_key = f"rag_context:{hashlib.sha256(cache_params.encode()).hexdigest()}"
+
+            # Check cache first (1hr TTL for RAG context)
+            cached_context = get_cache(cache_key)
+            if cached_context is not None:
+                logger.debug("rag_context_cache_hit", query_length=len(query), query_type=query_type.value)
+                return cached_context
+
+            # Search for relevant chunks with adjusted parameters
             if use_hierarchical:
                 chunks = self.hierarchical_search(
                     query=query,
-                    top_k=max_chunks,
+                    top_k=adjusted_max_chunks,
                     doc_type=doc_type,
                     include_parent_context=True
                 )
             else:
                 chunks = self.search(
                     query=query,
-                    top_k=max_chunks,
+                    top_k=adjusted_max_chunks,
                     doc_type=doc_type
                 )
 
@@ -607,8 +708,19 @@ class RAGService:
                         "reason": "no_chunks",
                         "top_score": 0.0,
                         "strong_matches": 0
-                    }
+                    },
+                    "related_documents": []
                 }
+
+            # Apply query-type-specific boosting
+            self._apply_query_type_boosts(chunks, routing_config, query)
+
+            # Cross-document linking: Find related documents from graph
+            related_docs = self._find_related_documents(chunks)
+
+            # Boost related documents if they appear in results
+            if related_docs:
+                self._boost_related_documents(chunks, related_docs)
 
             # Prepare context text with hierarchical awareness
             context_parts = []
@@ -687,13 +799,19 @@ class RAGService:
                 evidence_sufficient=evidence["sufficient"]
             )
 
-            return {
+            result = {
                 "chunks": chunks,
                 "context_text": context_text,
                 "sources": sources,
                 "hierarchy_stats": hierarchy_stats,
-                "evidence": evidence
+                "evidence": evidence,
+                "related_documents": related_docs
             }
+
+            # Cache the result (1 hour TTL)
+            set_cache(cache_key, result, ttl_seconds=3600)
+
+            return result
 
         except Exception as e:
             logger.error(
@@ -876,6 +994,159 @@ class RAGService:
                 doc_id=doc_id
             )
             raise
+
+    def _find_related_documents(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Find related documents using the document graph.
+
+        Args:
+            chunks: Retrieved chunks from search
+
+        Returns:
+            List of related document information
+        """
+        try:
+            doc_graph = get_document_graph()
+
+            # Extract unique doc_ids from retrieved chunks
+            retrieved_doc_ids = set()
+            for chunk in chunks:
+                doc_id = chunk.get("metadata", {}).get("doc_id")
+                if doc_id:
+                    retrieved_doc_ids.add(doc_id)
+
+            if not retrieved_doc_ids:
+                return []
+
+            # Find related documents for all retrieved docs
+            all_related = {}  # doc_id -> info
+            for doc_id in retrieved_doc_ids:
+                related = doc_graph.get_related_documents(doc_id, max_related=5)
+                for rel_doc in related:
+                    rel_doc_id = rel_doc.get("doc_id")
+                    if rel_doc_id and rel_doc_id not in retrieved_doc_ids:
+                        # Avoid duplicates, keep the one with most shared products
+                        if rel_doc_id not in all_related or len(rel_doc.get("shared_products", [])) > len(all_related[rel_doc_id].get("shared_products", [])):
+                            all_related[rel_doc_id] = rel_doc
+
+            # Convert to list and sort by number of shared products
+            related_docs = list(all_related.values())
+            related_docs.sort(key=lambda x: len(x.get("shared_products", [])), reverse=True)
+
+            # Limit to top 5 related documents
+            related_docs = related_docs[:5]
+
+            if related_docs:
+                logger.info(
+                    "related_documents_found",
+                    count=len(related_docs),
+                    retrieved_docs=len(retrieved_doc_ids)
+                )
+
+            return related_docs
+
+        except Exception as e:
+            logger.warning("failed_to_find_related_documents", error=str(e))
+            return []
+
+    def _apply_query_type_boosts(
+        self,
+        chunks: List[Dict[str, Any]],
+        routing_config: Dict[str, Any],
+        query: str
+    ):
+        """
+        Apply query-type-specific score boosts
+
+        Args:
+            chunks: List of retrieved chunks (modified in place)
+            routing_config: Routing configuration from query router
+            query: Original query for context
+        """
+        boost_doc_types = routing_config.get("boost_doc_types", [])
+        boost_multiplier = routing_config.get("boost_multiplier", 0.0)
+        prefer_sections = routing_config.get("prefer_sections", [])
+        prefer_chunk_types = routing_config.get("prefer_chunk_types", [])
+
+        if boost_multiplier == 0.0:
+            return  # No boosting for this query type
+
+        boosted_count = 0
+
+        for chunk in chunks:
+            metadata = chunk.get("metadata", {})
+            current_score = chunk.get("score", 0.0)
+            boost_applied = 0.0
+
+            # Boost by document type
+            if boost_doc_types:
+                doc_type = metadata.get("doc_type", "")
+                if doc_type in boost_doc_types:
+                    boost_applied = boost_multiplier
+                    boosted_count += 1
+
+            # Additional boost for preferred sections
+            if prefer_sections:
+                section = metadata.get("section", "").lower()
+                for preferred in prefer_sections:
+                    if preferred.lower() in section:
+                        boost_applied += 0.05  # Additional +0.05 for section match
+                        break
+
+            # Additional boost for preferred chunk types
+            if prefer_chunk_types:
+                chunk_type = chunk.get("chunk_type", "")
+                if chunk_type in prefer_chunk_types:
+                    boost_applied += 0.08  # +0.08 for chunk type match (e.g., images for technique)
+
+            # Apply boost if any
+            if boost_applied > 0:
+                boosted_score = min(current_score + boost_applied, 1.0)
+                chunk["score"] = boosted_score
+                chunk["adjusted_score"] = boosted_score
+                chunk["query_type_boost"] = boost_applied
+
+        if boosted_count > 0:
+            logger.debug(
+                "query_type_boosts_applied",
+                boosted_count=boosted_count,
+                base_boost=boost_multiplier
+            )
+
+    def _boost_related_documents(self, chunks: List[Dict[str, Any]], related_docs: List[Dict[str, Any]]):
+        """
+        Boost scores of chunks from related documents.
+
+        Args:
+            chunks: List of retrieved chunks (modified in place)
+            related_docs: List of related document information
+        """
+        if not related_docs:
+            return
+
+        # Create a set of related doc_ids for fast lookup
+        related_doc_ids = {doc.get("doc_id") for doc in related_docs}
+
+        boost_amount = 0.10  # Boost related docs by +0.10
+        boosted_count = 0
+
+        for chunk in chunks:
+            doc_id = chunk.get("metadata", {}).get("doc_id")
+            if doc_id in related_doc_ids:
+                # Boost the score
+                current_score = chunk.get("score", 0.0)
+                boosted_score = min(current_score + boost_amount, 1.0)
+                chunk["score"] = boosted_score
+                chunk["adjusted_score"] = boosted_score
+                chunk["related_doc_boost"] = boost_amount
+                boosted_count += 1
+
+        if boosted_count > 0:
+            logger.debug(
+                "related_documents_boosted",
+                boosted_count=boosted_count,
+                boost_amount=boost_amount
+            )
 
 
 # Singleton instance

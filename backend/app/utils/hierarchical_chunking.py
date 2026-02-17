@@ -9,6 +9,12 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
+import structlog
+
+# Import protocol-aware chunker for improved protocol handling
+from app.utils.protocol_chunking import ProtocolAwareChunkerAdapter
+
+logger = structlog.get_logger()
 
 
 class ChunkType(Enum):
@@ -306,6 +312,9 @@ class AdaptiveChunker(BaseChunker):
     """
     Adaptive chunking based on semantic boundaries
     Best for case studies and narrative documents
+
+    Now supports true semantic similarity using sentence embeddings (all-MiniLM-L6-v2)
+    Falls back to heuristic detection if semantic similarity unavailable
     """
 
     def __init__(
@@ -313,12 +322,28 @@ class AdaptiveChunker(BaseChunker):
         chunk_size: int = 800,
         min_chunk_size: int = 200,
         overlap: int = 100,
-        similarity_threshold: float = 0.75
+        similarity_threshold: float = 0.75,
+        use_semantic_similarity: bool = True
     ):
         self.chunk_size = chunk_size
         self.min_chunk_size = min_chunk_size
         self.overlap = overlap
         self.similarity_threshold = similarity_threshold
+        self.use_semantic_similarity = use_semantic_similarity
+        self._semantic_service = None
+
+        # Initialize semantic service if enabled
+        if self.use_semantic_similarity:
+            try:
+                from app.services.semantic_similarity_service import get_semantic_similarity_service
+                self._semantic_service = get_semantic_similarity_service()
+            except (ImportError, Exception) as e:
+                logger.warning(
+                    "semantic_similarity_unavailable",
+                    message="Falling back to heuristic detection",
+                    error=str(e)
+                )
+                self.use_semantic_similarity = False
 
     def chunk(self, text: str, doc_id: str, doc_type: str,
               metadata: Dict[str, Any] = None) -> List[HierarchicalChunk]:
@@ -403,8 +428,19 @@ class AdaptiveChunker(BaseChunker):
         return [p.strip() for p in paragraphs if p.strip()]
 
     def _detect_semantic_break(self, current_chunks: List[str], next_paragraph: str) -> bool:
-        """Detect if there's a semantic break between chunks"""
-        # Simple heuristic-based detection
+        """
+        Detect if there's a semantic break between chunks
+
+        Uses semantic similarity (embeddings) if enabled, falls back to heuristics
+
+        Args:
+            current_chunks: List of paragraphs in current chunk
+            next_paragraph: Next paragraph to consider
+
+        Returns:
+            True if semantic break detected
+        """
+        # First check heuristic indicators (fast, cheap)
         break_indicators = [
             r'^(?:However|Nevertheless|In contrast|On the other hand)',
             r'^(?:Furthermore|Moreover|Additionally|In addition)',
@@ -416,6 +452,40 @@ class AdaptiveChunker(BaseChunker):
         for pattern in break_indicators:
             if re.match(pattern, next_paragraph, re.IGNORECASE):
                 return True
+
+        # If semantic similarity enabled, use embeddings for refined detection
+        if self.use_semantic_similarity and self._semantic_service:
+            try:
+                # Compare last paragraph(s) with next paragraph
+                # Use last 2-3 paragraphs for context
+                context_size = min(3, len(current_chunks))
+                if context_size > 0:
+                    current_context = '\n\n'.join(current_chunks[-context_size:])
+
+                    # Compute similarity
+                    is_break = self._semantic_service.is_semantic_break(
+                        current_text=current_context,
+                        next_text=next_paragraph,
+                        threshold=self.similarity_threshold
+                    )
+
+                    if is_break:
+                        logger.debug(
+                            "semantic_break_detected",
+                            current_length=len(current_context),
+                            next_length=len(next_paragraph),
+                            threshold=self.similarity_threshold
+                        )
+
+                    return is_break
+
+            except Exception as e:
+                logger.warning(
+                    "semantic_detection_failed",
+                    error=str(e),
+                    message="Falling back to heuristic detection"
+                )
+                # Fall through to return False
 
         return False
 
@@ -617,6 +687,59 @@ class SectionBasedChunker(BaseChunker):
 
         return None
 
+    def _extract_protocol_metadata(self, text: str) -> Dict[str, Any]:
+        """
+        Extract protocol metadata from treatment protocol sections
+        Returns dict with protocol_sessions, protocol_frequency, protocol_dosage if found
+        """
+        protocol_meta = {}
+        text_lower = text.lower()
+
+        # Protocol information patterns (reused from ProtocolAwareChunker)
+        PROTOCOL_PATTERNS = {
+            'sessions': [
+                r'\d+[-–]\d+\s+(?:total\s+)?sessions?',
+                r'total\s+of\s+\d+\s+sessions?',
+                r'for\s+(?:a\s+)?total\s+of\s+\d+\s+sessions?',
+                r'\d+\s+sessions?',
+            ],
+            'frequency': [
+                r'every\s+\d+[-–]?\d*\s+(?:day|week|month)s?',
+                r'once\s+(?:per|a)\s+(?:week|month)',
+                r'\d+\s+times?\s+(?:per|a)\s+(?:week|month)',
+            ],
+            'dosage': [
+                r'\d+(?:\.\d+)?\s*ml(?:\s+per\s+session)?',
+                r'\d+(?:\.\d+)?\s*mg',
+            ],
+        }
+
+        # Extract sessions
+        for pattern in PROTOCOL_PATTERNS['sessions']:
+            match = re.search(pattern, text_lower)
+            if match:
+                protocol_meta['protocol_sessions'] = match.group(0)
+                break
+
+        # Extract frequency
+        for pattern in PROTOCOL_PATTERNS['frequency']:
+            match = re.search(pattern, text_lower)
+            if match:
+                protocol_meta['protocol_frequency'] = match.group(0)
+                break
+
+        # Extract dosage
+        for pattern in PROTOCOL_PATTERNS['dosage']:
+            match = re.search(pattern, text_lower)
+            if match:
+                protocol_meta['protocol_dosage'] = match.group(0)
+                break
+
+        if protocol_meta:
+            protocol_meta['has_protocol_info'] = True
+
+        return protocol_meta
+
     def chunk(self, text: str, doc_id: str, doc_type: str,
               metadata: Dict[str, Any] = None) -> List[HierarchicalChunk]:
         """Create section-based chunks"""
@@ -647,10 +770,16 @@ class SectionBasedChunker(BaseChunker):
 
             # Create chunk for section content
             if len(part) >= self.min_chunk_size:
+                # Extract protocol metadata if this is a protocol section
+                chunk_metadata = {**metadata, "section": current_section}
+                if "protocol" in current_section.lower():
+                    protocol_meta = self._extract_protocol_metadata(part)
+                    chunk_metadata.update(protocol_meta)
+
                 # If section is too large, split it
                 if len(part) > self.chunk_size:
                     sub_chunks = self._split_large_section(
-                        part, doc_id, doc_type, current_section, metadata
+                        part, doc_id, doc_type, current_section, chunk_metadata
                     )
                     chunks.extend(sub_chunks)
                 else:
@@ -663,7 +792,7 @@ class SectionBasedChunker(BaseChunker):
                         doc_id=doc_id,
                         doc_type=doc_type,
                         section=current_section,
-                        metadata={**metadata, "section": current_section}
+                        metadata=chunk_metadata
                     ))
 
         # If no sections detected, fall back to simple chunking
@@ -849,12 +978,11 @@ class ChunkingStrategyFactory:
             }
         },
         DocumentType.PROTOCOL: {
-            "chunker": StepAwareChunker,
+            "chunker": ProtocolAwareChunkerAdapter,
             "params": {
-                "chunk_size": 600,
-                "min_chunk_size": 150,
-                "overlap": 50,
-                "keep_steps_together": True
+                "chunk_size": 800,
+                "min_chunk_size": 200,
+                "protocol_section_max": 1200
             }
         },
         DocumentType.FACTSHEET: {
