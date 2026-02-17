@@ -19,7 +19,7 @@ from app.middleware.rate_limit import rate_limit_middleware
 from app.utils import metrics
 
 
-from app.api.routes import health, chat, documents, search, products, protocols, feedback
+from app.api.routes import health, chat, documents, search, products, protocols, feedback, versions
 
 # Configure structured logging with context support
 structlog.configure(
@@ -239,6 +239,9 @@ app.include_router(protocols.router, prefix="/api/protocols", tags=["Protocols"]
 
 # Feedback routes (user feedback collection)
 app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
+
+# Version management routes (document versioning and sync)
+app.include_router(versions.router, prefix="/api", tags=["Versions"])
 
 
 # ==============================================================================

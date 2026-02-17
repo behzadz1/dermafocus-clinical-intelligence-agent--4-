@@ -138,7 +138,7 @@ class Settings(BaseSettings):
     bm25_top_k: int = Field(default=20, alias="BM25_TOP_K")
     hybrid_vector_weight: float = Field(default=0.6, alias="HYBRID_VECTOR_WEIGHT")
     hybrid_bm25_weight: float = Field(default=0.4, alias="HYBRID_BM25_WEIGHT")
-    reranker_enabled: bool = Field(default=False, alias="RERANKER_ENABLED")
+    reranker_enabled: bool = Field(default=True, alias="RERANKER_ENABLED")  # PHASE 4.0: Enabled by default for quality
     reranker_provider: str = Field(default="sentence_transformers", alias="RERANKER_PROVIDER")
     reranker_model: str = Field(
         default="cross-encoder/ms-marco-MiniLM-L-6-v2",
