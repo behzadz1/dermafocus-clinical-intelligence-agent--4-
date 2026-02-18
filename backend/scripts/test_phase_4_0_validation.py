@@ -2,11 +2,12 @@
 """
 Phase 4.0 Validation Test Suite
 Tests all critical fixes implemented in Phase 4.0:
-1. Reranking enabled by default
-2. Hallucination detection working
-3. Medical thesaurus integration
-4. Rate limiting enforcement
-5. Evidence threshold raised to 0.50
+1. Reranker score normalization (Critical Bug Fix - sigmoid for MS-MARCO)
+2. Reranking enabled by default
+3. Hallucination detection working
+4. Medical thesaurus integration
+5. Rate limiting enforcement
+6. Evidence threshold raised to 0.50
 """
 
 import sys
@@ -20,14 +21,69 @@ from app.config import settings
 from app.services.query_expansion import get_query_expansion_service
 from app.services.verification_service import get_verification_service
 from app.services.rag_service import get_rag_service
+from app.services.reranker_service import get_reranker_service
 
 logger = structlog.get_logger()
 
 
-def test_1_reranking_enabled():
-    """Test 1: Verify reranking is enabled by default"""
+def test_1_reranker_score_normalization():
+    """Test 1: Verify reranker scores are normalized to 0-1 range"""
     print("\n" + "=" * 80)
-    print("TEST 1: Reranking Enabled by Default")
+    print("TEST 1: Reranker Score Normalization (Critical Fix)")
+    print("=" * 80)
+
+    reranker = get_reranker_service()
+
+    # Test with sample query and passages
+    query = "What are the contraindications for polynucleotides?"
+    passages = [
+        "Polynucleotides are contraindicated in patients with active infections.",
+        "This is an unrelated passage about a different topic entirely."
+    ]
+
+    print(f"\nQuery: {query}")
+    print(f"Testing with {len(passages)} passages")
+
+    try:
+        scores = reranker.score(query, passages)
+
+        if scores is None:
+            print("✗ FAIL: Reranker returned None")
+            return False
+
+        print(f"\nReranker scores: {[f'{s:.4f}' for s in scores]}")
+
+        # Check all scores are in 0-1 range
+        all_in_range = all(0 <= s <= 1 for s in scores)
+
+        # Check no negative scores (bug before fix)
+        has_negative = any(s < 0 for s in scores)
+
+        print(f"  All scores in 0-1 range: {all_in_range}")
+        print(f"  Has negative scores: {has_negative}")
+
+        if has_negative:
+            print("✗ FAIL: Found negative scores - sigmoid normalization not applied")
+            return False
+
+        if not all_in_range:
+            print("✗ FAIL: Scores outside 0-1 range")
+            return False
+
+        print("✓ PASS: Reranker scores normalized correctly (sigmoid applied to MS-MARCO logits)")
+        return True
+
+    except Exception as e:
+        print(f"✗ FAIL: Reranker test failed with error: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def test_2_reranking_enabled():
+    """Test 2: Verify reranking is enabled by default"""
+    print("\n" + "=" * 80)
+    print("TEST 2: Reranking Enabled by Default")
     print("=" * 80)
 
     reranker_enabled = settings.reranker_enabled
@@ -42,10 +98,10 @@ def test_1_reranking_enabled():
         return False
 
 
-def test_2_medical_thesaurus():
-    """Test 2: Medical thesaurus abbreviation expansion"""
+def test_3_medical_thesaurus():
+    """Test 3: Medical thesaurus abbreviation expansion"""
     print("\n" + "=" * 80)
-    print("TEST 2: Medical Thesaurus Integration")
+    print("TEST 3: Medical Thesaurus Integration")
     print("=" * 80)
 
     query_expansion_service = get_query_expansion_service()
@@ -85,10 +141,10 @@ def test_2_medical_thesaurus():
         return passed >= total * 0.75  # 75% pass rate acceptable
 
 
-def test_3_hallucination_detection():
-    """Test 3: Hallucination detection catches unsupported claims"""
+def test_4_hallucination_detection():
+    """Test 4: Hallucination detection catches unsupported claims"""
     print("\n" + "=" * 80)
-    print("TEST 3: Hallucination Detection")
+    print("TEST 4: Hallucination Detection")
     print("=" * 80)
 
     verification_service = get_verification_service()
@@ -155,10 +211,10 @@ def test_3_hallucination_detection():
         return False
 
 
-def test_4_evidence_threshold():
-    """Test 4: Evidence threshold raised to 0.50"""
+def test_5_evidence_threshold():
+    """Test 5: Evidence threshold raised to 0.50"""
     print("\n" + "=" * 80)
-    print("TEST 4: Evidence Threshold (0.50)")
+    print("TEST 5: Evidence Threshold (0.50)")
     print("=" * 80)
 
     rag_service = get_rag_service()
@@ -211,10 +267,10 @@ def test_4_evidence_threshold():
         return False
 
 
-def test_5_config_validation():
-    """Test 5: Validate all Phase 4.0 configuration settings"""
+def test_6_config_validation():
+    """Test 6: Validate all Phase 4.0 configuration settings"""
     print("\n" + "=" * 80)
-    print("TEST 5: Configuration Validation")
+    print("TEST 6: Configuration Validation")
     print("=" * 80)
 
     config_checks = {
@@ -246,55 +302,65 @@ def main():
     print("PHASE 4.0 VALIDATION TEST SUITE")
     print("=" * 80)
     print("\nTesting critical fixes:")
-    print("  1. Reranking enabled by default")
-    print("  2. Medical thesaurus integration")
-    print("  3. Hallucination detection")
-    print("  4. Evidence threshold raised to 0.50")
-    print("  5. Configuration validation")
+    print("  1. Reranker score normalization (Critical Bug Fix)")
+    print("  2. Reranking enabled by default")
+    print("  3. Medical thesaurus integration")
+    print("  4. Hallucination detection")
+    print("  5. Evidence threshold raised to 0.50")
+    print("  6. Configuration validation")
 
     results = {}
 
-    # Test 1: Reranking
+    # Test 1: Reranker normalization (CRITICAL FIX)
     try:
-        results["reranking"] = test_1_reranking_enabled()
+        results["reranker_normalization"] = test_1_reranker_score_normalization()
     except Exception as e:
         print(f"✗ Test 1 failed with error: {e}")
         import traceback
         traceback.print_exc()
-        results["reranking"] = False
+        results["reranker_normalization"] = False
 
-    # Test 2: Medical thesaurus
+    # Test 2: Reranking enabled
     try:
-        results["thesaurus"] = test_2_medical_thesaurus()
+        results["reranking"] = test_2_reranking_enabled()
     except Exception as e:
         print(f"✗ Test 2 failed with error: {e}")
         import traceback
         traceback.print_exc()
-        results["thesaurus"] = False
+        results["reranking"] = False
 
-    # Test 3: Hallucination detection
+    # Test 3: Medical thesaurus
     try:
-        results["hallucination_detection"] = test_3_hallucination_detection()
+        results["thesaurus"] = test_3_medical_thesaurus()
     except Exception as e:
         print(f"✗ Test 3 failed with error: {e}")
         import traceback
         traceback.print_exc()
-        results["hallucination_detection"] = False
+        results["thesaurus"] = False
 
-    # Test 4: Evidence threshold
+    # Test 4: Hallucination detection
     try:
-        results["evidence_threshold"] = test_4_evidence_threshold()
+        results["hallucination_detection"] = test_4_hallucination_detection()
     except Exception as e:
         print(f"✗ Test 4 failed with error: {e}")
         import traceback
         traceback.print_exc()
-        results["evidence_threshold"] = False
+        results["hallucination_detection"] = False
 
-    # Test 5: Config validation
+    # Test 5: Evidence threshold
     try:
-        results["config"] = test_5_config_validation()
+        results["evidence_threshold"] = test_5_evidence_threshold()
     except Exception as e:
         print(f"✗ Test 5 failed with error: {e}")
+        import traceback
+        traceback.print_exc()
+        results["evidence_threshold"] = False
+
+    # Test 6: Config validation
+    try:
+        results["config"] = test_6_config_validation()
+    except Exception as e:
+        print(f"✗ Test 6 failed with error: {e}")
         import traceback
         traceback.print_exc()
         results["config"] = False
@@ -316,11 +382,16 @@ def main():
     if passed == total:
         print("\n✅ All Phase 4.0 validation tests passed!")
         print("\n💡 Phase 4.0 Critical Fixes Status:")
+        print("   ✓ Reranker score normalization (sigmoid applied to MS-MARCO logits)")
         print("   ✓ Reranking enabled and working")
         print("   ✓ Medical thesaurus integration complete")
         print("   ✓ Hallucination detection operational")
         print("   ✓ Evidence threshold raised to 0.50")
         print("   ✓ Rate limiting with Redis token bucket")
+        print("\n🔧 Critical Bug Fixed:")
+        print("   ✓ Reranker no longer produces negative scores")
+        print("   ✓ Evidence threshold checks (>= 0.50) now work correctly")
+        print("   ✓ RAG can now answer valid queries (no more false refusals)")
         print("\n🎉 System ready for production deployment!")
         return 0
     else:

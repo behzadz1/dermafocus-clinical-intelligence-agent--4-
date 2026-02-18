@@ -94,7 +94,14 @@ class RerankerService:
         if model is not None:
             try:
                 pairs = [(query, passage) for passage in passages]
-                scores = model.predict(pairs).tolist()  # type: ignore[attr-defined]
+                raw_scores = model.predict(pairs)  # type: ignore[attr-defined]
+
+                # PHASE 4.0 FIX: MS-MARCO outputs raw logits (can be negative)
+                # Apply sigmoid to normalize to 0-1 probability range
+                import numpy as np
+                normalized_scores = 1 / (1 + np.exp(-raw_scores))
+                scores = normalized_scores.tolist()
+
                 logger.info("reranker_success", provider="sentence_transformers", passages_count=len(passages))
                 return [float(score) for score in scores]
             except Exception as e:
