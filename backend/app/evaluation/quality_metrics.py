@@ -44,7 +44,10 @@ class QualityMetricsCollector:
         reranking_enabled: bool = False,
         refusal: bool = False,
         conversation_id: Optional[str] = None,
-        request_id: Optional[str] = None
+        request_id: Optional[str] = None,
+        context_relevance: Optional[float] = None,
+        groundedness: Optional[float] = None,
+        answer_relevance: Optional[float] = None
     ):
         """
         Record quality metrics for a single query
@@ -80,7 +83,10 @@ class QualityMetricsCollector:
             "reranking_enabled": reranking_enabled,
             "refusal": refusal,
             "conversation_id": conversation_id,
-            "request_id": request_id
+            "request_id": request_id,
+            "context_relevance": round(context_relevance, 3) if context_relevance is not None else None,
+            "groundedness": round(groundedness, 3) if groundedness is not None else None,
+            "answer_relevance": round(answer_relevance, 3) if answer_relevance is not None else None
         }
 
         self._log_quality_entry(entry)
@@ -154,6 +160,12 @@ class QualityMetricsCollector:
         evidence_sufficient_count = 0
         reranking_enabled_count = 0
 
+        # RAG Triad metrics accumulators
+        total_context_relevance = 0.0
+        total_groundedness = 0.0
+        total_answer_relevance = 0.0
+        triad_metrics_count = 0
+
         try:
             with open(self.metrics_log_file, 'r') as f:
                 for line in f:
@@ -216,6 +228,13 @@ class QualityMetricsCollector:
                         if entry.get("reranking_enabled", False):
                             reranking_enabled_count += 1
 
+                        # RAG Triad metrics
+                        if entry.get("context_relevance") is not None:
+                            total_context_relevance += entry.get("context_relevance", 0)
+                            total_groundedness += entry.get("groundedness", 0)
+                            total_answer_relevance += entry.get("answer_relevance", 0)
+                            triad_metrics_count += 1
+
         except FileNotFoundError:
             pass
         except Exception as e:
@@ -244,6 +263,26 @@ class QualityMetricsCollector:
             metrics["reranking_usage_rate"] = round(
                 reranking_enabled_count / metrics["total_queries"], 3
             )
+
+        # Calculate RAG Triad averages
+        if triad_metrics_count > 0:
+            metrics["rag_triad"] = {
+                "avg_context_relevance": round(total_context_relevance / triad_metrics_count, 3),
+                "avg_groundedness": round(total_groundedness / triad_metrics_count, 3),
+                "avg_answer_relevance": round(total_answer_relevance / triad_metrics_count, 3),
+                "triad_combined_score": round(
+                    (total_context_relevance + total_groundedness + total_answer_relevance) / (triad_metrics_count * 3), 3
+                ),
+                "queries_with_triad_metrics": triad_metrics_count
+            }
+        else:
+            metrics["rag_triad"] = {
+                "avg_context_relevance": 0.0,
+                "avg_groundedness": 0.0,
+                "avg_answer_relevance": 0.0,
+                "triad_combined_score": 0.0,
+                "queries_with_triad_metrics": 0
+            }
 
         # Convert defaultdicts to regular dicts
         metrics["intent_distribution"] = dict(metrics["intent_distribution"])

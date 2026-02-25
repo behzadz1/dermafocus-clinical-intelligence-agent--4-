@@ -1,0 +1,220 @@
+{
+  "version": "synthetic-v1.0-2026-02-20",
+  "generated_at": "2026-02-20T12:39:39.521318",
+  "generation_config": {
+    "model": "claude-opus-4-5-20251101",
+    "total_cases": 10
+  },
+  "cases": [
+    {
+      "id": "SYNTH-001",
+      "question": "What is the publication date and journal for the study on HAIR & SCALP COMPLEX effectiveness on hair follicle regeneration?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "citation",
+        "ferruggia",
+        "contino",
+        "zimbone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_Introduction_185dcccf"
+    },
+    {
+      "id": "SYNTH-002",
+      "question": "When was the study on HAIR & SCALP COMPLEX for hair follicle regeneration published?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "citation",
+        "ferruggia",
+        "contino",
+        "zimbone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_79a44a7c"
+    },
+    {
+      "id": "SYNTH-003",
+      "question": "Under what license terms is this HAIR & SCALP COMPLEX article distributed?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "licensee",
+        "basel",
+        "switzerland",
+        "this"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_686a5aa9"
+    },
+    {
+      "id": "SYNTH-004",
+      "question": "Which institutions and researchers are affiliated with the HAIR & SCALP COMPLEX hair follicle regeneration study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "article",
+        "effectiveness",
+        "novel",
+        "compound"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_abdd4df1"
+    },
+    {
+      "id": "SYNTH-005",
+      "question": "What percentage of hair follicles remain in the telogen phase at any given time?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "although",
+        "inactive",
+        "unable",
+        "regenerate"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e6d844c4"
+    },
+    {
+      "id": "SYNTH-006",
+      "question": "What components were combined to create the HAIR & SCALP COMPLEX compound?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "methods",
+        "we",
+        "subsequent",
+        "stimulation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_1320744a"
+    },
+    {
+      "id": "SYNTH-007",
+      "question": "What effects did HAIR & SCALP COMPLEX demonstrate on hair follicle structures compared to other tested elements?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "results",
+        "the",
+        "conclusions",
+        "in"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6bfa946c"
+    },
+    {
+      "id": "SYNTH-008",
+      "question": "What are the two main categories of alopecia and how do they differ in terms of hair follicle involvement?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "alopecia",
+        "traditionally",
+        "scarring",
+        "non"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_1. Introduction_def1e4ba"
+    },
+    {
+      "id": "SYNTH-009",
+      "question": "What are the two traditional categories used to classify alopecia?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "alopecia",
+        "traditionally",
+        "general",
+        "medical"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_ce16ae05"
+    },
+    {
+      "id": "SYNTH-010",
+      "question": "What is the prevalence of non-scarring alopecia in the general population?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "scarring",
+        "non",
+        "alopecia",
+        "condition"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_73eee280"
+    }
+  ]
+}

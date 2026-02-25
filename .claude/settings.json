@@ -9,7 +9,8 @@
       "Bash(npm:*)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(tee:*)"
     ],
     "deny": []
   },

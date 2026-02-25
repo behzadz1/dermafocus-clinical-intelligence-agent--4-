@@ -1,0 +1,5428 @@
+{
+  "version": "synthetic-v1.0-2026-02-20",
+  "generated_at": "2026-02-20T15:13:30.876835",
+  "generation_config": {
+    "model": "claude-opus-4-5-20251101",
+    "total_cases": 258
+  },
+  "cases": [
+    {
+      "id": "SYNTH-001",
+      "question": "What is the publication date and journal for the study on HAIR & SCALP COMPLEX effectiveness on hair follicle regeneration?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "citation",
+        "ferruggia",
+        "contino",
+        "zimbone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_Introduction_185dcccf"
+    },
+    {
+      "id": "SYNTH-002",
+      "question": "When was the study on HAIR & SCALP COMPLEX for hair follicle regeneration published?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "citation",
+        "ferruggia",
+        "contino",
+        "zimbone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_79a44a7c"
+    },
+    {
+      "id": "SYNTH-003",
+      "question": "Under what license terms is this article on hair follicle regeneration distributed?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "licensee",
+        "basel",
+        "switzerland",
+        "this"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_686a5aa9"
+    },
+    {
+      "id": "SYNTH-004",
+      "question": "What is the normal daily hair loss range in healthy individuals before regeneration from hair follicle stem cells?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "article",
+        "effectiveness",
+        "novel",
+        "compound"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_abdd4df1"
+    },
+    {
+      "id": "SYNTH-005",
+      "question": "What percentage of hair follicles remain in the telogen phase at any given time?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "although",
+        "inactive",
+        "unable",
+        "regenerate"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e6d844c4"
+    },
+    {
+      "id": "SYNTH-006",
+      "question": "What components were combined to create the HAIR & SCALP COMPLEX compound?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "methods",
+        "we",
+        "subsequent",
+        "stimulation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_1320744a"
+    },
+    {
+      "id": "SYNTH-007",
+      "question": "What effects did HAIR & SCALP COMPLEX demonstrate on hair follicle structures compared to other tested elements?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "results",
+        "the",
+        "conclusions",
+        "in"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6bfa946c"
+    },
+    {
+      "id": "SYNTH-008",
+      "question": "What are the two main categories of alopecia classification and how do they differ in terms of hair follicle preservation?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "alopecia",
+        "traditionally",
+        "scarring",
+        "non"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_1. Introduction_def1e4ba"
+    },
+    {
+      "id": "SYNTH-009",
+      "question": "What are the two traditional categories of hair loss disorders in alopecia classification?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "alopecia",
+        "traditionally",
+        "general",
+        "medical"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_ce16ae05"
+    },
+    {
+      "id": "SYNTH-010",
+      "question": "What is the prevalence rate of non-scarring alopecia in the general population?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "scarring",
+        "non",
+        "alopecia",
+        "condition"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_73eee280"
+    },
+    {
+      "id": "SYNTH-011",
+      "question": "What types of alopecia are classified as non-scarring alopecia?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "this",
+        "non",
+        "prevalence",
+        "condition"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f6f0a51a"
+    },
+    {
+      "id": "SYNTH-012",
+      "question": "What is the prevalence of androgenetic alopecia in white men at age 50 and age 70?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "androgenetic",
+        "caucasian",
+        "conditions",
+        "alopecia"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_218b2672"
+    },
+    {
+      "id": "SYNTH-013",
+      "question": "Which hormones are the most important regulators of hair loss occurrence and course?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "the",
+        "abnormal",
+        "casian",
+        "populations"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_0ae08bbb"
+    },
+    {
+      "id": "SYNTH-014",
+      "question": "What is the result of high androgen hormone levels on terminal hair in the upper scalp in men?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "in",
+        "cosmetics",
+        "hindering",
+        "growth"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e395f752"
+    },
+    {
+      "id": "SYNTH-015",
+      "question": "How does the hair follicle cycle change in androgenetic alopecia compared to normal hair growth?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "cosmetics",
+        "based",
+        "terminal",
+        "knowledge"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_d2f9731c"
+    },
+    {
+      "id": "SYNTH-016",
+      "question": "What regulates the proper progression of the hair growth cycle in hair follicles?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "furthermore",
+        "telogen",
+        "increases",
+        "follicle"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_8da58459"
+    },
+    {
+      "id": "SYNTH-017",
+      "question": "Which growth factors are abnormally released due to inappropriate pathway activation from abnormal testosterone and DHT levels?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "abnormal",
+        "transforming",
+        "growth",
+        "factor"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e09998c7"
+    },
+    {
+      "id": "SYNTH-018",
+      "question": "What role does IGF-1 signaling play in hair follicle biology?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "epidermal",
+        "growth",
+        "factor",
+        "crucial"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f323454f"
+    },
+    {
+      "id": "SYNTH-019",
+      "question": "What growth factors support IGF-1 in dermal papilla cells during the anagen phase of hair follicle development?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "during",
+        "in",
+        "hepatocyte",
+        "growth"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f3f6aa05"
+    },
+    {
+      "id": "SYNTH-020",
+      "question": "What role does EGF play in hair follicle growth during the anagen phase?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "melanocytes",
+        "paracrine",
+        "mechanism",
+        "promotes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_0179189e"
+    },
+    {
+      "id": "SYNTH-021",
+      "question": "What is the combined effect of IGF-1 and EGF on the hair cycle?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "finally",
+        "all",
+        "in",
+        "dermal"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_fffdb9f0"
+    },
+    {
+      "id": "SYNTH-022",
+      "question": "What is the average diameter range of exosomes involved in intercellular communication?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "particular",
+        "exosomes",
+        "mulate",
+        "follicle"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f1ee2133"
+    },
+    {
+      "id": "SYNTH-023",
+      "question": "What types of cells produce exosomes and in which biological fluids are they concentrated?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "exosomes",
+        "they",
+        "more",
+        "ercellular"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_2c0d11b6"
+    },
+    {
+      "id": "SYNTH-024",
+      "question": "How are exosomes produced and secreted from cells?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "exosomes",
+        "once",
+        "esicles",
+        "isolated"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_bb974e2e"
+    },
+    {
+      "id": "SYNTH-025",
+      "question": "What functional components are contained within exosomes that can be delivered to target cells?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "their",
+        "contents",
+        "cytoplasm",
+        "target"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_686b502b"
+    },
+    {
+      "id": "SYNTH-026",
+      "question": "What are the therapeutic applications of exosomes beyond regenerative medicine?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "due",
+        "parkinson",
+        "alzheimer",
+        "different"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_cc629eb2"
+    },
+    {
+      "id": "SYNTH-027",
+      "question": "What is a major controversy associated with extracellular vesicle research in regenerative medicine?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "although",
+        "erative",
+        "medicine",
+        "extracellular"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_563d99e1"
+    },
+    {
+      "id": "SYNTH-028",
+      "question": "What three compounds were tested in vitro for their effectiveness on hair growth and regeneration in dermal papilla cells?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "cosmetics",
+        "the",
+        "we",
+        "methods"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_d8900354"
+    },
+    {
+      "id": "SYNTH-029",
+      "question": "What biological components have been previously studied and characterized in relation to plant nanovesicles and stem cell exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "plant",
+        "nanovesicles",
+        "exosomes",
+        "already"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f851c965"
+    },
+    {
+      "id": "SYNTH-030",
+      "question": "What biological properties of plant-derived nanovesicles contribute to their anticancer activities?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "plant",
+        "previous",
+        "several",
+        "authors"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_a4a68c5f"
+    },
+    {
+      "id": "SYNTH-031",
+      "question": "Has the potential role of stem cell exosomes in hair follicle growth dynamics been previously investigated?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "anti",
+        "their",
+        "account",
+        "anticancer"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_c38876ec"
+    },
+    {
+      "id": "SYNTH-032",
+      "question": "Have exosomes and nanovesicles from matrices been investigated for their effects on hair follicle regeneration?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "exosomes",
+        "follicle",
+        "nanovesicles",
+        "matrices"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_3c844a14"
+    },
+    {
+      "id": "SYNTH-033",
+      "question": "What role do exosomes play in regenerative aesthetic medicine for hair growth?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "thanks",
+        "present",
+        "models",
+        "bioactive"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_59a55d0b"
+    },
+    {
+      "id": "SYNTH-034",
+      "question": "What is the source of the exosomes and growth factors in HAIR & SCALP COMPLEX (HSC50+)?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "in",
+        "rejuvenation",
+        "growth",
+        "represents"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5416e1c4"
+    },
+    {
+      "id": "SYNTH-035",
+      "question": "What materials and methods were used to prepare the components of the HAIR & SCALP COMPLEX formulation?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "cord",
+        "blood"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_2. Materials And Met_0ce10321"
+    },
+    {
+      "id": "SYNTH-036",
+      "question": "What plant source were the nanovesicles derived from in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "cord",
+        "blood"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_b3ee1ae0"
+    },
+    {
+      "id": "SYNTH-037",
+      "question": "What is the expected vesicle size range for colostrum-derived exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "citrus",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e1c443cf"
+    },
+    {
+      "id": "SYNTH-038",
+      "question": "When was the colostrum sample obtained from healthy cows postcalving for exosome purification?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "this",
+        "in"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_ffdcc410"
+    },
+    {
+      "id": "SYNTH-039",
+      "question": "What centrifugation speed was used to isolate exosomes from bovine colostrum?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "exosomes",
+        "sorvall"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_9ec8fea9"
+    },
+    {
+      "id": "SYNTH-040",
+      "question": "What ultracentrifugation speed and duration are used to purify exosomes in the final purification steps?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "the",
+        "supernatant"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_befd2897"
+    },
+    {
+      "id": "SYNTH-041",
+      "question": "What centrifugation speed and duration were used to purify exosomes from the cell culture medium?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "after",
+        "sigma"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_0c7a157e"
+    },
+    {
+      "id": "SYNTH-042",
+      "question": "What biophysical method was used to measure the size distribution of colostrum exosomes in this study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "cosmetics",
+        "approaches"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5e043d53"
+    },
+    {
+      "id": "SYNTH-043",
+      "question": "How does light scattering technique determine exosome size and concentration in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "light",
+        "brownian"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_1a23a870"
+    },
+    {
+      "id": "SYNTH-044",
+      "question": "What fixation solution and conditions are used to prepare bovine colostrum exosome pellets for scanning electron microscopy?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "colostrum",
+        "derived"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_0dcdd9a5"
+    },
+    {
+      "id": "SYNTH-045",
+      "question": "What ultracentrifugation speed and duration were used for preparing samples for SEM analysis?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "subsequently",
+        "in"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7e79698c"
+    },
+    {
+      "id": "SYNTH-046",
+      "question": "What is the source and collection timing of bovine colostrum used in GF20 preparation?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "coxem",
+        "preparation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_8a1d2bd3"
+    },
+    {
+      "id": "SYNTH-047",
+      "question": "What centrifugation speed and temperature were used to process the colostrum in the HAIR & SCALP COMPLEX preparation?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "sigma",
+        "aldrich"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_cbe8fac7"
+    },
+    {
+      "id": "SYNTH-048",
+      "question": "What processing steps were performed to obtain the final sterile powder form of the biological factors mixture?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "maderno",
+        "italy"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_dd14e453"
+    },
+    {
+      "id": "SYNTH-049",
+      "question": "How were the bioactive factor concentrations of GF20 determined and validated for non-human matrices?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "the",
+        "table"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_61f0a314"
+    },
+    {
+      "id": "SYNTH-050",
+      "question": "What is the sequential analogy percentage between human and bovine IGF-1 that allowed validation of the ELISA tests?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "we",
+        "quantikine"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6c8980d1"
+    },
+    {
+      "id": "SYNTH-051",
+      "question": "From which scalp region were human hair follicles isolated for the in vitro culture studies?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "in",
+        "vitro"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6436dde5"
+    },
+    {
+      "id": "SYNTH-052",
+      "question": "What concentration of insulin was used in the Williams E medium for culturing hair follicles?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "helsinki",
+        "declaration"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_a4bbd8df"
+    },
+    {
+      "id": "SYNTH-053",
+      "question": "How many hair follicles were distributed across plates to test the matrices in the study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "wuppertal",
+        "germany"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_bda791e0"
+    },
+    {
+      "id": "SYNTH-054",
+      "question": "What software was used for image analysis in the GF20 study, and how many replicates were performed?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "three",
+        "table"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_db138185"
+    },
+    {
+      "id": "SYNTH-055",
+      "question": "Which growth factors and cytokines were detected via ELISA kit in the GF20 compound analysis?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "growth",
+        "factors"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_09776575"
+    },
+    {
+      "id": "SYNTH-056",
+      "question": "What staining method was used to identify hair follicle dermal papilla cells after 18 days of exposure?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "interleukin",
+        "identification"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_ab63b5b7"
+    },
+    {
+      "id": "SYNTH-057",
+      "question": "What statistical test was used for multiple comparisons in the hair follicle regeneration study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "materials",
+        "and",
+        "methods",
+        "sigma",
+        "aldrich"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f6e23535"
+    },
+    {
+      "id": "SYNTH-058",
+      "question": "What are the size and concentration characteristics of the CBSC-derived exosomes, plant-derived nanovesicles, and colostrum-derived exosomes used in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "derived",
+        "exosomes",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_3. Results_c1e603da"
+    },
+    {
+      "id": "SYNTH-059",
+      "question": "What is the average diameter and concentration of plant-derived nanovesicles from C. bergamia in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "derived",
+        "exosomes",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_4116fb45"
+    },
+    {
+      "id": "SYNTH-060",
+      "question": "What is the average particle size and concentration of colostrum-derived exosomes characterized in the study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "colostrum",
+        "derived",
+        "exosomes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_77333916"
+    },
+    {
+      "id": "SYNTH-061",
+      "question": "What are the size and concentration characteristics of the different exosome and nanovesicle types used in the HAIR & SCALP COMPLEX formulation?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "derived",
+        "exosomes",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_3. Results_2139f8b6"
+    },
+    {
+      "id": "SYNTH-062",
+      "question": "What is the particle concentration and size range of CBSC-derived exosomes used in the HAIR & SCALP COMPLEX?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "derived",
+        "exosomes",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7630a40f"
+    },
+    {
+      "id": "SYNTH-063",
+      "question": "What is the average diameter size and morphology of colostrum-derived exosomes used in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "characterization",
+        "colostrum",
+        "derived",
+        "exosomes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_96e2d943"
+    },
+    {
+      "id": "SYNTH-064",
+      "question": "What are the logarithmic concentrations of GM-CSF, bFGF, and TGF-β found in GF20 colostrum exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "all",
+        "table",
+        "figure"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f05d9169"
+    },
+    {
+      "id": "SYNTH-065",
+      "question": "What method was used to observe exosome morphology in the GF20 colostrum analysis?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "bioactive",
+        "components",
+        "colostrum",
+        "all"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6ac8ac58"
+    },
+    {
+      "id": "SYNTH-066",
+      "question": "What are the concentrations of GM-CSF, bFGF, and TGF-β in GF20 expressed in logarithmic scale?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "all",
+        "table",
+        "cosmetics"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_afbe2991"
+    },
+    {
+      "id": "SYNTH-067",
+      "question": "What biological model was used to verify hair follicle growth in the in vitro culture test for GF20?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "figure",
+        "concentrations",
+        "in",
+        "vitro"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_afa72c5d"
+    },
+    {
+      "id": "SYNTH-068",
+      "question": "What biological model was used for the in vitro culture test in the GF20 hair follicle study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "cosmetics",
+        "in",
+        "vitro",
+        "culture"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_eef2f9f9"
+    },
+    {
+      "id": "SYNTH-069",
+      "question": "What culture medium was used for the negative control in the hair follicle growth test?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "william",
+        "llicles",
+        "verify"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e7d5a5c9"
+    },
+    {
+      "id": "SYNTH-070",
+      "question": "Which treatment showed the highest growth in the germinative area of the hair bulb compared to the negative control?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "however",
+        "as",
+        "figure",
+        "medium"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_8c013aff"
+    },
+    {
+      "id": "SYNTH-071",
+      "question": "Which treatments showed the greatest expansion of the germinative area in hair follicle bulbs?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "this",
+        "as",
+        "figure"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f7653f25"
+    },
+    {
+      "id": "SYNTH-072",
+      "question": "What software and version was used to analyze fluorescence intensity in samples treated with colostrum exosomes and HSC50+?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "treated",
+        "colostrum",
+        "obtained"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7c120c48"
+    },
+    {
+      "id": "SYNTH-073",
+      "question": "Who are the authors of the study on HAIR & SCALP COMPLEX effectiveness for hair follicle regeneration?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "ferruggia",
+        "contino",
+        "zimbone",
+        "brundo"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_Reference_09ca2dfb"
+    },
+    {
+      "id": "SYNTH-074",
+      "question": "What is the DOI for the 2024 Cosmetics journal article on HAIR & SCALP COMPLEX effectiveness?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "ferruggia",
+        "contino",
+        "zimbone",
+        "brundo"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_4e0fddb5"
+    },
+    {
+      "id": "SYNTH-075",
+      "question": "What was the control group baseline measurement and when did HSC50+ treatment show highly significant results in hair follicle regeneration?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "it",
+        "treatment",
+        "13 mm",
+        "control"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_2fb131db"
+    },
+    {
+      "id": "SYNTH-076",
+      "question": "Did exosomes of CBSCs and PDNVs show significant difference in follicle growth compared to untreated negative control?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "in",
+        "cosmetics",
+        "figure",
+        "previously"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5c9bb091"
+    },
+    {
+      "id": "SYNTH-077",
+      "question": "Which treatment conditions were compared for fluorescence intensity analysis of the hair bulb using ImageJ?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "white",
+        "cosmetics",
+        "figure",
+        "analysis"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_d0534e3d"
+    },
+    {
+      "id": "SYNTH-078",
+      "question": "What was the hair follicle length achieved with HSC50+ treatment compared to colostrum exosomes and plant-derived nanovesicles?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "figure",
+        "lower",
+        "finally",
+        "16 mm"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_e329174e"
+    },
+    {
+      "id": "SYNTH-079",
+      "question": "At what day did HSC50+ treatment show highly significant hair regeneration results (p < 0.01)?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "statistical",
+        "cosmetics",
+        "it",
+        "13 mm"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_89555b41"
+    },
+    {
+      "id": "SYNTH-080",
+      "question": "Which exosome treatment showed significant hair follicle growth increase from day 12 compared to CBSC and PDNV exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "reference",
+        "treatment",
+        "in",
+        "figure",
+        "comparison"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_6dc12e3f"
+    },
+    {
+      "id": "SYNTH-081",
+      "question": "What are the size and concentration characteristics of colostrum-derived exosomes compared to plant nanovesicles and stem cell exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "compared",
+        "bergamia",
+        "however"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_4. Discussion_a96ced6c"
+    },
+    {
+      "id": "SYNTH-082",
+      "question": "What are the size and concentration values of colostrum-derived exosomes isolated in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "compared",
+        "bergamia",
+        "preliminary"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_19aab4aa"
+    },
+    {
+      "id": "SYNTH-083",
+      "question": "How does the morphology of exosomes derived from the matrices compare to those from C. Bergamia and CBSC?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "bergamia",
+        "however",
+        "higher",
+        "exosomes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7fbc9a4a"
+    },
+    {
+      "id": "SYNTH-084",
+      "question": "What allergenic components were removed from GF20 during purification from colostrum?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "following",
+        "ibited",
+        "similar",
+        "regular"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5d16332a"
+    },
+    {
+      "id": "SYNTH-085",
+      "question": "Which growth factors showed the highest concentrations in GF20 according to the ELISA test?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "thus",
+        "cosmetics",
+        "nvolved",
+        "tissue"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_134bc5ac"
+    },
+    {
+      "id": "SYNTH-086",
+      "question": "What effects did GF20 and HSC50+ show on hair follicles after 18 days of in vitro treatment?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "at",
+        "the",
+        "involving",
+        "treatment"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_1a0d4b6b"
+    },
+    {
+      "id": "SYNTH-087",
+      "question": "How do exosomes protect bioactive molecules compared to the free factors present in GF20?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "it",
+        "exosomes",
+        "carriers",
+        "factors"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_da1ec74c"
+    },
+    {
+      "id": "SYNTH-088",
+      "question": "What cellular mechanism involving endocytosis contributes to the stimulation of hair growth in exosome treatment?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "this",
+        "although",
+        "our",
+        "releasing"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_976f671e"
+    },
+    {
+      "id": "SYNTH-089",
+      "question": "How does HSC50+ stimulate hair regeneration in terms of the hair cycle phases?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "moreover",
+        "potential",
+        "treatment"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_30a65b19"
+    },
+    {
+      "id": "SYNTH-090",
+      "question": "Who was responsible for funding acquisition in the HAIR & SCALP COMPLEX study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "all",
+        "funding",
+        "this",
+        "authors"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7cc364da"
+    },
+    {
+      "id": "SYNTH-091",
+      "question": "Was ethics committee approval required for the HAIR & SCALP COMPLEX study at the University of Catania?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "this",
+        "institutional",
+        "review",
+        "board"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f9b2bf20"
+    },
+    {
+      "id": "SYNTH-092",
+      "question": "Which company provided the HSC50+ compound and related consumables for this research project?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "acknowledgments",
+        "ph",
+        "notice",
+        "authors"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_a68d51b8"
+    },
+    {
+      "id": "SYNTH-093",
+      "question": "Which studies are cited regarding patient quality of life and psychological aspects of hair loss treatment?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "thadanipon",
+        "suchonwanit",
+        "measuring",
+        "patient"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_section_References_0ed944d1"
+    },
+    {
+      "id": "SYNTH-094",
+      "question": "Which study discussed the psychology of hair loss patients and the importance of counseling?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "thadanipon",
+        "suchonwanit",
+        "measuring",
+        "patient"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_2b7996ec"
+    },
+    {
+      "id": "SYNTH-095",
+      "question": "Which journal published a 2017 review on androgenetic alopecia by Lolli, Pallotti, Rossi and colleagues?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "dermatol",
+        "venereol",
+        "lolli",
+        "pallotti"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5706dbe6"
+    },
+    {
+      "id": "SYNTH-096",
+      "question": "What is the role of TGF-beta2 in hair biology according to Hibino and Nishiyama's 2004 study?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "molecular",
+        "regulation",
+        "hair",
+        "follicles"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_006b7f32"
+    },
+    {
+      "id": "SYNTH-097",
+      "question": "Which journal published research on Epidermal Growth Factor's involvement in Alopecia Areata pathogenesis in 2020?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "hair",
+        "growth",
+        "alopecia",
+        "skin"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_64ff6bd5"
+    },
+    {
+      "id": "SYNTH-098",
+      "question": "What signaling pathway does Epidermal Growth Factor use to promote proliferation and migration of follicular outer root sheath cells?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "park",
+        "pack",
+        "kwon",
+        "induction"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_7455e6ad"
+    },
+    {
+      "id": "SYNTH-099",
+      "question": "Which journal published research on exosomes targeted towards applications in regenerative medicine in 2021?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "growth",
+        "angora",
+        "rabbit",
+        "genes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_30a88612"
+    },
+    {
+      "id": "SYNTH-100",
+      "question": "Which 2020 Science publication discusses the biology, function, and biomedical applications of exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "kalluri",
+        "the",
+        "science",
+        "cosmetics"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5a3a0c7f"
+    },
+    {
+      "id": "SYNTH-101",
+      "question": "Which 2019 publication by Doyle and Wang provides an overview of extracellular vesicles and exosome isolation methods?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "biomedical",
+        "applications",
+        "regenerative",
+        "therapy"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_771b462e"
+    },
+    {
+      "id": "SYNTH-102",
+      "question": "What is the potential therapeutic application of exosomes discussed in Rademacher's 2023 research?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "rademacher",
+        "potential",
+        "therapeutic",
+        "loaded"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_5c205e95"
+    },
+    {
+      "id": "SYNTH-103",
+      "question": "What year was the study on plant exosomal vesicles as nanocarriers in biomedicine published?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "analyst",
+        "yaghoubi",
+        "movassaghpour",
+        "zamani"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_35ebe3f3"
+    },
+    {
+      "id": "SYNTH-104",
+      "question": "What publication developed an optimized method for isolation of umbilical cord blood-derived small extracellular vesicles for clinical use?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "med",
+        "cardoso",
+        "rodrigues",
+        "gomes"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_0e37cb61"
+    },
+    {
+      "id": "SYNTH-105",
+      "question": "What journal published the 2023 systematic review of exosome treatment in hair restoration by Gupta, Wang, and Rapaport?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "theranostics",
+        "gupta",
+        "wang",
+        "rapaport"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_22bc55dd"
+    },
+    {
+      "id": "SYNTH-106",
+      "question": "What journal published research on immune components of colostrum and milk from a historical perspective in 2007?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "hodgkinson",
+        "prosser",
+        "davis",
+        "immune"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_514aa59b"
+    },
+    {
+      "id": "SYNTH-107",
+      "question": "What is the focus of the 2021 Front. Nutr. publication by Feng et al. regarding milk-derived exosomes?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "int",
+        "mol",
+        "sci",
+        "feng"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_9d4b7946"
+    },
+    {
+      "id": "SYNTH-108",
+      "question": "Which 1996 study investigated the role of cytokines and growth factors in hair growth and alopecia areata pathogenesis?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "front",
+        "genet",
+        "hoffmann",
+        "eicheler"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_f6daed5c"
+    },
+    {
+      "id": "SYNTH-109",
+      "question": "Who bears responsibility for any injury resulting from ideas, methods, instructions or products referred to in the content?",
+      "expected_doc_ids": [
+        "Effectiveness of a Novel Compound HAIR & SCALP COMPLEX on Hair Follicle Regeneration"
+      ],
+      "expected_keywords": [
+        "references",
+        "disclaim",
+        "responsibility",
+        "injury",
+        "people"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Effectiveness_of_a_Novel_Compound_HAIR___SCALP_COM_detail_9ea5d868"
+    },
+    {
+      "id": "SYNTH-110",
+      "question": "How does DHT binding contribute to hair loss in androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "affected",
+        "this",
+        "ctivity",
+        "playing"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_efe4697e"
+    },
+    {
+      "id": "SYNTH-111",
+      "question": "At what stage of androgenetic alopecia is PRP treatment typically recommended?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "several",
+        "these",
+        "among",
+        "leading"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_c34a5468"
+    },
+    {
+      "id": "SYNTH-112",
+      "question": "What are the potential side effects of PRP treatment for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "additionally",
+        "this",
+        "follicles",
+        "remain"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_039dbf23"
+    },
+    {
+      "id": "SYNTH-113",
+      "question": "What advantages does PN HPT™ offer over PRP for treating mild androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "all",
+        "both",
+        "while",
+        "treatments"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_d0a18042"
+    },
+    {
+      "id": "SYNTH-114",
+      "question": "What is the mechanism by which PN HPT™ promotes follicular regeneration and hair follicle neogenesis?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "these",
+        "devoid",
+        "pharmacological",
+        "allergenic"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_9a301635"
+    },
+    {
+      "id": "SYNTH-115",
+      "question": "What was the age range of male patients included in the Plinest Hair study for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "plinest",
+        "hair",
+        "each",
+        "case"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_67cff423"
+    },
+    {
+      "id": "SYNTH-116",
+      "question": "What treatment methodology was used to compare Plinest Hair and PRP in the androgenetic alopecia study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "plinest",
+        "hair",
+        "mastelli",
+        "after"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_2c46093a"
+    },
+    {
+      "id": "SYNTH-117",
+      "question": "What scale was used to grade the hair loss pattern in patients with androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "the",
+        "ham",
+        "norwood",
+        "figure"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_d2937cd3"
+    },
+    {
+      "id": "SYNTH-118",
+      "question": "How is the hair loss count measured using the combing test for androgenetic alopecia assessment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "hair",
+        "loss",
+        "count",
+        "combing"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_62c0bd8d"
+    },
+    {
+      "id": "SYNTH-119",
+      "question": "What parameters were evaluated on the qualitative scale for Plinest Hair usability assessment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "mean",
+        "furthermore",
+        "plinest",
+        "hair"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_9b7725a0"
+    },
+    {
+      "id": "SYNTH-120",
+      "question": "What volume of autologous venous blood is typically drawn from patients for PRP therapy preparation?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "platelet",
+        "rich",
+        "plasma",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_0086378d"
+    },
+    {
+      "id": "SYNTH-121",
+      "question": "How many PRP injection sessions are administered during the first month of the protocol?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "this",
+        "extraction",
+        "the",
+        "month"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_e2dfa660"
+    },
+    {
+      "id": "SYNTH-122",
+      "question": "How many treatment sessions were administered to each patient group in this androgenetic alopecia study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "this",
+        "data",
+        "patients",
+        "table"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_e8deb40e"
+    },
+    {
+      "id": "SYNTH-123",
+      "question": "What was the most common Hamilton-Norwood scale pattern observed in subjects treated for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "table",
+        "the",
+        "most",
+        "none"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_ae2dc7eb"
+    },
+    {
+      "id": "SYNTH-124",
+      "question": "What two treatments are compared for androgenetic alopecia in the case series by Angelo Emanuele Leone?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "how",
+        "angelo",
+        "emanuele",
+        "leone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_aa1ecd1e"
+    },
+    {
+      "id": "SYNTH-125",
+      "question": "What was the baseline hair loss count and scalp condition for Patient 1 at T0?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "table",
+        "baseline",
+        "pat",
+        "no"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_a5079a68"
+    },
+    {
+      "id": "SYNTH-126",
+      "question": "What pattern classification was assigned to the patient with diffuse thinning at both the vertex and fronto-temporal area with reduced thickness and tensile strength?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "dandruff",
+        "marked",
+        "slight",
+        "vertex"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_d53ddbb6"
+    },
+    {
+      "id": "SYNTH-127",
+      "question": "What were the clinical outcomes observed at T1 for patients receiving polynucleotides versus platelet-rich plasma for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "at",
+        "most",
+        "no",
+        "among"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_453cf101"
+    },
+    {
+      "id": "SYNTH-128",
+      "question": "What was the baseline hair condition at T0 for Patient 1 in the androgenetic alopecia treatment study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "treatment",
+        "pat",
+        "no"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_a87726f0"
+    },
+    {
+      "id": "SYNTH-129",
+      "question": "What clinical changes were observed in the patient with strong diffuse thinning at the vertex and fronto-temporal area after treatment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "absence",
+        "left",
+        "dandruff",
+        "few"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_f165cead"
+    },
+    {
+      "id": "SYNTH-130",
+      "question": "How did patient GAIS ratings compare to investigator ratings for treatment efficacy in the androgenetic alopecia study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "absence",
+        "no",
+        "at",
+        "treatment"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_ff66b218"
+    },
+    {
+      "id": "SYNTH-131",
+      "question": "What adverse effects were observed at T1 in patients treated for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "in",
+        "specifically",
+        "adverse"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_4bbe463e"
+    },
+    {
+      "id": "SYNTH-132",
+      "question": "How did pain perception compare between polynucleotide and platelet-rich plasma injections on opposite sides of the scalp?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "there",
+        "the",
+        "throughout"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_e5209dd6"
+    },
+    {
+      "id": "SYNTH-133",
+      "question": "What was the reported pain range for PRP and Plinest Hair treatments during injections?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "pain",
+        "plinest",
+        "hair",
+        "table"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_7f6807cf"
+    },
+    {
+      "id": "SYNTH-134",
+      "question": "What was the mean pain level for Plinest Hair® injections at the 8th session?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "hair",
+        "injection",
+        "mean",
+        "st"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_1018d2f1"
+    },
+    {
+      "id": "SYNTH-135",
+      "question": "What factors did investigators assess when evaluating the usability of the Plinest Hair Intradermal Polynucleotide Gel device?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "hair",
+        "pat",
+        "no",
+        "mean"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_1369663f"
+    },
+    {
+      "id": "SYNTH-136",
+      "question": "What percentage of cases rated the device's injectability as \"good\" during the polynucleotides treatment evaluation?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "at",
+        "in",
+        "how",
+        "angelo"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_35dd76e1"
+    },
+    {
+      "id": "SYNTH-137",
+      "question": "What is the DOI number for the androgenetic alopecia case series comparing polynucleotides and platelet-rich plasma?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "results",
+        "plasma",
+        "androgenetic",
+        "alopecia",
+        "case"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_4a9fd547"
+    },
+    {
+      "id": "SYNTH-138",
+      "question": "How does PN HPT™ contribute to hair follicle regeneration in androgenetic alopecia treatment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "plinest",
+        "hair",
+        "mastelli"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_section_Discussion_2f4d2025"
+    },
+    {
+      "id": "SYNTH-139",
+      "question": "What are the beneficial effects of PN HPT™ on dermal fibroblasts in androgenetic alopecia treatment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "plinest",
+        "hair",
+        "mastelli"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_d1a874ea"
+    },
+    {
+      "id": "SYNTH-140",
+      "question": "What is the biological source of the PN HPT™-based gel used in Plinest Hair for androgenetic alopecia treatment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "due",
+        "plinest",
+        "hair",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_bbc34f99"
+    },
+    {
+      "id": "SYNTH-141",
+      "question": "What clinical benefits were observed with Plinest Hair in mild androgenetic alopecia cases?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "in",
+        "plinest",
+        "hair"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_dd60a877"
+    },
+    {
+      "id": "SYNTH-142",
+      "question": "What complications were reported with the treatment and how did they resolve?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "only",
+        "improving",
+        "complications",
+        "reported"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_ea844b09"
+    },
+    {
+      "id": "SYNTH-143",
+      "question": "What aesthetic and plastic medicine applications has Plinest Hair previously demonstrated safety and efficacy for?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "in",
+        "plinest",
+        "hair",
+        "before"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_688acd45"
+    },
+    {
+      "id": "SYNTH-144",
+      "question": "What factors contribute to the variability of PRP treatment outcomes in androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "plinest",
+        "hair",
+        "however",
+        "furthermore"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_d9f94e82"
+    },
+    {
+      "id": "SYNTH-145",
+      "question": "What complication did a 70-year-old female patient develop following PRP treatment for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "blindness",
+        "report",
+        "published"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_dc6acea2"
+    },
+    {
+      "id": "SYNTH-146",
+      "question": "How does topical minoxidil work to promote hair growth in androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "oral",
+        "topical",
+        "disease",
+        "progression"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_7e64d001"
+    },
+    {
+      "id": "SYNTH-147",
+      "question": "What side effects have been reported with topical minoxidil therapy for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "for",
+        "physical",
+        "utrient",
+        "supply"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_638a2487"
+    },
+    {
+      "id": "SYNTH-148",
+      "question": "What is notable about the comparison between polynucleotides and PRP for treating androgenetic alopecia in this study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "pain",
+        "this",
+        "nagaja",
+        "remained"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_0e610b5a"
+    },
+    {
+      "id": "SYNTH-149",
+      "question": "Is polynucleotide therapy considered a valid standardized treatment option for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "how",
+        "angelo",
+        "emanuele",
+        "leone"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_acb83a32"
+    },
+    {
+      "id": "SYNTH-150",
+      "question": "Which 2023 publication reviewed current guidance and unmet needs in androgenetic alopecia treatment?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "price",
+        "treatment",
+        "hair",
+        "loss"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_section_References_ae592258"
+    },
+    {
+      "id": "SYNTH-151",
+      "question": "Which study demonstrated that platelet-rich plasma for hair loss treatment improves patient-reported quality of life?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "clin",
+        "co",
+        "investig",
+        "dermatol"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_6eef6bd9"
+    },
+    {
+      "id": "SYNTH-152",
+      "question": "What is the title of the 2021 consensus report by Cavallini et al. regarding PN-HPT™ in aesthetic medicine?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "medicine",
+        "practi",
+        "future",
+        "research"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_fc1a9164"
+    },
+    {
+      "id": "SYNTH-153",
+      "question": "What journal published Colangelo et al.'s 2021 study on polynucleotide biogel enhancing tissue repair and matrix deposition?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "cosmet",
+        "dermatol",
+        "colangelo",
+        "govoni"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_4e9e50ad"
+    },
+    {
+      "id": "SYNTH-154",
+      "question": "What type of study design did Alves and Grimalt use to assess PRP efficacy for androgenetic alopecia?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "sci",
+        "rep",
+        "alves",
+        "grimalt"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_fd469b3c"
+    },
+    {
+      "id": "SYNTH-155",
+      "question": "What property do Polynucleotides HPT™-based compounds exhibit against reactive oxygen species according to Colangelo et al.?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "trial",
+        "stem",
+        "cells",
+        "transl"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_8cdec198"
+    },
+    {
+      "id": "SYNTH-156",
+      "question": "What conditions has PN HPT™ been studied for in published research?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "medicine",
+        "practitioners",
+        "future",
+        "research"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_aa71ff95"
+    },
+    {
+      "id": "SYNTH-157",
+      "question": "What clinical application was studied for polynucleotides highly purified technology (PN-HPT®) combined with cross-linked hyaluronic acid?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "scars",
+        "cosmet",
+        "derma",
+        "araco"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_cb360fe7"
+    },
+    {
+      "id": "SYNTH-158",
+      "question": "What adverse event has been reported secondary to platelet-rich plasma therapy in the context of herpes zoster ophthalmicus?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "blood",
+        "transfus",
+        "arita",
+        "tobita"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_f3929657"
+    },
+    {
+      "id": "SYNTH-159",
+      "question": "What anesthetic techniques were compared for platelet-rich plasma treatment in the Nagaja et al. 2024 study?",
+      "expected_doc_ids": [
+        "Polynucleotides Versus Platelet-Rich Plasma for  Androgenetic Alopecia_ A Case Series (1)"
+      ],
+      "expected_keywords": [
+        "references",
+        "stem",
+        "cell",
+        "res",
+        "ther"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Polynucleotides_Versus_Platelet_Rich_Plasma_for__A_detail_82628c8b"
+    },
+    {
+      "id": "SYNTH-160",
+      "question": "What type of patients might benefit most from topical Purasome SGC100+ application according to this case study?",
+      "expected_doc_ids": [
+        "The Benefits of Purasomes Skin Glow Complex SGC100+ for Inflamed, Congested Skin"
+      ],
+      "expected_keywords": [
+        "skin",
+        "the",
+        "benefits",
+        "purasome",
+        "glow"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "flat"
+      ],
+      "notes": "Generated from chunk: The_Benefits_of_Purasomes_Skin_Glow_Complex_SGC100_adaptive_4d7050d1"
+    },
+    {
+      "id": "SYNTH-161",
+      "question": "What is the focus of this consensus guidance regarding Polynucleotides HPT™ in aesthetic medicine practice?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "clin",
+        "exp",
+        "dermatol",
+        "ther"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_section_Introduction_aa96f386"
+    },
+    {
+      "id": "SYNTH-162",
+      "question": "What type of document provides guidance on the Polynucleotides HPT™ Dermal Priming Paradigm for aesthetic medicine practitioners?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "clin",
+        "exp",
+        "dermatol",
+        "ther"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_8c8ea678"
+    },
+    {
+      "id": "SYNTH-163",
+      "question": "Which Italian scientific society is Agorà affiliated with in the field of aesthetic medicine?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "italy",
+        "private",
+        "practice",
+        "sassari"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_61851dc0"
+    },
+    {
+      "id": "SYNTH-164",
+      "question": "When was the consensus guidance on Polynucleotides HPT™ Dermal Priming Paradigm published?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "introduction",
+        "maioli",
+        "palmieri",
+        "papagni",
+        "value"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_006308c0"
+    },
+    {
+      "id": "SYNTH-165",
+      "question": "What was the purpose of the 2023 Board meeting regarding PN HPT™?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "the",
+        "board",
+        "citation",
+        "cavallini"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_124404ad"
+    },
+    {
+      "id": "SYNTH-166",
+      "question": "What are the end-stage histological outcomes observed in mature striae albae?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "let",
+        "the",
+        "iconic",
+        "failure"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_42c97a27"
+    },
+    {
+      "id": "SYNTH-167",
+      "question": "What anatomical region is mentioned where favorable treatment outcomes are fleeting within a few months?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "unfortunately",
+        "might",
+        "inferior",
+        "orbital"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_875685b5"
+    },
+    {
+      "id": "SYNTH-168",
+      "question": "What are the risks associated with botulinum toxin treatment of glabellar lines involving the corrugator supercilii and frontalis muscles?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "here",
+        "might",
+        "botulinum",
+        "treatment"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_c934c453"
+    },
+    {
+      "id": "SYNTH-169",
+      "question": "What are the target treatment areas for PN HPT™ devices?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "the",
+        "intradermally",
+        "medical",
+        "devices"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_268b2a3c"
+    },
+    {
+      "id": "SYNTH-170",
+      "question": "How does PN HPT™ reorganize with water dipoles in vivo to produce tissue volumizing effects?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "in",
+        "moreover",
+        "over",
+        "actions"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_a3130f4a"
+    },
+    {
+      "id": "SYNTH-171",
+      "question": "What aesthetic treatments are being considered for potential combination with PN HPT™ dermal priming?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "has",
+        "sponses",
+        "further",
+        "revitalisation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_ba5c01e5"
+    },
+    {
+      "id": "SYNTH-172",
+      "question": "What is the hypothesised benefit of PN HPT™ skin conditioning prior to hyaluronic acid treatment?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "the",
+        "this",
+        "board",
+        "sequence"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_737d9f9e"
+    },
+    {
+      "id": "SYNTH-173",
+      "question": "What were the timepoints used to measure nasolabial fold severity scores when comparing PN HPT™ priming with hyaluronic acid consolidation?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "board",
+        "figure",
+        "comparison",
+        "italics"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_6a11638c"
+    },
+    {
+      "id": "SYNTH-174",
+      "question": "What elements were included in the summary tables for the PN HPT™ dermal priming paradigm across different face and body areas?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "the",
+        "board",
+        "discussion",
+        "before"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_5a9778ab"
+    },
+    {
+      "id": "SYNTH-175",
+      "question": "What will serve as the foundation for the clinical research program to confirm the PN HPT™ dermal priming paradigm?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "the",
+        "rome",
+        "before",
+        "combination"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_7ce5abb1"
+    },
+    {
+      "id": "SYNTH-176",
+      "question": "What percentage threshold was required to qualify an indication as a \"Consensus statement\" in the modified Delphi voting process?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "background",
+        "rome",
+        "delphi",
+        "recommendation",
+        "consensus"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_a50fc64c"
+    },
+    {
+      "id": "SYNTH-177",
+      "question": "What are the general considerations for the PN HPT™ dermal priming paradigm according to the Scientific Board?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "scientific",
+        "board",
+        "recommendation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_section_Results_b888daf8"
+    },
+    {
+      "id": "SYNTH-178",
+      "question": "Does PN HPT™ priming require a previous conditioning PN HPT™ treatment before administration?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "board",
+        "ormulation",
+        "dermal"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_9337cb44"
+    },
+    {
+      "id": "SYNTH-179",
+      "question": "What is the recommended PN HPT™ concentration and dosing for skin priming in young individuals with delicate, thinner skin areas?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "for",
+        "scientific",
+        "board",
+        "plinest"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_808f2a51"
+    },
+    {
+      "id": "SYNTH-180",
+      "question": "What are the trade-offs of using cannulas for treating extensive areas with polynucleotides?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "board",
+        "in",
+        "distinctly"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_33342dd0"
+    },
+    {
+      "id": "SYNTH-181",
+      "question": "What PN HPT™ concentration is recommended for periocular areas?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "future",
+        "research",
+        "clin",
+        "exp"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_3a0ec0d9"
+    },
+    {
+      "id": "SYNTH-182",
+      "question": "What is the recommended PN HPT™ priming protocol before ablative CO2 or Er:YAG laser skin resurfacing treatments?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "board",
+        "suggested",
+        "skin",
+        "er"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_a8648e30"
+    },
+    {
+      "id": "SYNTH-183",
+      "question": "What is the recommended timing for starting a Polynucleotides HPT® priming cycle before a laser session?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "indications",
+        "table",
+        "syringe"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_47d29ad7"
+    },
+    {
+      "id": "SYNTH-184",
+      "question": "When should intradermal PN HPT™ priming sessions be completed relative to ablative laser treatment?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "suggested",
+        "preliminary",
+        "prefilled"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_fac7d397"
+    },
+    {
+      "id": "SYNTH-185",
+      "question": "What is the recommended PN HPT™ priming protocol before and after ablative laser treatment?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "while",
+        "the",
+        "microscopically",
+        "appear"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_7cadddf2"
+    },
+    {
+      "id": "SYNTH-186",
+      "question": "How many syringe vials per stretch mark area per session does the Board recommend for treatment after ablative laser therapy?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "board",
+        "table",
+        "sessions"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_657cd07e"
+    },
+    {
+      "id": "SYNTH-187",
+      "question": "What is the rationale for using dermal priming with Polynucleotides HPT before volume enhancement with fillers in the perioral, cheeks, and lips?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "future",
+        "research",
+        "clin",
+        "exp"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_ef6aec0d"
+    },
+    {
+      "id": "SYNTH-188",
+      "question": "How many PN HPT™ personalised infiltration sessions are recommended before the last planned filler treatment?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "waiting",
+        "board",
+        "treated",
+        "hyaluronic"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_859ce0aa"
+    },
+    {
+      "id": "SYNTH-189",
+      "question": "When should PN HPT™ priming sessions begin before a filler session?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "suggested",
+        "preliminary",
+        "prefilled"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_1c0e19ee"
+    },
+    {
+      "id": "SYNTH-190",
+      "question": "How many prefilled syringes/vials of PN HPT™ are recommended before each carboxytherapy session during the priming protocol?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "suggested",
+        "preliminary",
+        "prefilled"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_9141b434"
+    },
+    {
+      "id": "SYNTH-191",
+      "question": "What determines the cosmetic outcomes and complication rates when performing chemical peels?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "chemical",
+        "with",
+        "ocedure",
+        "before"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_ea96429c"
+    },
+    {
+      "id": "SYNTH-192",
+      "question": "What does the suggested PN HPT™ priming protocol for chemical peels involve?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "with",
+        "table",
+        "chemical",
+        "session"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_964b17c3"
+    },
+    {
+      "id": "SYNTH-193",
+      "question": "How many preliminary priming sessions are recommended before deep needling with PN HPT™?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "suggested",
+        "preliminary",
+        "prefilled"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_6a451498"
+    },
+    {
+      "id": "SYNTH-194",
+      "question": "What wavelength does the Q-switched Nd:YAG laser device emit for dermal remodelling without damaging the epidermis and dermis?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "examples",
+        "neodymium",
+        "nd",
+        "citation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_1ae8ef3b"
+    },
+    {
+      "id": "SYNTH-195",
+      "question": "Who are the authors of the 2024 consensus on Polynucleotides HPT™ Dermal Priming Paradigm practice guidance?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "maioli",
+        "palmieri",
+        "papagni",
+        "value"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_2f9ba5e9"
+    },
+    {
+      "id": "SYNTH-196",
+      "question": "What wavelengths do LEDs emit for treating male and female pattern hair loss?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "federal",
+        "drug",
+        "administration"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_b845773c"
+    },
+    {
+      "id": "SYNTH-197",
+      "question": "What wavelengths of infrared radiation are used to stimulate hair follicles and slow hair from entering catagen phase?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "applied",
+        "infrared",
+        "radiation",
+        "penetration"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_f81dcb36"
+    },
+    {
+      "id": "SYNTH-198",
+      "question": "What is the recommended PN HPT™ dose concentration for intradermal priming before LED scalp treatment?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "table",
+        "suggested",
+        "preliminary",
+        "prefilled"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_17fbc17d"
+    },
+    {
+      "id": "SYNTH-199",
+      "question": "What are the most common adverse events following PN HPT™ intradermal injections?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "the",
+        "board",
+        "these",
+        "priming"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_f0691cc9"
+    },
+    {
+      "id": "SYNTH-200",
+      "question": "What strategies are recommended to prevent adverse events after skin priming with PN HPT™ gels?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "results",
+        "several",
+        "the",
+        "topical",
+        "twelve"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_05569d08"
+    },
+    {
+      "id": "SYNTH-201",
+      "question": "What is the founding rationale behind the PN HPT™ dermal priming paradigm?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "however",
+        "multiple",
+        "concomitant"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_0fea58c9"
+    },
+    {
+      "id": "SYNTH-202",
+      "question": "What post-priming treatment is used in combination with PN HPT™ dermal priming?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "this",
+        "consensus",
+        "board",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_e0b94de6"
+    },
+    {
+      "id": "SYNTH-203",
+      "question": "What was the statement acceptance threshold for the PN HPT™ dermal priming paradigm survey?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "for",
+        "polynucleotides",
+        "supported"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_e9df808c"
+    },
+    {
+      "id": "SYNTH-204",
+      "question": "What evidence supports the proposed PN HPT™ non-pharmacological priming paradigm?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "admittedly",
+        "board",
+        "still",
+        "specific"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_507c1e4c"
+    },
+    {
+      "id": "SYNTH-205",
+      "question": "What is the long-term core value of the PN HPT™ priming paradigm?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "the",
+        "unsurprisingly",
+        "however",
+        "priming"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_97a6b98f"
+    },
+    {
+      "id": "SYNTH-206",
+      "question": "How does PN HPT™ improve skin quality by affecting dermal cell metabolism?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "by",
+        "the",
+        "fibroblasts",
+        "mesenchymal"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_dc5d21c3"
+    },
+    {
+      "id": "SYNTH-207",
+      "question": "What skin parameters should be considered for individualising the PN HPT™ dermal priming strategy?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "discussion",
+        "metabolic",
+        "the",
+        "mesenchymal",
+        "reactive"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_1ce012f0"
+    },
+    {
+      "id": "SYNTH-208",
+      "question": "What company produces the PN HPT™-based medical devices mentioned in this consensus?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "conflicts",
+        "of",
+        "interest",
+        "statement"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_a4cf34e2"
+    },
+    {
+      "id": "SYNTH-209",
+      "question": "What company supported the Scientific Board's secretarial and logistic costs for this Consensus document?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "board",
+        "all",
+        "consensus",
+        "mastelli"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_ae15b088"
+    },
+    {
+      "id": "SYNTH-210",
+      "question": "What is the declared nature of the activities leading to the Polynucleotides HPT® Consensus manuscript?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "consensus",
+        "ethical",
+        "financial",
+        "disclosures"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_b904d4fe"
+    },
+    {
+      "id": "SYNTH-211",
+      "question": "Which companies have provided fees to the authors for lecturing at Continuous Medical Education activities?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "allergan",
+        "mastelli",
+        "similarly",
+        "marco"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_40155620"
+    },
+    {
+      "id": "SYNTH-212",
+      "question": "Who provided medical writing support for the Polynucleotides HPT® consensus document?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "conclusions",
+        "council",
+        "directive",
+        "june",
+        "acknowledgements"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_b6736ff7"
+    },
+    {
+      "id": "SYNTH-213",
+      "question": "What is the full citation year for the consensus paper on Polynucleotides HPT™ Dermal Priming Paradigm?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "references",
+        "online",
+        "etymology",
+        "dictionary",
+        "devika"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_64e59f75"
+    },
+    {
+      "id": "SYNTH-214",
+      "question": "What year was the consensus paper on Skin Quality published by Goldie, Kerscher, Fabi, and colleagues?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "references",
+        "urdiales",
+        "papagni",
+        "treating",
+        "aesthet"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_4d23cb2a"
+    },
+    {
+      "id": "SYNTH-215",
+      "question": "What journal published the consensus report on PN HPT™ use in aesthetic medicine?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "references",
+        "the",
+        "polynucleotides",
+        "priming",
+        "board"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_a327abcf"
+    },
+    {
+      "id": "SYNTH-216",
+      "question": "What effect does hyaluronate have on polynucleotides in human cultured fibroblasts?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "references",
+        "photochem",
+        "photobiol",
+        "guizzardi",
+        "uggeri"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_f4cc9a50"
+    },
+    {
+      "id": "SYNTH-217",
+      "question": "What study compared precision between needle and cannula techniques for soft tissue filler injections?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "isbn",
+        "srl",
+        "internal",
+        "report",
+        "sanremo"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_0a80a736"
+    },
+    {
+      "id": "SYNTH-218",
+      "question": "What treatment combination was studied for biorevitalization of stretch marks involving polynucleotides?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "isbn",
+        "drugs",
+        "dermatol",
+        "matera",
+        "dodici"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_ec8545fc"
+    },
+    {
+      "id": "SYNTH-219",
+      "question": "What year was the systematic review on carboxytherapy in dermatology published by Ahramiyanpour and colleagues?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "isbn",
+        "cosmet",
+        "dermatol",
+        "ahramiyanpour",
+        "shafie"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_73ae3cec"
+    },
+    {
+      "id": "SYNTH-220",
+      "question": "What reference discusses microneedling for prevention of ageing in neck and cleavage rejuvenation?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "isbn",
+        "international",
+        "peeling",
+        "society",
+        "basic"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_e8e04303"
+    },
+    {
+      "id": "SYNTH-221",
+      "question": "Which publication year did Brandi, Cuomo, Nisi, Grimaldi, and D'Aniello publish their face rejuvenation biorevitalization protocol in Acta Biomedn?",
+      "expected_doc_ids": [
+        "Value and Benefits of the Polynucleotides HPT® Dermal Priming Paradigm A Consensus on Practice Guidance for Aesthetic Medicine Practitioners and Future Research"
+      ],
+      "expected_keywords": [
+        "isbn",
+        "dermatol",
+        "surg",
+        "fabi",
+        "burgess"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Value_and_Benefits_of_the_Polynucleotides_HPT__Der_detail_f65d536a"
+    },
+    {
+      "id": "SYNTH-222",
+      "question": "What type of study design was used to compare PN-HPT® and cross-linked hyaluronic acid for treating nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "clinical",
+        "antonino",
+        "araco",
+        "francesco",
+        "mauro"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_section_O R I G I N A L A R _d97b9a25"
+    },
+    {
+      "id": "SYNTH-223",
+      "question": "What is the rationale for sequentially combining PN-HPT® and hyaluronic acid dermal fillers for treating moderate to severe nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "introduction",
+        "the",
+        "hyaluronic",
+        "polynucleotides"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_section_Abstract_b95e3506"
+    },
+    {
+      "id": "SYNTH-224",
+      "question": "What was the total number of nasolabial folds treated in the PN-HPT® and cross-linked hyaluronic acid study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "results",
+        "because",
+        "january",
+        "june"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_26e1fa7e"
+    },
+    {
+      "id": "SYNTH-225",
+      "question": "At what timepoints did the Antera 3D® device demonstrate significant improvement in wrinkles and skin texture in the NLF treatment area?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "the",
+        "antera",
+        "rx",
+        "vectra"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_608775f7"
+    },
+    {
+      "id": "SYNTH-226",
+      "question": "How many subjects were planned for enrollment in the exploratory cohort studying PN-HPT® and cross-linked hyaluronic acid for nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "the",
+        "declaration",
+        "helsinki",
+        "good"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_e9ecc6c1"
+    },
+    {
+      "id": "SYNTH-227",
+      "question": "What pre-treatment requirements were participants asked to follow regarding cosmetics, sunscreen, and sun exposure before the nasolabial fold study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "abstract",
+        "milan",
+        "before",
+        "practice",
+        "inclusion"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_1d522a2e"
+    },
+    {
+      "id": "SYNTH-228",
+      "question": "What score on the nasolabial folds severity scale corresponds to a \"deep wrinkle and carven edges\"?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "nine",
+        "wrinkle",
+        "score",
+        "very",
+        "just"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_section_K E Y W O R D S_724eac53"
+    },
+    {
+      "id": "SYNTH-229",
+      "question": "What cannula specifications and injection technique were used to deliver the 1 ml treatment over each nasolabial fold area?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "redundant",
+        "al",
+        "once",
+        "1 ml",
+        "furrow"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_785f6730"
+    },
+    {
+      "id": "SYNTH-230",
+      "question": "At which time points was the voluminising effect quantitatively assessed using Vectra H2® technology in the PN-HPT® nasolabial fold study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "lx",
+        "direct",
+        "vectra",
+        "women",
+        "comparison"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_eeb92390"
+    },
+    {
+      "id": "SYNTH-231",
+      "question": "What local side effects were assessed during the safety evaluation of PN-HPT® and cross-linked hyaluronic acid treatments?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "safety",
+        "assessment",
+        "statistical",
+        "software",
+        "package"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_4a6f3550"
+    },
+    {
+      "id": "SYNTH-232",
+      "question": "What was the enrollment period for this study comparing PN-HPT® and cross-linked hyaluronic acid for nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "qualitative",
+        "fisher",
+        "significance",
+        "due",
+        "january"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_849fd541"
+    },
+    {
+      "id": "SYNTH-233",
+      "question": "At which assessment timepoints did mean dermal NLF hemoglobin levels show significant improvement compared to baseline?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "table",
+        "assessment",
+        "points",
+        "versus"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_001dc495"
+    },
+    {
+      "id": "SYNTH-234",
+      "question": "At which time points did Vectra H2® assessment show significantly higher HA tissue levels in the treated right-side NLF area compared to the left side?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "table",
+        "vectra",
+        "the",
+        "stated",
+        "moderate"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_9467d494"
+    },
+    {
+      "id": "SYNTH-235",
+      "question": "How did skin texture measurements compare between PN-HPT® treated nasolabial folds and control sides at 6 weeks and 6 months?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "concomitantly",
+        "texture",
+        "improved",
+        "significantly",
+        "compared"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_6d941472"
+    },
+    {
+      "id": "SYNTH-236",
+      "question": "How did mean dermal NLF hemoglobin levels compare between PN-HPT® priming with HA consolidation versus untreated sides after 6 months?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "conversely",
+        "priming",
+        "dermal",
+        "hemoglobin",
+        "levels"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_923724ca"
+    },
+    {
+      "id": "SYNTH-237",
+      "question": "How did HA persistence compare between nasolabial folds treated with PN-HPT® priming before HA consolidation versus those treated with HA alone?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "as",
+        "figure",
+        "priming",
+        "persistence"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_e7c1a66c"
+    },
+    {
+      "id": "SYNTH-238",
+      "question": "How did PSQ satisfaction scores change at three and six months compared to the first assessment visit in the PN-HPT and HA split-face study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "table",
+        "figures",
+        "controls",
+        "treated"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_2069e115"
+    },
+    {
+      "id": "SYNTH-239",
+      "question": "What were the mean skin texture scores at baseline versus three months in the NLF Rx group receiving PN-HPT® priming plus HA consolidation?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "aesthetic",
+        "rx",
+        "hb",
+        "italics",
+        "group"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_ec484da1"
+    },
+    {
+      "id": "SYNTH-240",
+      "question": "What are the documented benefits of PN-HPT® in aesthetic medicine regarding collagen and elastin?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "numerous",
+        "such",
+        "in",
+        "the",
+        "polynucleotides"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_b70405e6"
+    },
+    {
+      "id": "SYNTH-241",
+      "question": "What is the proposed mechanism by which PN-HPT® acts as a priming agent when combined with hyaluronic acid for nasolabial fold treatment?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "dermis",
+        "combining",
+        "working",
+        "hypothesis"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_787dbe71"
+    },
+    {
+      "id": "SYNTH-242",
+      "question": "What study design was used to compare PN-HPT® and HA treatment for nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "to",
+        "they",
+        "caucasian",
+        "extending",
+        "clinical"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_97b363ba"
+    },
+    {
+      "id": "SYNTH-243",
+      "question": "What imaging device was used to quantitatively assess dermal quality and wrinkle appearance in the PN-HPT® monotherapy study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "caucasian",
+        "dermal",
+        "antera",
+        "included",
+        "ethnicity"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_956d50a4"
+    },
+    {
+      "id": "SYNTH-244",
+      "question": "What imaging technology was used to observe PN-HPT® benefits on nasolabial fold structure at 6 weeks compared with saline placebo?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "however",
+        "antera",
+        "regarding",
+        "compared",
+        "saline"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_44853cd9"
+    },
+    {
+      "id": "SYNTH-245",
+      "question": "What is the proposed mechanism of action of PN-HPT® when used in combination with hyaluronic acid for nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "at",
+        "outcomes",
+        "confirm",
+        "working",
+        "preliminary"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_6b4f2c56"
+    },
+    {
+      "id": "SYNTH-246",
+      "question": "How did self-assessed NLF Severity Scores compare between right-side NLFs and contralateral control NLFs during the priming phase at T2 and T3?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "while",
+        "antera",
+        "severity",
+        "score",
+        "idation"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_ddb0196c"
+    },
+    {
+      "id": "SYNTH-247",
+      "question": "How did women perceive the aesthetic benefit of PN-HPT® + HA treatment compared to HA alone at three and six months?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "fs",
+        "moreover",
+        "underwent",
+        "treatment",
+        "perceived"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_78e63518"
+    },
+    {
+      "id": "SYNTH-248",
+      "question": "How did PN-HPT® environmental modulation in the dermis affect HA levels in right-side NLFs at 3 and 6 months compared to contralateral NLFs?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "vectra",
+        "compared",
+        "treated",
+        "preliminary"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_2bc29346"
+    },
+    {
+      "id": "SYNTH-249",
+      "question": "What were the mean PSQ scores for right-side versus left-side NLFs at 6 weeks in the PN-HPT® versus saline placebo monotherapy comparison?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "of",
+        "antera",
+        "comparison",
+        "italics",
+        "comparative"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_a3226e87"
+    },
+    {
+      "id": "SYNTH-250",
+      "question": "What are the comparative benefits of PN-HPT® priming + HA versus HA monotherapy for nasolabial fold treatment?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "conversely",
+        "subjectively",
+        "overall",
+        "aesthetic",
+        "priming"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_79a0c519"
+    },
+    {
+      "id": "SYNTH-251",
+      "question": "What were the safety findings for PN-HPT® and HA treatments for nasolabial folds during the study period?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "rx",
+        "no",
+        "protracted",
+        "priming",
+        "results"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_e5d80c8e"
+    },
+    {
+      "id": "SYNTH-252",
+      "question": "What is the main indication for PDRN when administered intramuscularly?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "conversely",
+        "class",
+        "moderately",
+        "al"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_24a6fe3b"
+    },
+    {
+      "id": "SYNTH-253",
+      "question": "What mechanism allows PN-HPT® to work as a dermal primer according to the study's working hypothesis?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "al",
+        "they",
+        "of",
+        "photographs",
+        "intradermal"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_455025be"
+    },
+    {
+      "id": "SYNTH-254",
+      "question": "What are the limiting factors of this PN-HPT® and cross-linked hyaluronic acid study for nasolabial folds?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "the",
+        "hypothesis",
+        "dermal",
+        "number",
+        "enlisted"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_df5492f8"
+    },
+    {
+      "id": "SYNTH-255",
+      "question": "Why did the authors use a nine-point NLFSS scale validated for Han ethnicity women instead of the conventional five-point scale for Caucasian women?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "analogously",
+        "han",
+        "caucasian",
+        "once",
+        "rictly"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_e25ce143"
+    },
+    {
+      "id": "SYNTH-256",
+      "question": "Who was responsible for statistical analyses in the PN-HPT® and cross-linked hyaluronic acid nasolabial folds study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "author",
+        "contributions",
+        "antonino",
+        "francesco",
+        "araco"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_5be281d7"
+    },
+    {
+      "id": "SYNTH-257",
+      "question": "Who is the patent holder of the polynucleotides HPT™ technology used in the nasolabial folds study?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "acknowledgements",
+        "mastelli",
+        "sanremo",
+        "italy",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "section"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_section_Acknowledgements_c27b7b57"
+    },
+    {
+      "id": "SYNTH-258",
+      "question": "Did the authors of the PN-HPT® and cross-linked hyaluronic acid nasolabial folds study receive funding or have conflicts of interest with industry manufacturers?",
+      "expected_doc_ids": [
+        "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT®) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study"
+      ],
+      "expected_keywords": [
+        "conflicts",
+        "of",
+        "interest",
+        "statement",
+        "the"
+      ],
+      "should_refuse": false,
+      "max_chunks": 5,
+      "tags": [
+        "synthetic",
+        "detail"
+      ],
+      "notes": "Generated from chunk: Clinical_efficacy_and_safety_of_polynucleotides_hi_detail_f285c2b3"
+    }
+  ]
+}
