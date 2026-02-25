@@ -363,12 +363,19 @@ FALLBACK_PRODUCTS = [
 
 def get_cached_products() -> Optional[ProductsResponse]:
     """Get cached products if still valid"""
-    return get_cache(CACHE_KEY_PRODUCTS)
+    cached_data = get_cache(CACHE_KEY_PRODUCTS)
+    if cached_data:
+        # Cache returns dict, convert back to Pydantic model
+        if isinstance(cached_data, dict):
+            return ProductsResponse(**cached_data)
+        return cached_data
+    return None
 
 
 def set_products_cache(products: ProductsResponse):
     """Set products cache"""
-    set_cache(CACHE_KEY_PRODUCTS, products, ttl_seconds=CACHE_TTL_PRODUCTS)
+    # Convert Pydantic model to dict for JSON serialization
+    set_cache(CACHE_KEY_PRODUCTS, products.model_dump(), ttl_seconds=CACHE_TTL_PRODUCTS)
 
 
 def clear_products_cache():

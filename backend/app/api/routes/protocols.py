@@ -311,12 +311,19 @@ FALLBACK_PROTOCOLS = [
 
 def get_cached_protocols() -> Optional[ProtocolsResponse]:
     """Get cached protocols if still valid"""
-    return get_cache(CACHE_KEY_PROTOCOLS)
+    cached_data = get_cache(CACHE_KEY_PROTOCOLS)
+    if cached_data:
+        # Cache returns dict, convert back to Pydantic model
+        if isinstance(cached_data, dict):
+            return ProtocolsResponse(**cached_data)
+        return cached_data
+    return None
 
 
 def set_protocols_cache(protocols: ProtocolsResponse):
     """Set protocols cache"""
-    set_cache(CACHE_KEY_PROTOCOLS, protocols, ttl_seconds=CACHE_TTL_PROTOCOLS)
+    # Convert Pydantic model to dict for JSON serialization
+    set_cache(CACHE_KEY_PROTOCOLS, protocols.model_dump(), ttl_seconds=CACHE_TTL_PROTOCOLS)
 
 
 def clear_protocols_cache():
