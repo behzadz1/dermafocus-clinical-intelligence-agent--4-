@@ -189,16 +189,33 @@ async def liveness_check():
 
 @router.get("/debug-config")
 def debug_config():
-    # IMPORTANT: do NOT return API keys
+    """
+    Debug endpoint to verify configuration loading
+    IMPORTANT: Does NOT return API keys for security
+    """
     return {
-        "ENVIRONMENT": os.getenv("ENVIRONMENT"),
-        "APP_VERSION": os.getenv("APP_VERSION"),
-        "PINECONE_INDEX_NAME": os.getenv("PINECONE_INDEX_NAME"),
-        "PINECONE_ENVIRONMENT": os.getenv("PINECONE_ENVIRONMENT"),
-        "PINECONE_NAMESPACE": os.getenv("PINECONE_NAMESPACE", "default"),
-        "EMBEDDING_MODEL": os.getenv("EMBEDDING_MODEL"),
-        "VECTOR_SEARCH_TOP_K": os.getenv("VECTOR_SEARCH_TOP_K"),
-        "RERANK_TOP_K": os.getenv("RERANK_TOP_K"),
-        "CLAUDE_MODEL": os.getenv("CLAUDE_MODEL"),
-        "CLAUDE_TEMPERATURE": os.getenv("CLAUDE_TEMPERATURE"),
+        "ENVIRONMENT": settings.environment,
+        "APP_VERSION": settings.app_version,
+        "PINECONE_INDEX_NAME": settings.pinecone_index_name,
+        "PINECONE_ENVIRONMENT": settings.pinecone_environment,
+        "PINECONE_NAMESPACE": "default",  # This is hardcoded in Pinecone service
+        "EMBEDDING_MODEL": settings.embedding_model,
+        "EMBEDDING_DIMENSIONS": settings.embedding_dimensions,
+        "VECTOR_SEARCH_TOP_K": settings.vector_search_top_k,
+        "RERANK_TOP_K": settings.rerank_top_k,
+        "RERANKER_ENABLED": settings.reranker_enabled,  # PHASE 4.0
+        "RERANKER_PROVIDER": settings.reranker_provider,
+        "CLAUDE_MODEL": settings.claude_model,
+        "CLAUDE_TEMPERATURE": settings.claude_temperature,
+        "CLAUDE_MAX_TOKENS": settings.claude_max_tokens,
+        "RATE_LIMIT_PER_MINUTE": settings.rate_limit_per_minute,
+        "RATE_LIMIT_PER_HOUR": settings.rate_limit_per_hour,
+        "HYBRID_SEARCH_ENABLED": settings.hybrid_search_enabled,
+        "BM25_ENABLED": settings.bm25_enabled,
+        # API Key status (NOT the keys themselves)
+        "API_KEYS_CONFIGURED": {
+            "anthropic": bool(settings.anthropic_api_key),
+            "openai": bool(settings.openai_api_key),
+            "pinecone": bool(settings.pinecone_api_key),
+        }
     }
