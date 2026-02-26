@@ -10,6 +10,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import sys
 import structlog
+import os
 
 from app.config import settings
 
@@ -183,3 +184,21 @@ async def liveness_check():
     This should always return 200 unless the process is completely dead.
     """
     return {"status": "alive", "timestamp": datetime.utcnow().isoformat()}
+
+
+
+@router.get("/debug-config")
+def debug_config():
+    # IMPORTANT: do NOT return API keys
+    return {
+        "ENVIRONMENT": os.getenv("ENVIRONMENT"),
+        "APP_VERSION": os.getenv("APP_VERSION"),
+        "PINECONE_INDEX_NAME": os.getenv("PINECONE_INDEX_NAME"),
+        "PINECONE_ENVIRONMENT": os.getenv("PINECONE_ENVIRONMENT"),
+        "PINECONE_NAMESPACE": os.getenv("PINECONE_NAMESPACE", "default"),
+        "EMBEDDING_MODEL": os.getenv("EMBEDDING_MODEL"),
+        "VECTOR_SEARCH_TOP_K": os.getenv("VECTOR_SEARCH_TOP_K"),
+        "RERANK_TOP_K": os.getenv("RERANK_TOP_K"),
+        "CLAUDE_MODEL": os.getenv("CLAUDE_MODEL"),
+        "CLAUDE_TEMPERATURE": os.getenv("CLAUDE_TEMPERATURE"),
+    }
