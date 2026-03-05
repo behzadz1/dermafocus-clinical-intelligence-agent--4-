@@ -549,7 +549,11 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
         citation_service = get_citation_service()
         sources = []
         seen_docs = set()
-        MAX_SOURCES = 3  # Show only top 3 unique documents
+
+        # For metadata_count queries, show more sources (comprehensive listing)
+        # For normal queries, limit to top 3 for readability
+        query_type = context_data.get('query_type', 'general')
+        MAX_SOURCES = 15 if query_type == 'metadata_count' else 3
 
         for chunk in retrieved_chunks:
             doc_id = chunk["metadata"].get("doc_id", "unknown")
@@ -869,7 +873,10 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
             citation_service = get_citation_service()
             sources = []
             seen_docs = set()
-            MAX_SOURCES = 3
+
+            # For metadata_count queries, show more sources
+            query_type = context_data.get('query_type', 'general')
+            MAX_SOURCES = 15 if query_type == 'metadata_count' else 3
 
             for chunk in retrieved_chunks:
                 doc_id = chunk["metadata"].get("doc_id", "unknown")

@@ -22,6 +22,7 @@ class QueryType(Enum):
     COMPOSITION = "composition"          # "What does Newest contain?"
     CLINICAL_EVIDENCE = "clinical_evidence"  # "What studies support Newest?"
     PRODUCT_PORTFOLIO = "product_portfolio"  # "Do you have anything for...?" "What products...?"
+    METADATA_COUNT = "metadata_count"    # "How many documents...?" "List all documents for..."
     GENERAL = "general"                  # Fallback for unclassified
 
 
@@ -103,6 +104,21 @@ class QueryRouter:
             r'\bproduct portfolio\b',
             r'\bproduct range\b',
             r'\bwhat.*(?:options|treatments|products).*for\b',
+        ],
+        QueryType.METADATA_COUNT: [
+            # Document counting and listing queries
+            r'\bhow many (?:documents?|papers?|studies?|protocols?|articles?)\b',
+            r'\bcount (?:of )?(?:documents?|papers?|studies?)\b',
+            r'\blist (?:all )?(?:the )?(?:documents?|papers?|studies?|articles?)\b',
+            r'\b(?:all|available) (?:documents?|papers?|studies?) (?:about|for|on)\b',
+            r'\bwhat (?:documents?|papers?|studies?) (?:are there|do (?:you|we) have|exist)\b',
+            r'\bhow much (?:research|literature|data)\b',
+            r'\bnumber of (?:documents?|papers?|studies?)\b',
+            # Comprehensive "all" queries (summary of all, give me all, all research, etc.)
+            r'\ball (?:the )?(?:documents?|papers?|studies?|protocols?|articles?|research)\b',
+            r'\bevery (?:documents?|papers?|studies?)\b',
+            r'\b(?:give|show|provide).*\ball\b',  # "give me all", "show all", "provide all"
+            r'\bsummar(?:y|ize).*\ball\b',  # "summary of all", "summarize all"
         ],
         QueryType.COMPOSITION: [
             r'\bcomposition\b',
@@ -191,6 +207,15 @@ class QueryRouter:
             "top_k_multiplier": 1.3,  # Retrieve more to cover full portfolio
             "evidence_threshold": 0.35  # Lower threshold for existence queries
         },
+        QueryType.METADATA_COUNT: {
+            "boost_doc_types": [],  # No boosting needed for listing
+            "boost_multiplier": 0.0,
+            "prefer_sections": [],
+            "prefer_chunk_types": [],
+            "top_k_multiplier": 5.0,  # Retrieve many chunks (30 * 5 = 150)
+            "evidence_threshold": 0.20,  # Low threshold for comprehensive listing
+            "return_all_unique_documents": True  # Special flag for document counting
+        },
         QueryType.PRODUCT_INFO: {
             "boost_doc_types": ["factsheet"],
             "boost_multiplier": 0.10,
@@ -242,32 +267,38 @@ class QueryRouter:
             logger.debug("query_classified", type="comparison")
             return QueryType.COMPARISON
 
-        # 5. Clinical evidence queries (check before PRODUCT_INFO)
+        # 5. Metadata/count queries (CHECK BEFORE clinical_evidence to catch "all studies" queries)
+        # This includes "summary of all studies", "give me all papers", etc.
+        if self._matches_patterns(query_lower, self.PATTERNS[QueryType.METADATA_COUNT]):
+            logger.debug("query_classified", type="metadata_count")
+            return QueryType.METADATA_COUNT
+
+        # 6. Clinical evidence queries (check after METADATA_COUNT)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.CLINICAL_EVIDENCE]):
             logger.debug("query_classified", type="clinical_evidence")
             return QueryType.CLINICAL_EVIDENCE
 
-        # 6. Product portfolio queries (check before PRODUCT_INFO - more specific)
+        # 7. Product portfolio queries (check before PRODUCT_INFO - more specific)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.PRODUCT_PORTFOLIO]):
             logger.debug("query_classified", type="product_portfolio")
             return QueryType.PRODUCT_PORTFOLIO
 
-        # 7. Composition queries
+        # 8. Composition queries
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.COMPOSITION]):
             logger.debug("query_classified", type="composition")
             return QueryType.COMPOSITION
 
-        # 8. Indication queries (after SAFETY to avoid conflicts)
+        # 9. Indication queries (after SAFETY to avoid conflicts)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.INDICATION]):
             logger.debug("query_classified", type="indication")
             return QueryType.INDICATION
 
-        # 9. Product info queries (broad, near the end)
+        # 10. Product info queries (broad, near the end)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.PRODUCT_INFO]):
             logger.debug("query_classified", type="product_info")
             return QueryType.PRODUCT_INFO
 
-        # 10. Default: general (fallback)
+        # 11. Default: general (fallback)
         logger.debug("query_classified", type="general")
         return QueryType.GENERAL
 

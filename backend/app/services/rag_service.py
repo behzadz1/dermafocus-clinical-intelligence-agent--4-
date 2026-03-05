@@ -661,12 +661,17 @@ class RAGService:
         """
         try:
             # Route query to specialized retriever
-            from app.services.query_router import get_query_router
+            from app.services.query_router import get_query_router, QueryType
             router = get_query_router()
             routing_info = router.route_query(query)
 
             query_type = routing_info["query_type"]
             routing_config = routing_info["config"]
+
+            # Special handling for metadata/count queries
+            if query_type == QueryType.METADATA_COUNT:
+                logger.info("routing_to_metadata_count_handler", query=query[:100])
+                return self._handle_metadata_count_query(query, routing_info)
 
             # Adjust retrieval parameters based on query type
             adjusted_max_chunks = int(max_chunks * routing_config.get("top_k_multiplier", 1.0))
@@ -874,7 +879,212 @@ class RAGService:
             "strong_matches": strong_matches,
             "threshold_used": evidence_threshold
         }
-    
+
+    def _handle_metadata_count_query(
+        self,
+        query: str,
+        routing_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Handle document counting/listing queries.
+        Returns all unique documents matching the query, not top-K chunks.
+
+        Args:
+            query: User query (e.g., "How many documents for PN HPT?")
+            routing_info: Routing information from query router
+
+        Returns:
+            Dictionary with document count and list of unique documents
+        """
+        routing_config = routing_info["config"]
+
+        # Expand query with medical terminology
+        expansion_result = self.query_expansion.expand_query(query)
+        # Use first expanded query or original if no expansion
+        expanded_query = (
+            expansion_result.expanded_queries[0]
+            if expansion_result.expanded_queries
+            else expansion_result.original_query
+        )
+
+        logger.info(
+            "metadata_count_query",
+            original_query=query,
+            expanded_query=expanded_query
+        )
+
+        # Embed expanded query
+        query_vector = self.embedding_service.embed_query(expanded_query)
+
+        # Retrieve many chunks (top_k_multiplier should be ~5.0 for 150 chunks)
+        top_k = int(30 * routing_config.get("top_k_multiplier", 5.0))
+
+        # Query Pinecone
+        results = self.pinecone_service.query(
+            query_vector=query_vector,
+            top_k=top_k,
+            namespace="default"
+        )
+
+        matches = results.get('matches', [])
+        logger.info(f"metadata_count_retrieved", chunks=len(matches), top_k=top_k)
+
+        if not matches:
+            return {
+                'query_type': 'metadata_count',
+                'document_count': 0,
+                'documents': [],
+                'evidence': {
+                    'sufficient': False,
+                    'reason': 'no_matches',
+                    'top_score': 0.0
+                },
+                'chunks': []
+            }
+
+        # Check if query wants content/summary (not just metadata)
+        wants_content = any(term in query.lower() for term in ['summary', 'summarize', 'summarise', 'content', 'what'])
+
+        # Deduplicate by document ID and collect document metadata + content
+        unique_docs = {}
+        doc_chunks = {}  # Store chunks per document for content queries
+
+        for match in matches:
+            metadata = match.get('metadata', {})
+            doc_id = metadata.get('doc_id', 'unknown')
+            score = match['score']
+
+            # Store chunks for content-based queries
+            if wants_content:
+                if doc_id not in doc_chunks:
+                    doc_chunks[doc_id] = []
+                doc_chunks[doc_id].append({
+                    'text': metadata.get('text', ''),
+                    'score': score,
+                    'section': metadata.get('section', '')
+                })
+
+            if doc_id not in unique_docs:
+                # First time seeing this document
+                unique_docs[doc_id] = {
+                    'doc_id': doc_id,
+                    'title': metadata.get('title', doc_id),
+                    'doc_type': metadata.get('doc_type', 'unknown'),
+                    'max_score': score,
+                    'chunk_count': 1
+                }
+            else:
+                # Update existing document entry
+                unique_docs[doc_id]['max_score'] = max(
+                    unique_docs[doc_id]['max_score'],
+                    score
+                )
+                unique_docs[doc_id]['chunk_count'] += 1
+
+        # Sort documents by relevance score
+        sorted_docs = sorted(
+            unique_docs.values(),
+            key=lambda x: x['max_score'],
+            reverse=True
+        )
+
+        logger.info(
+            "metadata_count_complete",
+            unique_documents=len(sorted_docs),
+            total_chunks=len(matches),
+            wants_content=wants_content
+        )
+
+        # Format context text for Claude to generate a nice response
+        if wants_content:
+            # Include document content for summary queries
+            context_text = f"# Comprehensive Document Collection\n\n"
+            context_text += f"Found {len(sorted_docs)} unique documents. Below is content from each:\n\n"
+            context_text += "=" * 80 + "\n\n"
+
+            for i, doc in enumerate(sorted_docs, 1):
+                title = doc['title']
+                doc_type = doc['doc_type']
+                doc_id = doc['doc_id']
+
+                context_text += f"## Document {i}: {title}\n"
+                context_text += f"**Type**: {doc_type} | **Relevance**: {doc['max_score']:.3f}\n\n"
+
+                # Include top 3 chunks from this document
+                if doc_id in doc_chunks:
+                    chunks = sorted(doc_chunks[doc_id], key=lambda x: x['score'], reverse=True)[:3]
+                    for j, chunk in enumerate(chunks, 1):
+                        text = chunk['text'][:500] if len(chunk['text']) > 500 else chunk['text']
+                        section = chunk['section']
+                        context_text += f"### Excerpt {j}"
+                        if section:
+                            context_text += f" (Section: {section})"
+                        context_text += f"\n{text}\n\n"
+
+                context_text += "-" * 80 + "\n\n"
+        else:
+            # Metadata-only for counting queries
+            context_text = f"# Document Count Query Results\n\n"
+            context_text += f"Found {len(sorted_docs)} unique documents matching this query.\n\n"
+            context_text += "## Document List:\n\n"
+
+            for i, doc in enumerate(sorted_docs, 1):
+                title = doc['title']
+                doc_type = doc['doc_type']
+                score = doc['max_score']
+                chunk_count = doc['chunk_count']
+
+                context_text += f"{i}. **{title}** ({doc_type})\n"
+                context_text += f"   - Relevance Score: {score:.3f}\n"
+                context_text += f"   - Chunks: {chunk_count}\n\n"
+
+        # Prepare sources for citation and chunks if content requested
+        sources = [
+            {
+                'doc_id': doc['doc_id'],
+                'title': doc['title'],
+                'doc_type': doc['doc_type'],
+                'score': doc['max_score']
+            }
+            for doc in sorted_docs[:10]  # Limit sources to top 10
+        ]
+
+        # Prepare chunks for content-based queries
+        result_chunks = []
+        if wants_content:
+            # Include top 2 chunks per document for proper citations
+            for doc in sorted_docs[:15]:  # Limit to top 15 documents to avoid overwhelming context
+                doc_id = doc['doc_id']
+                if doc_id in doc_chunks:
+                    top_chunks = sorted(doc_chunks[doc_id], key=lambda x: x['score'], reverse=True)[:2]
+                    for chunk in top_chunks:
+                        result_chunks.append({
+                            'text': chunk['text'],
+                            'score': chunk['score'],
+                            'adjusted_score': chunk['score'],
+                            'metadata': {
+                                'doc_id': doc_id,
+                                'title': doc['title'],
+                                'doc_type': doc['doc_type'],
+                                'section': chunk.get('section', '')
+                            }
+                        })
+
+        # Return metadata-focused response (or content-rich if summary requested)
+        return {
+            'query_type': 'metadata_count',
+            'document_count': len(sorted_docs),
+            'documents': sorted_docs,
+            'evidence': {
+                'sufficient': True,
+                'reason': 'metadata_count_comprehensive' if wants_content else 'metadata_count_query',
+                'top_score': sorted_docs[0]['max_score'] if sorted_docs else 0.0
+            },
+            'chunks': result_chunks,  # Empty for counting, populated for content/summary queries
+            'context_text': context_text,
+            'sources': sources
+        }
+
     def rerank_results(
         self,
         query: str,
