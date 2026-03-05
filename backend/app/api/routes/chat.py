@@ -4,9 +4,10 @@ Endpoints for conversational AI with RAG capabilities
 """
 
 from fastapi import APIRouter, HTTPException, status, Depends, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 from datetime import datetime
+import re
 import structlog
 from starlette.concurrency import run_in_threadpool
 
@@ -114,6 +115,38 @@ class ChatRequest(BaseModel):
     conversation_id: Optional[str] = Field(None, description="Conversation ID for context")
     history: Optional[List[Message]] = Field(default=[], description="Conversation history")
     customization: Optional[CustomizationOptions] = Field(None, description="Response customization options")
+
+    # PHASE 4.0 FIX: Input validation for security
+    @field_validator('question')
+    @classmethod
+    def validate_question(cls, v: str) -> str:
+        """Validate question is not just whitespace"""
+        if not v or not v.strip():
+            raise ValueError("Question cannot be empty or whitespace only")
+        return v.strip()
+
+    @field_validator('conversation_id')
+    @classmethod
+    def validate_conversation_id(cls, v: Optional[str]) -> Optional[str]:
+        """Validate conversation ID format to prevent injection"""
+        if v is None:
+            return v
+        # Allow alphanumeric, hyphens, underscores only (64 char max)
+        if not re.match(r'^[a-zA-Z0-9_-]{1,64}$', v):
+            raise ValueError(
+                "conversation_id must be 1-64 characters, alphanumeric with hyphens/underscores only"
+            )
+        return v
+
+    @field_validator('history')
+    @classmethod
+    def validate_history(cls, v: Optional[List[Message]]) -> Optional[List[Message]]:
+        """Validate history length to prevent DoS"""
+        if v is None:
+            return []
+        if len(v) > 100:
+            raise ValueError("History cannot exceed 100 messages (DoS prevention)")
+        return v
 
     class Config:
         json_schema_extra = {
@@ -479,7 +512,8 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
         from app.services.verification_service import get_verification_service
 
         verification_service = get_verification_service()
-        verification_result = verification_service.verify_response(
+        # PHASE 4.0 FIX: Await async verification method
+        verification_result = await verification_service.verify_response(
             response=answer,
             context=context_text,
             sources=retrieved_chunks

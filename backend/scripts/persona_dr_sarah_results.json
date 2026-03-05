@@ -1,0 +1,48 @@
+{
+  "persona": "Dr. Sarah - Experienced Aesthetic Practitioner",
+  "questions": [
+    {
+      "id": "Q1",
+      "query": "I currently use Plinest\u00ae for periocular rejuvenation. Can Newest\u00ae be used for the same area or is it better suited elsewhere?",
+      "expected": "Product comparison, treatment area guidance, clinical differentiation"
+    },
+    {
+      "id": "Q2",
+      "query": "What's the injection technique for Newest\u00ae on cheeks?",
+      "expected": "Specific technique details, needle gauge, depth, injection pattern"
+    },
+    {
+      "id": "Q3",
+      "query": "Any clinical papers supporting this?",
+      "expected": "Should understand 'this' refers to Newest\u00ae cheek treatment from Q2"
+    },
+    {
+      "id": "Q4",
+      "query": "Can you give me the full treatment protocol \u2014 sessions, intervals, volumes?",
+      "expected": "Complete protocol with numbers, schedule, dosing"
+    }
+  ],
+  "results": [
+    {
+      "question_id": "Q1",
+      "error": "generate_response() got an unexpected keyword argument 'query'",
+      "status": "failed"
+    },
+    {
+      "question_id": "Q2",
+      "error": "generate_response() got an unexpected keyword argument 'query'",
+      "status": "failed"
+    },
+    {
+      "question_id": "Q3",
+      "error": "generate_response() got an unexpected keyword argument 'query'",
+      "status": "failed"
+    },
+    {
+      "question_id": "Q4",
+      "error": "generate_response() got an unexpected keyword argument 'query'",
+      "status": "failed"
+    }
+  ],
+  "conversation_history": []
+}

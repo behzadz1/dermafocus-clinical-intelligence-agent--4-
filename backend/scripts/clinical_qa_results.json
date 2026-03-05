@@ -1,0 +1,274 @@
+[
+  {
+    "category": "A_PRODUCT_KNOWLEDGE",
+    "index": 1,
+    "query": "What is Plinest and what is it used for?",
+    "chunks_found": 5,
+    "evidence_sufficient": true,
+    "top_score": 0.989,
+    "strong_matches": 2,
+    "reason": "ok",
+    "top_docs": [
+      "polynucleotides_versus_platelet_rich_plasma_for__a (0.989)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.986)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.064)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "A_PRODUCT_KNOWLEDGE",
+    "index": 2,
+    "query": "What's the difference between Plinest and Newest?",
+    "chunks_found": 7,
+    "evidence_sufficient": true,
+    "top_score": 0.754,
+    "strong_matches": 7,
+    "reason": "ok",
+    "top_docs": [
+      "Newest\u00ae Factsheet (0.754)",
+      "Newest\u00ae Factsheet (0.754)",
+      "Newest\u00ae Factsheet (0.754)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "A_PRODUCT_KNOWLEDGE",
+    "index": 3,
+    "query": "What injection technique is recommended for Plinest Eye in the periocular area?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.988,
+    "strong_matches": 6,
+    "reason": "ok",
+    "top_docs": [
+      "an_innovative_pn_hpt_based_medical_device_for_the_ (0.988)",
+      "An Innovative PN HPT\u00ae based Medical Device for the (0.727)",
+      "An Innovative PN HPT\u00ae based Medical Device for the (0.727)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "A_PRODUCT_KNOWLEDGE",
+    "index": 4,
+    "query": "What is the recommended treatment protocol for Newest on the neck and d\u00e9colletage?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.99,
+    "strong_matches": 6,
+    "reason": "ok",
+    "top_docs": [
+      "Treating the Neck and Decolletage with Newest\u00ae (0.990)",
+      "Treating the Neck and Decolletage with Newest\u00ae (0.990)",
+      "Treating the Neck and Decolletage with Newest\u00ae (0.990)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "A_PRODUCT_KNOWLEDGE",
+    "index": 5,
+    "query": "Can Plinest be used for hair treatment? What does the protocol involve?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.95,
+    "strong_matches": 6,
+    "reason": "ok",
+    "top_docs": [
+      "polynucleotides_versus_platelet_rich_plasma_for__a (0.950)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.946)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.901)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "B_CLINICAL_DEPTH",
+    "index": 1,
+    "query": "What needle gauge and depth is recommended for Plinest decolletage injections?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.898,
+    "strong_matches": 1,
+    "reason": "ok",
+    "top_docs": [
+      "treating_the_neck_and_decolletage_with_newest (0.898)",
+      "consensus_report_on_the_use_of_pn_hpt_polynucleoti (0.478)",
+      "consensus_report_on_the_use_of_pn_hpt_polynucleoti (0.389)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "B_CLINICAL_DEPTH",
+    "index": 2,
+    "query": "How many sessions are typically needed for a full Newest perioral rejuvenation course?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.668,
+    "strong_matches": 1,
+    "reason": "ok",
+    "top_docs": [
+      "facial_middle_third_rejuvenation__discussion_of_th (0.668)",
+      "Facial middle third rejuvenation_ discussion of th (0.423)",
+      "Facial middle third rejuvenation_ discussion of th (0.423)"
+    ],
+    "assessment": "PARTIAL"
+  },
+  {
+    "category": "B_CLINICAL_DEPTH",
+    "index": 3,
+    "query": "What are the contraindications for polynucleotide treatments?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.336,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "pn_hptand_striae_albae_exploratory_interim_analysi (0.336)",
+      "HCP Brochure Plinest (0.018)",
+      "HCP Brochure Plinest (0.018)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "B_CLINICAL_DEPTH",
+    "index": 4,
+    "query": "What does the clinical evidence say about PN-HPT for skin quality improvement?",
+    "chunks_found": 6,
+    "evidence_sufficient": true,
+    "top_score": 0.928,
+    "strong_matches": 6,
+    "reason": "ok",
+    "top_docs": [
+      "pn_hptand_striae_albae_exploratory_interim_analysi (0.928)",
+      "An Innovative PN HPT\u00ae based Medical Device for the (0.834)",
+      "An Innovative PN HPT\u00ae based Medical Device for the (0.834)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "B_CLINICAL_DEPTH",
+    "index": 5,
+    "query": "Can you explain the dermal priming paradigm for PN-HPT?",
+    "chunks_found": 5,
+    "evidence_sufficient": true,
+    "top_score": 0.998,
+    "strong_matches": 5,
+    "reason": "ok",
+    "top_docs": [
+      "value_and_benefits_of_the_polynucleotides_hpt_derm (0.998)",
+      "value_and_benefits_of_the_polynucleotides_hpt_derm (0.998)",
+      "Value and Benefits of the Polynucleotides HPT\u00ae Der (0.997)"
+    ],
+    "assessment": "PASS"
+  },
+  {
+    "category": "C_EDGE_CASES",
+    "index": 1,
+    "query": "Should I get Plinest or Botox for my forehead lines?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.004,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.004)",
+      "value_and_benefits_of_the_polynucleotides_hpt_derm (0.000)",
+      "polynucleotides_versus_platelet_rich_plasma_for__a (0.000)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "C_EDGE_CASES",
+    "index": 2,
+    "query": "I have a rash on my arm, what treatment do you recommend?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.015,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "topical_use_of_purasomes_to_accelerate_burn_healin (0.015)",
+      "advancing_hand_rejuvenation_with_newest (0.000)",
+      "Plinest\u00ae Factsheet (0.000)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "C_EDGE_CASES",
+    "index": 3,
+    "query": "What's the price of Newest?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.009,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "Newest\u00ae Factsheet (0.009)",
+      "Newest\u00ae Factsheet (0.009)",
+      "Newest\u00ae Factsheet (0.009)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "C_EDGE_CASES",
+    "index": 4,
+    "query": "Can I inject Plinest myself at home?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.023,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.023)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.023)",
+      "Polynucleotides Versus Platelet-Rich Plasma for  A (0.023)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "C_EDGE_CASES",
+    "index": 5,
+    "query": "Tell me about treatments from Galderma",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.101,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "Plinest\u00ae Factsheet (0.101)",
+      "Plinest\u00ae Factsheet (0.101)",
+      "Plinest\u00ae Factsheet (0.101)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "D_COMPLEX",
+    "index": 1,
+    "query": "I have a 45-year-old patient with perioral wrinkles and poor skin quality on the neck. What treatment combination would you suggest from the Dermafocus range?",
+    "chunks_found": 5,
+    "evidence_sufficient": false,
+    "top_score": 0.134,
+    "strong_matches": 0,
+    "reason": "low_retrieval_confidence",
+    "top_docs": [
+      "Injection Technique and Protocols for the Perioral (0.134)",
+      "Injection Technique and Protocols for the Perioral (0.134)",
+      "Injection Technique and Protocols for the Perioral (0.134)"
+    ],
+    "assessment": "FAIL"
+  },
+  {
+    "category": "D_COMPLEX",
+    "index": 2,
+    "query": "Compare the clinical evidence base for Plinest vs Newest for hand rejuvenation",
+    "chunks_found": 7,
+    "evidence_sufficient": true,
+    "top_score": 0.821,
+    "strong_matches": 7,
+    "reason": "ok",
+    "top_docs": [
+      "A Regenerative Approach to Hand Rejuvenation with  (0.821)",
+      "A Regenerative Approach to Hand Rejuvenation with  (0.821)",
+      "A Regenerative Approach to Hand Rejuvenation with  (0.821)"
+    ],
+    "assessment": "PASS"
+  }
+]

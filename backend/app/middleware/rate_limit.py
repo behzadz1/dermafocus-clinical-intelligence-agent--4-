@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
+from collections import OrderedDict
 import time
 
 from fastapi import Request
@@ -25,8 +26,11 @@ class _WindowCounter:
     count: int
 
 
-# Fallback in-memory rate limits (used if Redis unavailable)
-_rate_limits: Dict[str, Dict[str, _WindowCounter]] = {}
+# PHASE 4.0 FIX: LRU cache for fallback rate limits to prevent memory leak
+# Max 10,000 API keys tracked (beyond that, oldest are evicted)
+_MAX_RATE_LIMIT_KEYS = 10000
+_rate_limits: OrderedDict[str, Dict[str, _WindowCounter]] = OrderedDict()
+_last_cleanup = time.time()
 
 # Redis client (lazy loaded)
 _redis_client = None
@@ -131,16 +135,74 @@ def _token_bucket_check_redis(redis_client, key: str, bucket: str, limit: int, w
 
 
 def _increment_counter(key: str, bucket: str, window_seconds: int) -> int:
-    """Fallback in-memory counter (used if Redis unavailable)"""
+    """
+    Fallback in-memory counter (used if Redis unavailable)
+
+    PHASE 4.0 FIX: LRU eviction to prevent memory leak
+    """
+    global _last_cleanup
+
     now = datetime.utcnow()
     window_id = _get_window_id(now, window_seconds)
-    key_bucket = _rate_limits.setdefault(key, {})
+
+    # Periodic cleanup of expired entries (every 5 minutes)
+    current_time = time.time()
+    if current_time - _last_cleanup > 300:  # 5 minutes
+        _cleanup_expired_entries(window_id)
+        _last_cleanup = current_time
+
+    # LRU: Move to end if exists, or add new
+    if key in _rate_limits:
+        # Move to end (most recently used)
+        _rate_limits.move_to_end(key)
+        key_bucket = _rate_limits[key]
+    else:
+        # Check if we need to evict oldest entry
+        if len(_rate_limits) >= _MAX_RATE_LIMIT_KEYS:
+            evicted_key = _rate_limits.popitem(last=False)[0]  # Remove oldest
+            logger.debug("rate_limit_lru_eviction", evicted_key_prefix=evicted_key[:8] + "...")
+        key_bucket = {}
+        _rate_limits[key] = key_bucket
+
+    # Update counter
     counter = key_bucket.get(bucket)
     if counter is None or counter.window_id != window_id:
         counter = _WindowCounter(window_id=window_id, count=0)
         key_bucket[bucket] = counter
     counter.count += 1
     return counter.count
+
+
+def _cleanup_expired_entries(current_window_id: int):
+    """Remove expired window counters to free memory"""
+    cleaned_count = 0
+    keys_to_remove = []
+
+    for key, buckets in _rate_limits.items():
+        # Remove expired buckets
+        expired_buckets = [
+            bucket_name for bucket_name, counter in buckets.items()
+            if counter.window_id < current_window_id - 2  # Keep current and previous window
+        ]
+        for bucket_name in expired_buckets:
+            del buckets[bucket_name]
+            cleaned_count += 1
+
+        # If no buckets left, mark key for removal
+        if not buckets:
+            keys_to_remove.append(key)
+
+    # Remove empty keys
+    for key in keys_to_remove:
+        del _rate_limits[key]
+
+    if cleaned_count > 0:
+        logger.debug(
+            "rate_limit_cleanup",
+            expired_counters=cleaned_count,
+            removed_keys=len(keys_to_remove),
+            active_keys=len(_rate_limits)
+        )
 
 
 async def rate_limit_middleware(request: Request, call_next):

@@ -48,17 +48,32 @@ async def lifespan(app: FastAPI):
         environment=settings.environment,
         debug=settings.debug
     )
-    
+
+    # PHASE 4.0 FIX: Validate secret key in production
+    if settings.is_production and "change-this" in settings.secret_key.lower():
+        logger.error("CRITICAL: Default secret key detected in production environment!")
+        raise RuntimeError(
+            "Production deployment blocked: SECRET_KEY must be changed from default value. "
+            "Set a strong random secret key in your .env file."
+        )
+
+    # Warn if secret key looks weak (even in dev)
+    if len(settings.secret_key) < 32 and settings.environment != "test":
+        logger.warning(
+            "secret_key_weak",
+            message="Secret key should be at least 32 characters for security"
+        )
+
     # TODO: Initialize services
     # - Connect to Pinecone
     # - Initialize embedding service
     # - Warm up models if needed
-    
+
     yield
-    
+
     # Shutdown
     logger.info("application_shutdown")
-    
+
     # TODO: Cleanup resources
     # - Close database connections
     # - Disconnect from Pinecone

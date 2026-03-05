@@ -76,7 +76,9 @@
     "dermis": ["dermal", "dermal layer", "skin layer"],
     "epidermis": ["epidermal", "outer skin layer"],
     "biorevitalization": ["bio-revitalization", "mesotherapy", "skin rejuvenation"],
-    "mesotherapy": ["biorevitalization", "bio-revitalization", "intradermal therapy"]
+    "mesotherapy": ["biorevitalization", "bio-revitalization", "intradermal therapy"],
+    "gynecology": ["gynaecology", "intimate health", "vaginal health", "genitourinary", "vulvovaginal"],
+    "intimate health": ["gynecology", "vaginal health", "genitourinary", "GSM", "vulvovaginal health"]
   },
   "protocol_terms": {
     "sessions": ["treatments", "visits", "appointments", "session", "procedures"],
@@ -93,7 +95,7 @@
     "plinest": ["plinest eye", "plinest hair", "plinest fast", "plinest care"],
     "purasomes": ["purasomes xcell", "purasomes skin glow", "purasomes hair", "purasomes nutri"],
     "newest": ["newest"],
-    "newgyn": ["newgyn"]
+    "newgyn": ["newgyn", "intimate health", "gynecology", "gynaecology", "genitourinary", "vaginal rejuvenation"]
   },
   "clinical_terms": {
     "side effects": ["adverse effects", "complications", "reactions", "post-treatment effects"],
@@ -136,7 +138,9 @@
     "hair restoration": ["hair regeneration", "alopecia treatment", "hair growth stimulation"],
     "skin laxity": ["sagging skin", "loose skin", "skin tightening"],
     "photoaging": ["sun damage", "photodamage", "UV damage"],
-    "pigmentation": ["hyperpigmentation", "dark spots", "melanin irregularities"]
+    "pigmentation": ["hyperpigmentation", "dark spots", "melanin irregularities"],
+    "intimate health": ["vaginal rejuvenation", "GSM", "genitourinary syndrome", "vaginal atrophy", "vulvovaginal health"],
+    "gynecology": ["intimate health", "vaginal rejuvenation", "genitourinary health"]
   },
   "medical_procedures": {
     "serial puncture": ["serial puncture technique", "multiple puncture", "point-by-point injection"],

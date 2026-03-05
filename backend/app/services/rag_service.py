@@ -789,14 +789,18 @@ class RAGService:
                 })
 
             context_text = "\n".join(context_parts)
-            evidence = self._assess_evidence(chunks)
+
+            # Get evidence threshold from routing config (default 0.50 for clinical queries)
+            evidence_threshold = routing_config.get("evidence_threshold", 0.50)
+            evidence = self._assess_evidence(chunks, evidence_threshold=evidence_threshold)
 
             logger.info(
                 "Hierarchical context prepared",
                 chunks_used=len(chunks),
                 total_chars=len(context_text),
                 hierarchy_stats=hierarchy_stats,
-                evidence_sufficient=evidence["sufficient"]
+                evidence_sufficient=evidence["sufficient"],
+                evidence_threshold=evidence_threshold
             )
 
             result = {
@@ -833,30 +837,42 @@ class RAGService:
                 return page
         return 1
 
-    def _assess_evidence(self, chunks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _assess_evidence(
+        self,
+        chunks: List[Dict[str, Any]],
+        evidence_threshold: float = 0.50
+    ) -> Dict[str, Any]:
         """
         Determine if retrieved evidence is strong enough for grounded answering.
+
+        Args:
+            chunks: Retrieved chunks with scores
+            evidence_threshold: Minimum score for sufficient evidence (query-type specific)
+                               Default: 0.50 (clinical queries)
+                               Portfolio/existence queries: 0.35
         """
         if not chunks:
             return {
                 "sufficient": False,
                 "reason": "no_chunks",
                 "top_score": 0.0,
-                "strong_matches": 0
+                "strong_matches": 0,
+                "threshold_used": evidence_threshold
             }
 
         scores = [float(chunk.get("adjusted_score", chunk.get("score", 0.0))) for chunk in chunks]
         top_score = max(scores) if scores else 0.0
-        strong_matches = sum(1 for score in scores if score >= 0.50)  # PHASE 4.0: Raised from 0.35 to 0.50
+        strong_matches = sum(1 for score in scores if score >= evidence_threshold)
 
-        sufficient = top_score >= 0.50 and strong_matches >= 1  # PHASE 4.0: Raised from 0.35 to 0.50
+        sufficient = top_score >= evidence_threshold and strong_matches >= 1
         reason = "ok" if sufficient else "low_retrieval_confidence"
 
         return {
             "sufficient": sufficient,
             "reason": reason,
             "top_score": round(top_score, 3),
-            "strong_matches": strong_matches
+            "strong_matches": strong_matches,
+            "threshold_used": evidence_threshold
         }
     
     def rerank_results(

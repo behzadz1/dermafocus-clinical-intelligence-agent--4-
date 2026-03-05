@@ -44,7 +44,7 @@ class ResponseVerificationService:
         self.grounding_threshold = grounding_threshold
         self.claude_service = get_claude_service()
 
-    def verify_response(
+    async def verify_response(
         self,
         response: str,
         context: str,
@@ -65,7 +65,7 @@ class ResponseVerificationService:
             logger.info("verification_started", response_length=len(response))
 
             # Extract claims from response
-            claims = self._extract_claims(response)
+            claims = await self._extract_claims(response)
 
             if not claims:
                 # No claims to verify (e.g., "I don't have enough information")
@@ -83,7 +83,7 @@ class ResponseVerificationService:
             unsupported = []
 
             for claim in claims:
-                is_grounded = self._find_supporting_evidence(claim, context)
+                is_grounded = await self._find_supporting_evidence(claim, context)
 
                 if is_grounded:
                     grounded_count += 1
@@ -121,7 +121,7 @@ class ResponseVerificationService:
                 verification_method="error_fallback"
             )
 
-    def _extract_claims(self, response: str) -> List[str]:
+    async def _extract_claims(self, response: str) -> List[str]:
         """
         Extract factual claims from response
 
@@ -146,12 +146,13 @@ Return a JSON list of claims like: ["claim 1", "claim 2", "claim 3"]
 JSON:"""
 
         try:
-            # Use Claude for extraction
-            extraction_response = self.claude_service.generate(
-                prompt=extraction_prompt,
-                max_tokens=500,
-                temperature=0.0
+            # PHASE 4.0 FIX: Use correct async method
+            result = await self.claude_service.generate_response(
+                user_message=extraction_prompt,
+                context="",
+                system_prompt="You are a claim extraction assistant. Extract factual claims from text and return them as a JSON array. Return ONLY the JSON array, no explanation."
             )
+            extraction_response = result.get("answer", "")
 
             # Parse JSON response
             import json
@@ -199,7 +200,7 @@ JSON:"""
         # Limit to first 10 claims (avoid excessive verification)
         return claims[:10]
 
-    def _find_supporting_evidence(self, claim: str, context: str) -> bool:
+    async def _find_supporting_evidence(self, claim: str, context: str) -> bool:
         """
         Check if a claim is supported by the retrieved context
 
@@ -218,7 +219,7 @@ JSON:"""
             return True
 
         # Method 2: LLM-based verification (slower, accurate)
-        return self._llm_verify_claim(claim, context)
+        return await self._llm_verify_claim(claim, context)
 
     def _lexical_overlap(self, claim: str, context: str) -> float:
         """
@@ -242,7 +243,7 @@ JSON:"""
         overlap = len(claim_tokens & context_tokens)
         return overlap / len(claim_tokens)
 
-    def _llm_verify_claim(self, claim: str, context: str) -> bool:
+    async def _llm_verify_claim(self, claim: str, context: str) -> bool:
         """
         Use LLM to verify if claim is supported by context
 
@@ -266,11 +267,13 @@ Is this claim supported by the context above? Answer ONLY "YES" or "NO".
 Answer:"""
 
         try:
-            verification_response = self.claude_service.generate(
-                prompt=verification_prompt,
-                max_tokens=10,
-                temperature=0.0
+            # PHASE 4.0 FIX: Use correct async method
+            result = await self.claude_service.generate_response(
+                user_message=verification_prompt,
+                context="",
+                system_prompt="You are a verification assistant. Answer YES if the claim is supported by the context, NO if not. Answer with only YES or NO."
             )
+            verification_response = result.get("answer", "")
 
             answer = verification_response.strip().upper()
 

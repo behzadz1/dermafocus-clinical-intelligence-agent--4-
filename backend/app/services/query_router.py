@@ -21,6 +21,7 @@ class QueryType(Enum):
     INDICATION = "indication"            # "What is Newest used for?"
     COMPOSITION = "composition"          # "What does Newest contain?"
     CLINICAL_EVIDENCE = "clinical_evidence"  # "What studies support Newest?"
+    PRODUCT_PORTFOLIO = "product_portfolio"  # "Do you have anything for...?" "What products...?"
     GENERAL = "general"                  # Fallback for unclassified
 
 
@@ -93,6 +94,16 @@ class QueryRouter:
             r'\bresult[s]?\b',
             r'\boutcome[s]?\b',
         ],
+        QueryType.PRODUCT_PORTFOLIO: [
+            # "Do you have...?" "What products...?" queries
+            r'\b(?:does|do)\s+(?:dermafocus|you)\s+have\b',
+            r'\banything for\b',
+            r'\bwhat products?\b',
+            r'\bproduct line\b',
+            r'\bproduct portfolio\b',
+            r'\bproduct range\b',
+            r'\bwhat.*(?:options|treatments|products).*for\b',
+        ],
         QueryType.COMPOSITION: [
             r'\bcomposition\b',
             r'\bingredient[s]?\b',
@@ -132,10 +143,10 @@ class QueryRouter:
         },
         QueryType.SAFETY: {
             "boost_doc_types": ["factsheet", "clinical_paper"],
-            "boost_multiplier": 0.20,  # Strong boost for safety queries
+            "boost_multiplier": 0.30,  # P0 FIX: Increased from 0.20 for better safety retrieval
             "prefer_sections": ["contraindication", "safety", "precaution", "adverse", "warning"],
             "prefer_chunk_types": [],
-            "top_k_multiplier": 1.0
+            "top_k_multiplier": 1.2  # P0 FIX: Retrieve 20% more safety-related chunks
         },
         QueryType.TECHNIQUE: {
             "boost_doc_types": ["protocol"],
@@ -171,6 +182,14 @@ class QueryRouter:
             "prefer_sections": ["result", "outcome", "study", "efficacy"],
             "prefer_chunk_types": [],
             "top_k_multiplier": 1.2
+        },
+        QueryType.PRODUCT_PORTFOLIO: {
+            "boost_doc_types": ["factsheet", "brochure"],
+            "boost_multiplier": 0.25,
+            "prefer_sections": ["overview", "introduction", "indication", "summary"],
+            "prefer_chunk_types": [],
+            "top_k_multiplier": 1.3,  # Retrieve more to cover full portfolio
+            "evidence_threshold": 0.35  # Lower threshold for existence queries
         },
         QueryType.PRODUCT_INFO: {
             "boost_doc_types": ["factsheet"],
@@ -228,22 +247,27 @@ class QueryRouter:
             logger.debug("query_classified", type="clinical_evidence")
             return QueryType.CLINICAL_EVIDENCE
 
-        # 6. Composition queries
+        # 6. Product portfolio queries (check before PRODUCT_INFO - more specific)
+        if self._matches_patterns(query_lower, self.PATTERNS[QueryType.PRODUCT_PORTFOLIO]):
+            logger.debug("query_classified", type="product_portfolio")
+            return QueryType.PRODUCT_PORTFOLIO
+
+        # 7. Composition queries
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.COMPOSITION]):
             logger.debug("query_classified", type="composition")
             return QueryType.COMPOSITION
 
-        # 7. Indication queries (after SAFETY to avoid conflicts)
+        # 8. Indication queries (after SAFETY to avoid conflicts)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.INDICATION]):
             logger.debug("query_classified", type="indication")
             return QueryType.INDICATION
 
-        # 8. Product info queries (broad, near the end)
+        # 9. Product info queries (broad, near the end)
         if self._matches_patterns(query_lower, self.PATTERNS[QueryType.PRODUCT_INFO]):
             logger.debug("query_classified", type="product_info")
             return QueryType.PRODUCT_INFO
 
-        # 9. Default: general (fallback)
+        # 10. Default: general (fallback)
         logger.debug("query_classified", type="general")
         return QueryType.GENERAL
 

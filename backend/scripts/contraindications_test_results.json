@@ -1,0 +1,49 @@
+{
+  "query": "What are the contraindications for polynucleotide treatments?",
+  "previous_score": 0.336,
+  "current_score": 0.729,
+  "improvement": 0.39299999999999996,
+  "improvement_pct": 116.9642857142857,
+  "evidence_sufficient": true,
+  "strong_matches": 12,
+  "chunks_found": 12,
+  "safety_doc_found": false,
+  "status": "SUCCESS",
+  "top_chunks": [
+    {
+      "doc_id": "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT\u00ae) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study",
+      "doc_type": "clinical_paper",
+      "score": 0.7285714285714285,
+      "product": "",
+      "section": "K E Y W O R D S"
+    },
+    {
+      "doc_id": "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT\u00ae) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study",
+      "doc_type": "clinical_paper",
+      "score": 0.7285714285714285,
+      "product": "",
+      "section": "K E Y W O R D S"
+    },
+    {
+      "doc_id": "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT\u00ae) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study",
+      "doc_type": "clinical_paper",
+      "score": 0.7285714285714285,
+      "product": "",
+      "section": "K E Y W O R D S"
+    },
+    {
+      "doc_id": "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT\u00ae) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study",
+      "doc_type": "clinical_paper",
+      "score": 0.7285714285714285,
+      "product": "",
+      "section": "K E Y W O R D S"
+    },
+    {
+      "doc_id": "Clinical efficacy and safety of polynucleotides highly purified technology (PN-HPT\u00ae) and cross-linked hyaluronic acid for moderate to severe nasolabial folds_ A prospective, randomized, exploratory study",
+      "doc_type": "clinical_paper",
+      "score": 0.7285714285714285,
+      "product": "",
+      "section": "K E Y W O R D S"
+    }
+  ]
+}
