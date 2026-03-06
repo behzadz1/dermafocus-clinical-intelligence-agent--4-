@@ -366,11 +366,28 @@ async def chat(request: ChatRequest, raw_request: Request, api_key: str = Depend
 
         # Step 2: Retrieve relevant context from RAG
         doc_type_filter = rag_service.infer_doc_type_for_intent(detected_intent)
-        logger.info("Retrieving context from RAG", doc_type=doc_type_filter)
+
+        # Detect if query is about a major topic that needs comprehensive coverage
+        # For topic-heavy queries (polynucleotides, specific products), retrieve more documents
+        query_lower = request.question.lower()
+        topic_keywords = [
+            'polynucleotide', 'pn-hpt', 'pn hpt', 'plinest', 'purasomes',
+            'profhilo', 'newest', 'newgyn'
+        ]
+        is_topic_query = any(keyword in query_lower for keyword in topic_keywords)
+
+        # Increase max_chunks for topic queries to ensure comprehensive coverage
+        max_chunks_to_retrieve = 15 if is_topic_query else 5
+
+        logger.info("Retrieving context from RAG",
+                   doc_type=doc_type_filter,
+                   is_topic_query=is_topic_query,
+                   max_chunks=max_chunks_to_retrieve)
+
         context_data = await run_in_threadpool(
             rag_service.get_context_for_query,
             query=request.question,
-            max_chunks=5,  # Enough for good context without overwhelming
+            max_chunks=max_chunks_to_retrieve,  # 15 for topics, 5 for general
             doc_type=doc_type_filter
         )
 
@@ -806,11 +823,20 @@ async def chat_stream(request: ChatRequest, raw_request: Request, api_key: str =
                 yield f"data: {json.dumps(data)}\n\n"
                 return
 
+            # Detect topic-heavy queries for comprehensive coverage
+            query_lower = request.question.lower()
+            topic_keywords = [
+                'polynucleotide', 'pn-hpt', 'pn hpt', 'plinest', 'purasomes',
+                'profhilo', 'newest', 'newgyn'
+            ]
+            is_topic_query = any(keyword in query_lower for keyword in topic_keywords)
+            max_chunks_to_retrieve = 15 if is_topic_query else 5
+
             # Retrieve context
             context_data = await run_in_threadpool(
                 rag_service.get_context_for_query,
                 query=request.question,
-                max_chunks=5,  # Balanced for good context
+                max_chunks=max_chunks_to_retrieve,  # 15 for topics, 5 for general
                 doc_type=doc_type_filter
             )
             
